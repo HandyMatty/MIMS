@@ -1,0 +1,119 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        "schemes-surface": "#fef7ff",
+        "schemes-outline-variant": "#cac4d0",
+        mediumseagreen: {
+          100: "#30ca80",
+          200: "#0c9b4b",
+        },
+        palegoldenrod: "#d4e09b",
+        honeydew: "#eaf4e2",
+        paleturquoise: "#a8e1c5",
+        darkslategray: {
+          100: "#072c1c",
+          200: "rgba(7, 44, 28, 0.75)",
+        },
+        salmon: "#ff6f77",
+        seagreen: "#008746",
+        "m3-white": "#fff",
+        "schemes-outline": "#79747e",
+        "schemes-surface-container": "#f3edf7",
+        "schemes-on-surface": "#1d1b20",
+        "input-base": "#f6f6f6",
+        gainsboro: "#e5e5e5",
+        blueviolet: "#5932ea",
+        skyblue: "#5bc0de",
+        t: "#313131",
+        "border-default-default": "#d9d9d9",
+        "text-default-default": "#1e1e1e",
+      },
+      spacing: {
+        "space-200": "8px",
+        "space-400": "16px",
+      },
+      fontFamily: {
+        "single-line-body-base": "Inter",
+        "m3-body-large": "Roboto",
+        poppins: "Poppins",
+        "lexend-deca": "'Lexend Deca'",
+        montserrat: "Montserrat",
+      },
+      borderRadius: {
+        lg: "18px",
+        "3xs": "10px",
+        "81xl": "100px",
+        "9xl": "28px",
+        "15xl": "34px",
+        "8xs-2": "4.2px",
+        "11xl": "30px",
+        "6xl-6": "25.6px",
+        xl: "20px",
+        "90xl-1": "109.1px",
+        "27xl-1": "46.1px",
+        "8xs": "5px",
+        "9980xl": "9999px",
+        "corner-extra-large": "28px",
+        "radius-full": "9999px",
+      },
+    },
+    fontSize: {
+      mid: "17px",
+      xl: "20px",
+      base: "16px",
+      "5xl": "24px",
+      lgi: "19px",
+      sm: "14px",
+      "5xl-6": "24.6px",
+      "13xl": "32px",
+      "7xl": "26px",
+      "17xl": "36px",
+      "10xl": "29px",
+      "3xl": "22px",
+      mini: "15px",
+      xs: "12px",
+      "45xl": "64px",
+      "19xl": "38px",
+      "32xl": "51px",
+      inherit: "inherit",
+    },
+    screens: {
+      mq1525: {
+        raw: "screen and (max-width: 1525px)",
+      },
+      mq1450: {
+        raw: "screen and (max-width: 1450px)",
+      },
+      mq1225: {
+        raw: "screen and (max-width: 1225px)",
+      },
+      lg: {
+        max: "1200px",
+      },
+      mq1050: {
+        raw: "screen and (max-width: 1050px)",
+      },
+      mq850: {
+        raw: "screen and (max-width: 850px)",
+      },
+      mq825: {
+        raw: "screen and (max-width: 825px)",
+      },
+      mq750: {
+        raw: "screen and (max-width: 750px)",
+      },
+      mq675: {
+        raw: "screen and (max-width: 675px)",
+      },
+      mq450: {
+        raw: "screen and (max-width: 450px)",
+      },
+    },
+  },
+  corePlugins: {
+    preflight: false,
+  },
+};
