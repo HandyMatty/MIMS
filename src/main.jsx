@@ -6,6 +6,7 @@ import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConfigProvider } from "antd";
+import { ActivityProvider } from "./utils/ActivityContext.jsx";  // Import the ActivityProvider
 
 const queryClient = new QueryClient();
 
@@ -15,18 +16,21 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <ConfigProvider
         theme={{
           token: {
-            colorPrimary: "#008746",  
-            colorWarning: "#E2B93B",  
-            colorSuccess: "#30ca80",  
-            colorSecondary: "#636363", 
-            colorError: "#ff6f77",    
-            colorInfo: "#5bc0de",     
-            fontFamily: "Poppins, sans-serif", 
-            colorBgBase: "#fff",      
+            colorPrimary: "#008746",
+            colorWarning: "#E2B93B",
+            colorSuccess: "#30ca80",
+            colorSecondary: "#636363",
+            colorError: "#ff6f77",
+            colorInfo: "#5bc0de",
+            fontFamily: "Poppins, sans-serif",
+            colorBgBase: "#fff",
           },
         }}
       >
-        <App />
+        {/* Wrap the App component with ActivityProvider */}
+        <ActivityProvider>
+          <App />
+        </ActivityProvider>
       </ConfigProvider>
     </QueryClientProvider>
   </React.StrictMode>

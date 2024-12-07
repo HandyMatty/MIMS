@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
-import { ForgotPassword, TemporaryPassword, Login } from '../../pages/index';
+import { ForgotPassword, Login } from '../../pages/index';
 import { useAdminAuthStore } from '../../store/admin/useAuth';
 import { useUserAuthStore } from '../../store/user/useAuth';
 
@@ -32,18 +32,7 @@ const PublicRoutes = () => {
             <ForgotPassword />
           )
         }
-      />
-      <Route
-        path="/temporarypassword"
-        element={
-          isAdminAuthenticated || isUserAuthenticated ? (
-            <Navigate to={isAdminAuthenticated ? "/admin/dashboard" : "/user/dashboard"} replace />
-          ) : (
-            <TemporaryPassword />
-          )
-        }
-      />
-      
+      />    
       {/* Redirect all other routes to /login */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

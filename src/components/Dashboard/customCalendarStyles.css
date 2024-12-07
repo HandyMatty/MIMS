@@ -1,0 +1,31 @@
+/* customAntStyles.css */
+.bg-transparent .ant-picker-body {
+    background-color: #a7f3d0!important;
+    height: 300px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.bg-transparent .ant-select-selector {
+    background-color: #a7f3d0!important;
+    border: 1px solid black !important; /* Ensuring black border */
+}
+
+.bg-transparent .ant-select-arrow {
+    color: #000000 !important; /* Black arrow color */
+}
+
+.bg-transparent .ant-radio-button-wrapper {
+    background-color: #a7f3d0!important; /* Background color for radio buttons */
+    color: #000000 !important; /* Text color for radio buttons */
+    border-color: #000000;
+}
+
+.bg-transparent .ant-radio-button-wrapper-checked {
+    background-color: #008746 !important; /* Different color when checked */
+    color: #ffffff !important; /* Text color when checked */
+    border-color: #000000 !important; /* Ensuring border stays black */
+}
+.bg-transparent .ant-picker-panel {
+    border-color:#000000 !important; 
+}

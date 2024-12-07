@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Spin } from 'antd';
+import { Layout, Menu, Spin, Modal } from 'antd';
 import {
   DashboardOutlined,
   AppstoreOutlined,
@@ -11,9 +11,12 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { HeaderBar } from '../components';
+import { HeaderBar } from '../components/index';
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
+import { logoutUser } from '../services/api/logout';
+import { useActivity } from '../utils/ActivityContext';
+
 
 const { Sider } = Layout;
 
@@ -23,11 +26,14 @@ const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(initialCollapsedState);
   const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState('/dashboard');
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const adminAuth = useAdminAuthStore();
   const userAuth = useUserAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const { logUserActivity } = useActivity();
+
 
   const isAdmin = adminAuth.token && adminAuth.userData;
   const isUser = userAuth.token && userAuth.userData;
@@ -49,25 +55,69 @@ const MainLayout = () => {
 
   const items = isAdmin ? adminItems : isUser ? userItems : [];
 
-  const handleLogout = () => {
-    if (isAdmin) {
-      adminAuth.reset();
-    } else if (isUser) {
-      userAuth.reset();
+  const handleLogout = async () => {
+    try {
+      const { success, message } = await logoutUser();
+  
+      if (success) {
+        // Retrieve the username from the auth store
+        const username = isAdmin ? adminAuth.userData.username : userAuth.userData.username;
+
+        logUserActivity(username, 'Logout', `This user just logged-out`);
+  
+        // Broadcast logout event to all tabs
+        const tokenToLogout = isAdmin ? adminAuth.token : userAuth.token;
+        const timestamp = Date.now();
+        localStorage.setItem("logout", JSON.stringify({ token: tokenToLogout, timestamp }));
+  
+        // Reset authentication state for the correct role
+        if (isAdmin) {
+          adminAuth.reset();
+        } else if (isUser) {
+          userAuth.reset();
+        }
+  
+        // Clear session storage and localStorage for the logged-in user/admin
+        if (isAdmin) {
+          sessionStorage.removeItem("adminAuth");
+          localStorage.removeItem("adminAuth");
+        } else if (isUser) {
+          sessionStorage.removeItem("userAuth");
+          localStorage.removeItem("userAuth");
+        }
+  
+        // Remove unique cookie using username
+        if (username) {
+          Cookies.remove(`authToken_${username}`);
+        }
+  
+        navigate("/login", { replace: true });
+      } else {
+        console.error(message);
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
     }
-    sessionStorage.clear();
-    localStorage.clear();
-    Cookies.remove('authToken');
-    navigate('/login', { replace: true });
   };
+  
+  
 
   const onClick = (e) => {
     if (e.key === 'logout') {
-      handleLogout();
+      setIsModalVisible(true);
     } else {
       navigate(e.key, { replace: true });
       setCurrent(e.key);
     }
+  };
+
+  const handleModalOk = () => {
+    setIsModalVisible(false);
+    handleLogout(); // Call logout if confirmed
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
   };
 
   useEffect(() => {
@@ -85,6 +135,37 @@ const MainLayout = () => {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(collapsed));
   }, [collapsed]);
 
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === "logout") {
+        const logoutData = JSON.parse(event.newValue);
+        if (logoutData && logoutData.token) {
+          // Only reset auth if the logged-out token matches the current session's token
+          if (isAdmin && adminAuth.token === logoutData.token) {
+            adminAuth.reset();
+            sessionStorage.clear();
+            localStorage.clear();
+            Cookies.remove("authToken");
+            navigate("/login", { replace: true });
+          }
+          if (isUser && userAuth.token === logoutData.token) {
+            userAuth.reset();
+            sessionStorage.clear();
+            localStorage.clear();
+            Cookies.remove("authToken");
+            navigate("/login", { replace: true });
+          }
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [adminAuth, userAuth, isAdmin, isUser, navigate]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-honeydew">
@@ -101,7 +182,6 @@ const MainLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-      {/* Sidebar with sticky position */}
       <Sider
         collapsible
         collapsed={collapsed}
@@ -112,7 +192,6 @@ const MainLayout = () => {
           top: 0,
           zIndex: 1000,
           height: '100vh',
-          overflowY: 'hide', 
         }}
         trigger={null}
       >
@@ -171,14 +250,25 @@ const MainLayout = () => {
         <Layout.Content
           style={{
             padding: '10px',
-            overflowY: 'auto', // Allow scrolling within the content area
+            overflowY: 'auto',
             height: 'calc(100vh - 64px)',
             backgroundColor: '#EAF4E2',
           }}
         >
-          <Outlet /> {/* Main content rendered here */}
+          <Outlet />
         </Layout.Content>
       </Layout>
+
+      <Modal
+        title="Confirm Logout"
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+        okText="Yes, Logout"
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to log out?</p>
+      </Modal>
     </Layout>
   );
 };

@@ -5,10 +5,12 @@ export const useUserAuthStore = create(
   persist(
     (set) => ({
       userData: null,
+      role: null,
       token: null,
-      setUserData: (userData) => set({ userData }), // Corrected
+      setUserData: (userData) => set({ userData }),
+      setRole: (role) => set({ role }),  // Set the role
       setToken: (token) => set({ token }),
-      reset: () => set({ userData: null, token: null }),
+      reset: () => set({ userData: null, role: null, token: null }),  // Reset the role as well
     }),
     {
       name: "userAuth",

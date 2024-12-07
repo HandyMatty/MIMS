@@ -35,15 +35,28 @@ export const addEvent = async (eventData) => {
   }
 };
 
-
-
-
 // Delete an event
 export const deleteEvent = async (eventId) => {
+  // Get token from sessionStorage
+  const userToken = JSON.parse(sessionStorage.getItem('userAuth'))?.state?.token;
+  const adminToken = JSON.parse(sessionStorage.getItem('adminAuth'))?.state?.token;
+
+  // Use whichever token is present (admin takes precedence if both exist)
+  const token = adminToken || userToken;
+
+  if (!token) {
+    throw new Error('User is not authenticated');
+  }
+
   try {
-    const response = await axiosAuth.post('/deleteEvent.php', { id: eventId }); // Event ID is sent to deleteEvent.php
+    const response = await axiosAuth.post('/deleteEvent.php', { id: eventId }, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the request headers
+      },
+    });
     return response.data;
   } catch (error) {
     throw new Error('Failed to delete event: ' + error.message);
   }
 };
+
