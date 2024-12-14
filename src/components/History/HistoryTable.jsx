@@ -52,65 +52,92 @@ const HistoryTable = () => {
     return <Tag color={color}>{status}</Tag>;
   };
 
+  const getConditionTag = (condition) => {
+    let color;
+    switch (condition) {
+      case 'Good':
+        color = 'green';
+        break;
+      case 'Defective':
+        color = 'red';
+        break;
+  }
+    return <Tag color={color}>{condition}</Tag>;
+  };
+
+
   const columns = [
    {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
+      align:'center',
+      ellipsis: 'true',
     },
     {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
+      align:'center',
       sorter: (a, b) => a.action.localeCompare(b.action),
     },
     {
       title: 'Action Date',
       dataIndex: 'action_date',
       key: 'action_date',
+      align:'center',
       sorter: (a, b) => new Date(a.action_date) - new Date(b.action_date),
     },
     {
       title: 'Item ID',
       dataIndex: 'item_id',
       key: 'item_id',
+      align:'center',
       sorter: (a, b) => a.item_id - b.item_id,  // Assuming `item_id` is numeric
     },
     {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
+      align:'center',
     },
     {
       title: 'Brand',
       dataIndex: 'brand',
       key: 'brand',
+      align:'center',
     },
     {
       title: 'Serial No.',
       dataIndex: 'serial_number',
       key: 'serial_number',
+      align:'center',
     },
     {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
+      align:'center',
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
     },
     {
       title: 'Condition',
       dataIndex: 'condition',
       key: 'condition',
+      align:'center',
+      render: (condition) => getConditionTag(condition),
     },
     {
       title: 'Location',
       dataIndex: 'location',
       key: 'location',
+      align:'center',
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      align:'center',
       render: (status) => getStatusTag(status),
     },
    
@@ -127,7 +154,7 @@ const HistoryTable = () => {
       style={{ minHeight: '700px' }}
     >
       <div className="flex justify-between items-center mb-4">
-        <Typography.Text className="text-green-950 text-13xl font-semibold font-['Poppins']">
+        <Typography.Text className="text-5xl-6 font-semibold">
           TRANSACTION
         </Typography.Text>
       </div>
@@ -147,7 +174,7 @@ const HistoryTable = () => {
           pagination={false}
         />
       </div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-5">
         <Typography.Text style={{ color: '#072C1C', fontSize: 14 }}>
           Showing data of{' '}
           {totalEntries > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}

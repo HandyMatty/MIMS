@@ -6,6 +6,7 @@ import { resetPasswordApi } from '../../services/api/resetpassword';
 import { generateTempPassword } from '../../utils/password';
 import ModalForms from '../ModalForms';
 import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';
 
 
 const { Text } = Typography;
@@ -25,6 +26,7 @@ const UsersList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
 
 
   // Populate security questions on mount
@@ -88,6 +90,7 @@ const UsersList = () => {
             setFilteredData(updatedUsers);
             setSelectedRowKeys([]); // Clear selection
             logUserActivity('Admin', 'User Management', `Deleted ${selectedRowKeys.length} user(s)`);
+            logUserNotification ('User Management', `You have deleted ${selectedRowKeys.length} user(s)`);
           } else {
             message.error(response.message || 'Failed to delete users');
           }
@@ -111,6 +114,7 @@ const UsersList = () => {
       setUsers(data.users);
       setFilteredData(data.users);
       logUserActivity('Admin', 'User Management', `Added a new user with username: "${values.username}"`);
+      logUserNotification ('User Management', `You have added a new user with username: "${values.username}"`);
     } catch (error) {
       console.error('Error adding user:', error);
       message.error('Failed to add user');
@@ -131,6 +135,7 @@ const UsersList = () => {
           setTemporaryPassword(tempPassword);
           setIsPasswordModalVisible(true);
           logUserActivity('Admin', 'User Management', `Reset the password for user with ID: "${userId}"`);
+          logUserNotification ('User Management', `You have reset the password for user with ID: "${userId}"`);
         } catch (error) {
           console.error('Error resetting password:', error);
           message.error('Failed to reset password');
@@ -168,6 +173,7 @@ const UsersList = () => {
         message.success('Security question updated successfully.');
         setIsSecurityQuestionModalVisible(false);
         logUserActivity('Admin', 'User Management',  `Updated the security question for user with ID: "${currentUserId}"`);
+        logUserNotification ('User Management', `You have updated the security question for user with ID: "${currentUserId}"`);
       } else {
         message.error(response.message || 'Failed to update security question.');
       }
@@ -180,7 +186,8 @@ const UsersList = () => {
   
 
   const columns = [
-    { title: 'Username', dataIndex: 'username', key: 'username', sorter: (a, b) => a.username.localeCompare(b.username) },
+    { title: 'Username', dataIndex: 'username', key: 'username', ellipsis: 'true',
+      sorter: (a, b) => a.username.localeCompare(b.username) },
     { title: 'Department', dataIndex: 'department', key: 'department', sorter: (a, b) => a.department.localeCompare(b.department) },
     {
       title: 'Status',
@@ -212,7 +219,7 @@ const UsersList = () => {
   return (
     <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-xl shadow p-4 border-none">
        <div className='mb-5'>
-      <Text className="text-green-950 text-xl font-semibold mb-4">All Users</Text>
+      <Text className="text-5xl-6 font-semibold">ALL USERS</Text>
       </div>
       <div className="flex justify-start items-center mb-4 space-x-2">
         <Input

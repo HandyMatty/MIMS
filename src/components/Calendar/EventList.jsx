@@ -3,9 +3,11 @@ import { Badge, Button, Tooltip, Avatar, message } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { deleteEvent } from '../../services/api/eventService'; // Import the deleteEvent API function
 import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';
 
 const EventList = ({ currentDate, info, events, showModal, isAdmin, currentUser, setEvents }) => {
-  const { logUserActivity } = useActivity(); // Import and destructure logUserActivity
+  const { logUserActivity } = useActivity(); 
+  const { logUserNotification } = useNotification();
 
   if (info.type === 'date') {
     const dateKey = currentDate.format('YYYY-MM-DD');
@@ -32,6 +34,8 @@ const EventList = ({ currentDate, info, events, showModal, isAdmin, currentUser,
               'Event',
               `Deleted an event: "${eventItem.content}"` // Log the event description
             );
+            logUserNotification ( 'Event Deleted',
+              `Deleted an event: "${eventItem.content}"`);
           } else {
             message.error(response.message || 'Failed to delete event');
           }

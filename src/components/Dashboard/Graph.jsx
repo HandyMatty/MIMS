@@ -61,7 +61,7 @@ const Graph = () => {
             <XAxis dataKey="month" >
             <Label value="Monthly Added Items" offset={0} position="insideBottom" fill='#00000' />
             </XAxis>  
-            <YAxis label={{ value: 'Range', angle: -90, position: 'insideLeft', fill:'#00000'}} />
+            <YAxis label={{ value: 'Value', angle: -90, position: 'insideLeft', fill:'#00000'}} />
             <Tooltip
               contentStyle={{
                 backgroundColor: '#072C1C',

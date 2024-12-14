@@ -1,16 +1,16 @@
 import React, { useState, useCallback } from 'react';
-import { Button, message } from 'antd';
-import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons'; 
-import { useNavigate } from 'react-router-dom'; 
+import { Button, message, notification } from 'antd'; // Import notification
+import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import useLoginAuth from '../../services/request/useLoginAuth';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false); 
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const { mutate, isLoading, error } = useLoginAuth();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleLogin = useCallback(async (e) => {
     e.preventDefault();
@@ -24,17 +24,22 @@ const Login = () => {
       message.warning('Please enter your password.');
       return;
     }
-    
+
     try {
       const response = await mutate(username, password, rememberMe);
 
       if (response.success) {
-        message.success('Login successful!'); // Show success message
+        // Display notification
+        notification.success({
+          message: `Welcome Back, ${username}!`,
+          description: 'You have successfully logged in. Enjoy your session!',
+          placement: 'topRight', // Adjust position
+        });
       } else {
-        message.error(response.message || 'Login failed. Please check your credentials.'); // Show failure message
+        message.error(response.message || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
-      message.error('Login failed. Please try again.'); // General error message
+      message.error('Login failed. Please try again.');
     }
   }, [username, password, rememberMe, mutate]);
 
@@ -75,7 +80,7 @@ const Login = () => {
               <div className="mb-4 relative">
                 <input
                   id="password"
-                  type={isPasswordVisible ? 'text' : 'password'} 
+                  type={isPasswordVisible ? 'text' : 'password'}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -84,14 +89,14 @@ const Login = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => setIsPasswordVisible(!isPasswordVisible)} 
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 p-0 border-none bg-transparent cursor-pointer"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   {isPasswordVisible ? (
-                    <EyeOutlined style={{ color: 'palegoldenrod' }} /> 
+                    <EyeOutlined style={{ color: 'palegoldenrod' }} />
                   ) : (
-                    <EyeInvisibleOutlined style={{ color: 'palegoldenrod' }} /> 
+                    <EyeInvisibleOutlined style={{ color: 'palegoldenrod' }} />
                   )}
                 </button>
               </div>

@@ -1,25 +1,53 @@
-import React from 'react';
-import { Layout, Menu } from 'antd';
-import {
-  CalendarOutlined,
-  BellOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Layout, Menu, Badge } from 'antd';
+import { BellOutlined, UserOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
+import Cookies from 'js-cookie';
+import { getNotifications } from '../services/api/notificationService';  // API function to fetch notifications
 
 const { Header } = Layout;
 
 const HeaderBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
+  
   const adminAuth = useAdminAuthStore();
   const userAuth = useUserAuthStore();
+  
+  const [username, setUsername] = useState(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);  // Track unread notifications
 
   const isAdmin = !!(adminAuth.token && adminAuth.userData);
   const isUser = !!(userAuth.token && userAuth.userData);
+
+  // Fetch username from cookies if not available in the store
+  useEffect(() => {
+    if (isAdmin) {
+      setUsername(adminAuth.userData?.username || Cookies.get('username'));
+    } else if (isUser) {
+      setUsername(userAuth.userData?.username || Cookies.get('username'));
+    }
+  }, [adminAuth, userAuth, isAdmin, isUser]);
+
+  // Fetch unread notifications count on mount
+  useEffect(() => {
+    if (username) {
+      // Get notifications for the current user
+      getNotifications(username)
+        .then((response) => {
+          if (response.success) {
+            // Set unread notification count
+            const unreadCount = response.notifications.filter(notification => !notification.read).length;
+            setUnreadNotifications(unreadCount);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching notifications:', error);
+        });
+    }
+  }, [username]);
 
   const onClick = (e) => {
     if (e.key === '/profile') {
@@ -71,13 +99,15 @@ const HeaderBar = () => {
     {
       key: '/notifications',
       icon: (
-        <div
-          className={`custom-avatar-icon ${
-            location.pathname === '/admin/notifications' || location.pathname === '/user/notifications' ? 'active' : ''
-          }`}
-        >
-          <BellOutlined />
-        </div>
+        <Badge count={unreadNotifications} offset={[-11, 12]} size="small" showZero={false}>
+          <div
+            className={`custom-avatar-icon ${
+              location.pathname === '/admin/notifications' || location.pathname === '/user/notifications' ? 'active' : ''
+            }`}
+          >
+            <BellOutlined />
+          </div>
+        </Badge>
       ),
     },
   ];

@@ -5,37 +5,36 @@ import { fetchUsersStatistics } from '../../services/api/usersdata';  // Import 
 
 
 const UsersStatisticBoard = () => {
-  const [statistics, setStatistics] = useState({ totalUsers: 0, activeUsers: 0, activities: 20 });
+  const [statistics, setStatistics] = useState({ totalUsers: 0, activeUsers: 0, activities: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Function to fetch statistics
   const fetchStatistics = async () => {
     try {
-      setLoading(true); // Start loading state
-      const data = await fetchUsersStatistics(); // Fetch the statistics data
-      setStatistics(data); // Set the fetched data to state
-      setLoading(false); // End loading state
+      setLoading(true);
+      const data = await fetchUsersStatistics(); 
+      setStatistics(data); 
+      setLoading(false);
     } catch (err) {
       console.error("Error fetching statistics:", err);
-      setError("Failed to load statistics."); // Set error state if fetching fails
-      setLoading(false); // End loading state
+      setError("Failed to load statistics."); 
+      setLoading(false); 
     }
   };
 
-  // Fetch statistics on component mount and immediately after login
-  useEffect(() => {
-    fetchStatistics(); // Fetch the statistics immediately after the component mounts
-  }, []); // Empty dependency array ensures this runs only once when the component mounts
 
-  // Placeholder values for when data is loading
+  useEffect(() => {
+    fetchStatistics(); 
+  }, []); 
+
+ 
   const defaultStats = {
     totalUsers: 0,
     activeUsers: 0,
-    activities: 20, // Default value
+    activities: 0, 
   };
 
-  // Use the statistics data or fallback to default
+
   const stats = { ...defaultStats, ...statistics };
 
 

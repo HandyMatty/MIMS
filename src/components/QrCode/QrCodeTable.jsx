@@ -71,6 +71,19 @@ const QrCodeTable = ({ onItemSelect }) => {
     return <Tag color={color}>{status}</Tag>;
   };
 
+  const getConditionTag = (condition) => {
+    let color;
+    switch (condition) {
+      case 'Good':
+        color = 'green';
+        break;
+      case 'Defective':
+        color = 'red';
+        break;
+    }
+    return <Tag color={color}>{condition}</Tag>
+  }
+
   const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleQrCodeClick = (item) => {
@@ -87,6 +100,8 @@ const QrCodeTable = ({ onItemSelect }) => {
       title: 'QR Code',
       dataIndex: 'qrCode',
       key: 'qrCode',
+      align:'center',
+      ellipsis: 'true',
       render: (_, item) => (
         <QrcodeOutlined
           style={{ fontSize: '24px', cursor: 'pointer' }}
@@ -99,53 +114,64 @@ const QrCodeTable = ({ onItemSelect }) => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
+      align:'center',
       sorter: (a, b) => a.id.localeCompare(b.id),
     },
     {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
+      align:'center',
       sorter: (a, b) => a.type.localeCompare(b.type),
     },
     {
       title: 'Brand',
       dataIndex: 'brand',
       key: 'brand',
+      align:'center',
       sorter: (a, b) => a.brand.localeCompare(b.brand),
     },
     {
       title: 'Serial Number',
       dataIndex: 'serialNumber',
       key: 'serialNumber',
+      align:'center',
       sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
     },
     {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
+      align:'center',
       sorter: (a, b) => a.date.localeCompare(b.date),
     },
     {
       title: 'Condition',
       dataIndex: 'condition',
       key: 'condition',
+      align:'center',
+      render: (condition) => getConditionTag(condition),
     },
     {
       title: 'Location',
       dataIndex: 'location',
       key: 'location',
+      align:'center',
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      align:'center',
       render: (status) => getStatusTag(status),
     },
   ];
 
   return (
     <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-xl shadow p-6 border-none">
-      <Text className="text-[#072C1C] text-13xl font-semibold mb-5">ITEMS</Text>
+      <div className='mb-4'>
+      <Text className="text-5xl-6 font-semibold">ITEMS</Text>
+      </div>
       <div className="flex items-center space-x-4 mb-4">
         <Input
           placeholder="Search"

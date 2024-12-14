@@ -1,20 +1,15 @@
 import React from 'react';
-import { Typography, Row, Col } from 'antd';
+import { Row, Col } from 'antd';
 import Graph from '../components/Dashboard/Graph';
 import StatisticsBoard from '../components/Dashboard/StatisticsBoard';
 import AntCalendar from '../components/Dashboard/Calendar';
 import DashboardTable from '../components/Dashboard/DashboardTable';
 
 const Dashboard = () => {
-  const { Title } = Typography;
 
   return (
     <div className="flex flex-col w-full h-auto p-8">
-      <div className='mb-5'>
-        <Title level={1}>Dashboard</Title>
-      </div>
-
-      <div>
+    <div>
         <StatisticsBoard />
       </div>
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom'; 
 import { Auth } from '../ValidAuth';
 import { Dashboard, InventoryPage, History, QrCode, Users, Profile, Calendar, Notifications } from '../../pages/index';
-import MainLayout from '../../layout/MainLayout';
+import MainLayout from '../../layout/Mainlayout';
 import { useAdminAuthStore } from '../../store/admin/useAuth';
 
 const AdminRoutes = () => {

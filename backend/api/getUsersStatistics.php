@@ -27,6 +27,17 @@ if ($activeUsersResult->num_rows > 0) {
   $response['activeUsers'] = 0;
 }
 
+// Query to fetch the total number of activities
+$activitiesQuery = "SELECT COUNT(*) AS total_activities FROM activities"; 
+$activitiesResult = $conn->query($activitiesQuery);
+
+if ($activitiesResult->num_rows > 0) {
+  $activities = $activitiesResult->fetch_assoc();
+  $response['activities'] = $activities['total_activities'];
+} else {
+  $response['activities'] = 0;
+}
+
 // Close connection
 $conn->close();
 

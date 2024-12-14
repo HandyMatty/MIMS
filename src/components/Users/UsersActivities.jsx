@@ -45,30 +45,44 @@ const UsersActivities = () => {
       title: 'Username',
       dataIndex: 'username',
       key: 'username',
+      ellipsis: 'true',
+      width: 10,
       sorter: (a, b) => a.username.localeCompare(b.username),
     },
     {
       title: 'Activity',
       dataIndex: 'activity',
       key: 'activity',
+      width: 10,
     },
     {
       title: 'Details',
       dataIndex: 'details',
       key: 'details',
+      width: 30,
     },
     {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
+      width: 10,
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
+      render: (date) => new Date(date).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true,
+      }),
     },
   ];
 
   return (
     <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-xl shadow p-4 border-none">
       <div className='mb-5'>
-      <Text className="text-green-950 text-xl font-semibold">Activities</Text>
+      <Text className="text-5xl-6 font-semibold">ACTIVITIES</Text>
       </div>
       <div className="flex justify-start items-center mb-4 space-x-2">
         <Input

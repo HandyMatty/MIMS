@@ -1,11 +1,21 @@
 import React, { useRef } from 'react';
 import { Button, QRCode, Descriptions, Card, Typography } from 'antd';
-import { downloadAsPng, downloadAsSvg, printQrCode } from '../../utils/qrCodeUtils'; // Import utility functions
+import { downloadAsPng, downloadAsSvg, printQrCode } from '../../utils/qrCodeUtils'; 
+import { useActivity } from '../../utils/ActivityContext';  
+import { useNotification } from '../../utils/NotificationContext';
+import { useAdminAuthStore } from '../../store/admin/useAuth'; 
+import { useUserAuthStore } from '../../store/user/useAuth'; 
 
 const QrCodeGenerator = ({ itemDetails }) => {
   const [selectedFormat, setSelectedFormat] = React.useState('PNG');
-  const qrCodeRef = useRef(null); // Reference to the QR Code div
+  const qrCodeRef = useRef(null);
   const { Text } = Typography;
+  const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
+  const { userData: adminUserData } = useAdminAuthStore();
+  const { userData: userUserData } = useUserAuthStore();
+  
+  const username = adminUserData?.username || userUserData?.username || 'Unknown User';
 
   const defaultItemData = {
     Type: "N/A",
@@ -29,14 +39,33 @@ const QrCodeGenerator = ({ itemDetails }) => {
       }
     : defaultItemData;
 
+  // Log activity when QR code is downloaded
+  const handleDownload = (format) => {
+    if (format === 'PNG') {
+      downloadAsPng(qrCodeRef);
+    } else {
+      downloadAsSvg(qrCodeRef);
+    }
+    logUserActivity(username, 'Download QR Code', `Downloaded QR code in ${format} format`);
+    logUserNotification('Downloaded QR CODE', `You successfully downloaded QR code in ${format} format`);
+  };
+
+  // Log activity when QR code is printed
+  const handlePrint = () => {
+    printQrCode(qrCodeRef);
+    logUserActivity(username, 'Print QR Code', `Printed QR code for item with serial number: ${itemDetails.serialNumber}`);
+    logUserNotification( 'Printed QR CODE', `You successfully printed QR code for item with serial number: ${itemDetails.serialNumber}`);
+  };
+
   return (
     <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-xl shadow p-6 border-none">
-      <Text className="text-[#072C1C] text-13xl font-semibold font-poppins mb-4">
+    <div className='mb-5'>
+      <Text className="text-5xl-6 font-semibold">
         DETAILS
       </Text>
+    </div>
 
       <div className="flex flex-row justify-between gap-8">
-        {/* Left Side: Item Details */}
         <div
           className="w-1/2 space-y-4"
           style={{
@@ -50,13 +79,13 @@ const QrCodeGenerator = ({ itemDetails }) => {
             <Descriptions
               title="Item Information"
               bordered
-              column={1} // Single column for better alignment and space
+              column={1}
               size="small"
               labelStyle={{
                 fontWeight: 'bold',
                 color: '#072C1C',
                 width: '120px',
-              }} // Adjust label width
+              }}
               contentStyle={{ color: '#072C1C' }}
             >
               {Object.entries(itemData).map(([label, value]) => (
@@ -68,31 +97,28 @@ const QrCodeGenerator = ({ itemDetails }) => {
           </div>
         </div>
 
-        {/* Right Side: QR Code Section */}
         <div className="w-1/2 flex flex-col items-center space-y-4">
-          {/* QR Code */}
           <div
             ref={qrCodeRef}
             style={{
-              display: 'inline-block', // Ensures no extra spacing around QR code
-              border: '1px solid #072C1C', // Border around the QR code
-              borderRadius: '8px', // Rounded corners
-              padding: '0', // No extra padding
-              width: '250px', // Match QR code size
-              height: '250px', // Match QR code size
+              display: 'inline-block', 
+              border: '1px solid #072C1C', 
+              borderRadius: '8px', 
+              padding: '0', 
+              width: '250px', 
+              height: '250px', 
             }}
           >
             <QRCode
               value={itemDetails ? JSON.stringify(itemDetails) : 'https://example.com'}
-              type="svg" // Ensure it's SVG for proper scaling
+              type="svg" 
               style={{
-                width: '100%', // Fills the container
-                height: '100%', // Fills the container
-                border: 'none', // No internal border
+                width: '100%', 
+                height: '100%',
+                border: 'none', 
               }}
             />
           </div>
-
 
           {/* Format Selection */}
           <div className="flex flex-col items-center">
@@ -121,20 +147,17 @@ const QrCodeGenerator = ({ itemDetails }) => {
 
           {/* Download Button */}
           <Button
-            onClick={() =>
-              selectedFormat === 'PNG'
-                ? downloadAsPng(qrCodeRef)
-                : downloadAsSvg(qrCodeRef)
-            }
+            onClick={() => handleDownload(selectedFormat)}
             className="bg-lime-200 shadow-md text-[#072C1C] text-lg"
             type="primary"
             style={{ width: '100%', maxWidth: '177px', height: '31px' }}
           >
             Download {selectedFormat}
           </Button>
+
           {/* Print Button */}
           <Button
-            onClick={() => printQrCode(qrCodeRef)}
+            onClick={handlePrint}
             className="bg-lime-200 shadow-md text-[#072C1C] text-lg"
             type="primary"
             style={{ width: '100%', maxWidth: '177px', height: '31px' }}

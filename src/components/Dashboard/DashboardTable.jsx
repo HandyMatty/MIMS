@@ -45,6 +45,20 @@ const DashboardTable = () => {
     return <Tag color={color}>{status}</Tag>;
   };
 
+  const getConditionTag = (condition) => {
+    let color;
+    switch (condition) {
+      case 'Good':
+        color = 'green';
+        break;
+      case 'Defective':
+        color = 'red';
+        break;
+    }
+    return <Tag color={color}>{condition}</Tag>;
+  };
+
+
 // Modify filtering logic to search across all fields
 const filteredData = dataSource.filter(item =>
   Object.values(item)
@@ -71,6 +85,8 @@ const filteredData = dataSource.filter(item =>
       title: 'QR Code',
       dataIndex: 'qrCode',
       key: 'qrCode',
+      align:'center' ,
+      ellipsis: 'true',
       render: (_, item) => (
         <QrcodeOutlined
           style={{ fontSize: '24px', cursor: 'pointer' }}
@@ -83,46 +99,55 @@ const filteredData = dataSource.filter(item =>
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
+      align:'center',
       sorter: (a, b) => a.id.localeCompare(b.id),
     },
     {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
+      align:'center',
       sorter: (a, b) => a.type.localeCompare(b.type),
     },
     {
       title: 'Brand',
       dataIndex: 'brand',
       key: 'brand',
+      align:'center',
       sorter: (a, b) => a.brand.localeCompare(b.brand),
     },
     {
       title: 'Serial Number',
       dataIndex: 'serialNumber',
       key: 'sserialNumber',
+      align:'center',
       sorter: (a, b) => a.serialNo.localeCompare(b.serialNo),
     },
     {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
+      align:'center',
       sorter: (a, b) => a.date.localeCompare(b.date),
     },
     {
       title: 'Condition',
       dataIndex: 'condition',
       key: 'condition',
+      align:'center',
+      render: (condition) => getConditionTag(condition),
     },
     {
       title: 'Location',
       dataIndex: 'location',
       key: 'location',
+      align:'center',
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      align:'center',
       render: (status) => getStatusTag(status),
     },
   ];

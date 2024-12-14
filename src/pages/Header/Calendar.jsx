@@ -56,7 +56,7 @@ const Calendar = () => {
     <>
      <div className="flex flex-col w-full p-8">
     <div className='mb-5'>
-          <Title level={2}>Calendar</Title>
+          <Title level={3}>CALENDAR</Title>
     </div>
     <div className="flex flex-col w-full h-auto mx-auto bg-[#A8E1C5] rounded-xl shadow p-2">
 <AntdCalendar 

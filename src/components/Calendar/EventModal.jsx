@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, Form, Input, message, Select } from 'antd';
 import { addEvent } from '../../services/api/eventService';
 import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';  // Import the Notification context
 
 
 const { Option } = Select;
@@ -9,7 +10,7 @@ const { Option } = Select;
 const EventModal = ({ isOpen, onClose, selectedDate, loadEvents }) => {
   const [form] = Form.useForm();
   const { logUserActivity } = useActivity();
-
+  const { logUserNotification } = useNotification();
 
   const handleOk = () => {
     form.validateFields().then((values) => {
@@ -34,6 +35,7 @@ const EventModal = ({ isOpen, onClose, selectedDate, loadEvents }) => {
               'Event',
               `Added an event: "${values.event}"`
             );
+            logUserNotification('New event scheduled!', `Your upcoming event "${values.event}" is scheduled for ${selectedDate.format('YYYY-MM-DD')}.`);
           } else {
             message.error(res.message || 'Failed to add event.');
           }

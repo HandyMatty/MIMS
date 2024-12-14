@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { useAdminAuthStore } from '../../store/admin/useAuth';
 import { useUserAuthStore } from '../../store/user/useAuth';
 import { useActivity } from '../../utils/ActivityContext';
-
+import { useNotification } from '../../utils/NotificationContext';
 
 const { Title } = Typography;
 
@@ -18,6 +18,7 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
   const adminAuth = useAdminAuthStore();
   const userAuth = useUserAuthStore();
   const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
 
 
   const handleSave = async () => {
@@ -53,6 +54,7 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
         setIsVisible(false); // Close the form
         onClose(); // Trigger onClose if provided
         logUserActivity(username, 'Password', `This user changed password`);
+        logUserNotification( 'Password Update', 'Your password was successfully updated.' )
       } else {
         message.error(response.message || 'Failed to change password');
       }

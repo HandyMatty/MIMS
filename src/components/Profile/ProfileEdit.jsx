@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Typography, Upload, message, Image, Card } from 'antd';
+import { Button, Input, Typography, Upload, message, Image, Card, Descriptions } from 'antd';
 import ImgCrop from 'antd-img-crop';
 import Cookies from 'js-cookie';
 import { fetchProfileData, updateProfileData } from '../../services/api/getUserDetails';
 import { beforeUpload } from '../../utils/imageHelpers';
 import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';
 
 const { Title, Text } = Typography;
 
@@ -20,6 +21,8 @@ const ProfileEdit = () => {
   const [fileList, setFileList] = useState([]);
 
   const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
+
 
   useEffect(() => {
     // Retrieve username from session data
@@ -55,7 +58,8 @@ const ProfileEdit = () => {
       updateProfileData(token, { username, department })
         .then(() => {
           message.success('Profile updated successfully!');
-          logUserActivity(username, 'Profile Updated', `Updated username: ${username}, department: ${department}`);
+          logUserActivity(username, 'Profile Update', `Updated username: ${username}, department: ${department}`);
+          logUserNotification('Profile Update', `Your profile was successfully updated.`);
         })
         .catch((error) => {
           message.error('Failed to update profile');
@@ -83,6 +87,7 @@ const ProfileEdit = () => {
       message.success('Avatar uploaded successfully!');
       setImageUrl(info.file.response.avatar);
       logUserActivity(username, 'Avatar', `This User Changed Avatar`);
+      logUserNotification('Avatar Updated', 'Your avatar was successfully updated.');
     } else if (info.file.status === 'error') {
       message.error('Avatar upload failed!');
     }
@@ -92,8 +97,6 @@ const ProfileEdit = () => {
 
   return (
     <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-3xl shadow p-6 border-none">
-      <Title level={3} className="text-black text-start">Edit Profile</Title>
-
       <div className="flex items-center gap-6 mt-4">
         {imageUrl && (
           <Image
@@ -135,24 +138,36 @@ const ProfileEdit = () => {
       <div className="flex flex-col gap-5 mt-8">
         <div className="flex flex-col gap-1">
           <Text>Username</Text>
-          <Input
-            className={`w-full bg-emerald-200 ${!isEditable ? 'cursor-default' : 'bg-white'}`}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            readOnly={!isEditable}
-            placeholder="Enter your username"
-          />
+          {isEditable ? (
+            <Input
+              className={`w-full bg-emerald-200 ${!isEditable ? 'cursor-default' : 'bg-white'}`}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              readOnly={!isEditable}
+              placeholder="Enter your username"
+            />
+          ) : (
+            <Descriptions>
+              <Descriptions.Item >{username}</Descriptions.Item>
+            </Descriptions>
+          )}
         </div>
 
         <div className="flex flex-col gap-1">
           <Text>Department</Text>
-          <Input
-            className={`w-full bg-emerald-200 ${!isEditable ? 'cursor-default' : 'bg-white'}`}
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-            readOnly={!isEditable}
-            placeholder="Enter your department"
-          />
+          {isEditable ? (
+            <Input
+              className={`w-full bg-emerald-200 ${!isEditable ? 'cursor-default' : 'bg-white'}`}
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              readOnly={!isEditable}
+              placeholder="Enter your department"
+            />
+          ) : (
+            <Descriptions>
+              <Descriptions.Item>{department}</Descriptions.Item>
+            </Descriptions>
+          )}
         </div>
       </div>
 
