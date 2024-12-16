@@ -64,6 +64,14 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
             <Option value="Metal Detector">Metal Detector</Option>
             <Option value="Search Stick">Search Stick</Option>
             <Option value="Biometrics">Biometrics</Option>
+            <Option value="Smartphone">Smartphone</Option>
+            <Option value="Laptop">Laptop</Option>
+            <Option value="Monitor">Monitor</Option>
+            <Option value="System Unit">System Unit</Option>
+            <Option value="Keyboard">Keyboard</Option>
+            <Option value="Mouse">Mouse</Option>
+            <Option value="AVR">AVR</Option>
+            
           </Select>
         </Form.Item>
 
