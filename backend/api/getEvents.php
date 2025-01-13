@@ -8,7 +8,7 @@ $sql = "
     calendar_events.event_date, 
     calendar_events.content, 
     calendar_events.event_type, 
-    COALESCE(users.avatar, 'http://localhost/MIMS/backend/uploads/avatars/default-avatar.png') AS avatar, 
+    COALESCE(users.avatar, 'http://localhost/Sentinel-MIMS/backend/uploads/avatars/default-avatar.png') AS avatar, 
     users.username
   FROM calendar_events
   JOIN users ON calendar_events.user_id = users.id";

@@ -17,12 +17,35 @@ if (!empty($data['ids'])) {
         $result = $stmt->get_result();
         $item = $result->fetch_assoc();
 
-        if ($item) {
-            $history_stmt = $conn->prepare("INSERT INTO history (action, item_id, type, brand, serial_number, date, `condition`, location, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $history_action = 'deleted';
-            $history_stmt->bind_param("sisssssss", $history_action, $id, $item['type'], $item['brand'], $item['serial_number'], $item['date'], $item['condition'], $item['location'], $item['status']);
-            $history_stmt->execute();
-        }
+       // Record history for deleted items
+if ($item) {
+    $history_stmt = $conn->prepare("
+        INSERT INTO history 
+        (action, item_id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+
+    $history_action = 'Deleted';
+    $issuedDate = !empty($item['issued_date']) ? $item['issued_date'] : NULL;
+    $purchaseDate = !empty($item['purchase_date']) ? $item['purchase_date'] : NULL;
+
+    $history_stmt->bind_param(
+        "sissssssss", 
+        $history_action, 
+        $id, 
+        $item['type'], 
+        $item['brand'], 
+        $item['serial_number'], 
+        $issuedDate, 
+        $purchaseDate, 
+        $item['condition'], 
+        $item['location'], 
+        $item['status']
+    );
+
+    $history_stmt->execute();
+}
+
     }
 
     // Delete items

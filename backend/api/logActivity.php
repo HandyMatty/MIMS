@@ -21,35 +21,17 @@ if (!$username || !$activity || !$details) {
     exit;
 }
 
-// Check if the user already has an existing activity
-$sql = "SELECT * FROM activities WHERE username = ?";
+// Insert new activity (always log a new entry)
+$sql = "INSERT INTO activities (users_id, activity, details, activity_date) 
+        VALUES ((SELECT id FROM users WHERE username = ?), ?, ?, NOW())";
+
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $username);
-$stmt->execute();
-$result = $stmt->get_result();
+$stmt->bind_param("sss", $username, $activity, $details);
 
-if ($result->num_rows > 0) {
-    // User already has an activity, so update the existing one
-    $sql = "UPDATE activities SET activity = ?, details = ?, activity_date = NOW() WHERE username = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $activity, $details, $username);
-
-    if ($stmt->execute()) {
-        echo json_encode(["success" => true, "message" => "Activity updated successfully."]);
-    } else {
-        echo json_encode(["success" => false, "message" => "Failed to update activity: " . $stmt->error]);
-    }
+if ($stmt->execute()) {
+    echo json_encode(["success" => true, "message" => "Activity logged successfully."]);
 } else {
-    // User does not have an activity, so insert a new one
-    $sql = "INSERT INTO activities (username, activity, details, activity_date) VALUES (?, ?, ?, NOW())";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $username, $activity, $details);
-
-    if ($stmt->execute()) {
-        echo json_encode(["success" => true, "message" => "Activity logged successfully."]);
-    } else {
-        echo json_encode(["success" => false, "message" => "Failed to log activity: " . $stmt->error]);
-    }
+    echo json_encode(["success" => false, "message" => "Failed to log activity: " . $stmt->error]);
 }
 
 $stmt->close();

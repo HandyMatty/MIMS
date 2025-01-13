@@ -11,7 +11,7 @@ if (isset($headers['Authorization'])) {
     // Updated SQL query to return a default avatar if none is set
     $stmt = $conn->prepare("
         SELECT username, department, 
-        COALESCE(avatar, 'http://localhost/MIMS/backend/uploads/avatars/default-avatar.png') AS avatar 
+        COALESCE(avatar, 'http://localhost/Sentinel-MIMS/backend/uploads/avatars/default-avatar.png') AS avatar 
         FROM users 
         WHERE token = ?
     ");

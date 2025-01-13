@@ -13,7 +13,8 @@ if ($result->num_rows > 0) {
             "type" => $row["type"],
             "brand" => $row["brand"],
             "serialNumber" => $row["serial_number"],
-            "date" => $row["date"],
+            "issuedDate" => $row["issued_date"],  
+            "purchaseDate" => $row["purchase_date"], 
             "condition" => $row["condition"],
             "location" => $row["location"],
             "status" => $row["status"]

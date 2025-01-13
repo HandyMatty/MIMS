@@ -51,10 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         echo json_encode(['success' => false, 'message' => 'Both security question and answer are required']);
         exit();
     }
+// Hash the security answer before saving it
+$hashed_answer = password_hash($security_answer, PASSWORD_BCRYPT);
 
-    // Update security question and answer in the database
-    $stmt = $conn->prepare("UPDATE users SET security_question = ?, security_answer = ? WHERE token = ?");
-    $stmt->bind_param("sss", $security_question, $security_answer, $token);
+// Update security question and hashed answer in the database
+$stmt = $conn->prepare("UPDATE users SET security_question = ?, security_answer = ? WHERE token = ?");
+$stmt->bind_param("sss", $security_question, $hashed_answer, $token);
+
 
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => 'Security question and answer updated successfully']);

@@ -2,30 +2,27 @@
 include('cors.php');  
 include('database.php');
 
-// Fetch all users and their corresponding activities
+// Fetch all activities with corresponding usernames
 $sql = "SELECT 
+            a.id AS id, 
             u.username AS username, 
-            COALESCE(a.activity, '') AS activity, 
-            COALESCE(a.details, '') AS details, 
-            COALESCE(a.activity_date, '') AS date
-        FROM users u
-        LEFT JOIN activities a ON u.username = a.username
-        ORDER BY u.username ASC";
+            a.activity AS activity, 
+            a.details AS details, 
+            a.activity_date AS date
+        FROM activities a
+        INNER JOIN users u ON a.users_id = u.id
+        ORDER BY a.activity_date DESC";
 
 $result = $conn->query($sql);
 
-// Check for query errors
-if (!$result) {
-    die("SQL error: " . $conn->error);
-}
-
-$usersWithActivities = [];
+// Process results
+$activities = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $usersWithActivities[] = $row;
+        $activities[] = $row;
     }
 }
 
-echo json_encode($usersWithActivities);
+echo json_encode($activities);
 $conn->close();
 ?>

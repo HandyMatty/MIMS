@@ -20,15 +20,25 @@ if (isset($headers['Authorization'])) {
         exit;
     }
 
-    // Prepare SQL statement to update user details based on the token
-    $stmt = $conn->prepare("UPDATE users SET username = ?, department = ? WHERE token = ?");
-    $stmt->bind_param("sss", $username, $department, $token);
+    // Validate token with user
+    $stmt = $conn->prepare("SELECT id FROM users WHERE token = ?");
+    $stmt->bind_param("s", $token);
+    $stmt->execute();
+    $stmt->store_result();
 
-    if ($stmt->execute()) {
-        $response['success'] = true;
-        $response['message'] = 'Profile updated successfully';
+    if ($stmt->num_rows > 0) {
+        // Token is valid, proceed to update
+        $stmt = $conn->prepare("UPDATE users SET username = ?, department = ? WHERE token = ?");
+        $stmt->bind_param("sss", $username, $department, $token);
+
+        if ($stmt->execute()) {
+            $response['success'] = true;
+            $response['message'] = 'Profile updated successfully';
+        } else {
+            $response['message'] = 'Failed to update profile: ' . $stmt->error; // Log specific error
+        }
     } else {
-        $response['message'] = 'Failed to update profile';
+        $response['message'] = 'Invalid token. Could not find the user associated with this token.';
     }
 
     $stmt->close();

@@ -53,7 +53,7 @@ if ($stmt->num_rows === 1 && isset($_FILES['avatar'])) {
                 }
 
                 // Construct the avatar URL
-                $avatarUrl = 'http://localhost/MIMS/backend/uploads/avatars/' . $fileName;
+                $avatarUrl = 'http://localhost/Sentinel-MIMS/backend/uploads/avatars/' . $fileName;
 
                 // Update the user's avatar in the database
                 $stmtUpdate = $conn->prepare("UPDATE users SET avatar = ? WHERE id = ?");
