@@ -13,8 +13,8 @@ if ($result->num_rows > 0) {
     }
     echo json_encode($history);
 } else {
-    http_response_code(404);
-    echo json_encode(["message" => "No history data found"]);
+    http_response_code(200); 
+    echo json_encode([]);    
 }
 
 $conn->close();

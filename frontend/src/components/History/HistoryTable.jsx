@@ -17,15 +17,19 @@ const HistoryTable = () => {
     const fetchHistoryData = async () => {
       try {
         const data = await getHistory();
-        setHistoryData(data);
+        if (data.length === 0) {
+          console.warn("No history data found"); // Optional: Log a warning instead of an error
+        }
+        setHistoryData(data); // Set empty array or fetched data
       } catch (error) {
-        console.error('Failed to fetch history data', error);
+        console.error("Error fetching history data:", error); // Log only for actual errors
       } finally {
         setLoading(false);
       }
     };
     fetchHistoryData();
   }, []);
+  
 
   // Filter data based on search term
   const filteredData = historyData.filter((item) =>
