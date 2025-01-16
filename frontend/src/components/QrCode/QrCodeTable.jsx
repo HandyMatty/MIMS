@@ -189,7 +189,7 @@ const QrCodeTable = ({ onItemSelect }) => {
       render: (condition) => getConditionTag(condition),
     },
     {
-      title: 'Location',
+      title: 'Detachment/Office',
       dataIndex: 'location',
       key: 'location',
       align:'center',
@@ -204,10 +204,7 @@ const QrCodeTable = ({ onItemSelect }) => {
   ];
 
   return (
-    <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-xl shadow p-6 border-none">
-      <div className='mb-4'>
-      <Text className="text-5xl-6 font-semibold">ITEMS</Text>
-      </div>
+    <Card title={<span className="text-5xl-6 font-bold flex justify-center">ITEMS</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
       <div className="flex items-center space-x-4 mb-4">
         <Input
           placeholder="Search"

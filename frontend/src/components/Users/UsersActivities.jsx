@@ -98,11 +98,7 @@ const UsersActivities = () => {
   ];
 
   return (
-    <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-xl shadow p-4 border-none">
-      {/* Header Section */}
-      <div className="mb-5">
-        <Text className="text-5xl-6 font-semibold">ACTIVITIES</Text>
-      </div>
+    <Card title={<span className="text-3xl font-bold flex justify-center">ACTIVITIES</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
 
       {/* Search Input */}
       <div className="flex justify-start items-center mb-4 space-x-2">

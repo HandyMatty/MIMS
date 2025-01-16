@@ -188,7 +188,7 @@ const HistoryTable = () => {
       render: (condition) => getConditionTag(condition),
     },
     {
-      title: 'Location',
+      title: 'Detachment/Office',
       dataIndex: 'location',
       key: 'location',
       align: 'center',
@@ -206,31 +206,30 @@ const HistoryTable = () => {
   
 
   return (
-    <Card className="flex flex-col w-full bg-[#A8E1C5] rounded-xl shadow p-6 border-none" >
-      <div className="flex justify-between items-center mb-4">
-        <Typography.Text className="text-5xl-6 font-semibold">TRANSACTION</Typography.Text>
-      </div>
+    <Card title={<span className="text-5xl-6 font-bold flex justify-center">HISTORY</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
+      <div className="flex justify-start mb-4">
       <Input
         placeholder="Search..."
         prefix={<SearchOutlined />}
         onChange={(e) => setSearchTerm(e.target.value)}
         value={searchTerm}
-        className="w-64 bg-[#a7f3d0] border border-black mb-4 custom-input-table"
+        className="w-64 bg-[#a7f3d0] border border-black custom-input-table"
       />
-       <div style={{ minHeight: '700px' }}>
-        <Table
+      </div>
+      <div style={{ height: '720px'}}>
+      <Table
           rowKey="id"
           dataSource={paginatedData}
           columns={columns}
           bordered
           pagination={false}
           onChange={handleTableChange}
-          scroll={{ x: 'max-content', y: 600 }}  
+          scroll={{ x: 'max-content', y: 660 }}  
           loading={loading}
         />
       </div>
-      <div className="flex items-center justify-between mt-3">
-        <Typography.Text style={{ color: '#072C1C', fontSize: 14 }}>
+      <div className="flex items-center justify-between">
+        <Typography.Text style={{ color: '#072C1C'}}>
           Showing data of {totalEntries > 0 ? (currentPage - 1) * pageSize + 1 : 0} to {Math.min(currentPage * pageSize, totalEntries)} of {totalEntries} entries
         </Typography.Text>
         <Pagination

@@ -301,7 +301,7 @@ const InventoryTable = () => {
       render: (condition) => getConditionTag(condition),
     },
     {
-      title: 'Location',
+      title: 'Detachment/Office',
       dataIndex: 'location',
       key: 'location',
       align:'center',
@@ -343,10 +343,7 @@ const InventoryTable = () => {
 
 
   return (
-    <Card className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow p-6 border-none">
-      <div className='mb-5'>
-        <Text className='text-5xl-6 font-semibold'>INVENTORY</Text>
-      </ div>
+    <Card title={<span className="text-5xl-6 font-bold flex justify-center">INVENTORY</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
       <div className="flex justify-start items-center mb-4 space-x-2 w-full">
         <Input
           placeholder="Search"
@@ -403,7 +400,7 @@ const InventoryTable = () => {
         />
       </div>
 
-      <div className="flex items-center justify-between mt-4">
+      <div className="flex items-center justify-between mt-10">
         <Typography.Text style={{ color: '#072C1C' }}>
           Showing data of {totalEntries > 0 ? (currentPage - 1) * pageSize + 1 : 0} to {Math.min(currentPage * pageSize, totalEntries)} of {totalEntries} entries
         </Typography.Text>
@@ -414,7 +411,6 @@ const InventoryTable = () => {
           showSizeChanger
           pageSizeOptions={['10', '20', '30']}
           onChange={handlePageChange}
-          className="custom-pagination"
         />
       </div>
 

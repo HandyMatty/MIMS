@@ -191,7 +191,7 @@ const DashboardTable = () => {
       render: (condition) => getConditionTag(condition),
     },
     {
-      title: 'Location',
+      title: 'Detachment/Office',
       dataIndex: 'location',
       key: 'location',
       align: 'center',

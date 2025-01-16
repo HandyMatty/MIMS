@@ -81,36 +81,16 @@ module.exports = {
       inherit: "inherit",
     },
     screens: {
-      mq1525: {
-        raw: "screen and (max-width: 1525px)",
-      },
-      mq1450: {
-        raw: "screen and (max-width: 1450px)",
-      },
-      mq1225: {
-        raw: "screen and (max-width: 1225px)",
-      },
-      lg: {
-        max: "1200px",
-      },
-      mq1050: {
-        raw: "screen and (max-width: 1050px)",
-      },
-      mq850: {
-        raw: "screen and (max-width: 850px)",
-      },
-      mq825: {
-        raw: "screen and (max-width: 825px)",
-      },
-      mq750: {
-        raw: "screen and (max-width: 750px)",
-      },
-      mq675: {
-        raw: "screen and (max-width: 675px)",
-      },
-      mq450: {
-        raw: "screen and (max-width: 450px)",
-      },
+      xs: '480px', // Add extra small screens
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+    },
+    container: {
+      center: true,
+      padding: '1rem',
     },
   },
   corePlugins: {

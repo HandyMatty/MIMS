@@ -221,10 +221,7 @@ const UsersList = () => {
   };
 
   return (
-    <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-xl shadow p-4 border-none">
-       <div className='mb-5'>
-      <Text className="text-5xl-6 font-semibold">ALL USERS</Text>
-      </div>
+    <Card title={<span className="text-5xl-6 font-bold flex justify-center">ALL USERS</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
       <div className="flex justify-start items-center mb-4 space-x-2">
         <Input
           placeholder="Search users..."

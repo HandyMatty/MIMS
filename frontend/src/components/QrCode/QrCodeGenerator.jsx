@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Button, QRCode, Descriptions, Card, Typography } from 'antd';
+import { Button, QRCode, Descriptions, Card } from 'antd';
 import { downloadAsPng, downloadAsSvg, printQrCode } from '../../utils/qrCodeUtils'; 
 import { useActivity } from '../../utils/ActivityContext';  
 import { useNotification } from '../../utils/NotificationContext';
@@ -9,7 +9,6 @@ import { useUserAuthStore } from '../../store/user/useAuth';
 const QrCodeGenerator = ({ itemDetails }) => {
   const [selectedFormat, setSelectedFormat] = React.useState('PNG');
   const qrCodeRef = useRef(null);
-  const { Text } = Typography;
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
   const { userData: adminUserData } = useAdminAuthStore();
@@ -62,12 +61,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
   };
 
   return (
-    <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-xl shadow p-6 border-none">
-    <div className='mb-5'>
-      <Text className="text-5xl-6 font-semibold">
-        DETAILS
-      </Text>
-    </div>
+    <Card title={<span className="text-5xl-6 font-bold flex justify-center">DETAILS</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
 
       <div className="flex flex-row justify-between gap-8">
         <div
