@@ -14,7 +14,7 @@ export const useUserAuthStore = create(
     }),
     {
       name: "userAuth",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

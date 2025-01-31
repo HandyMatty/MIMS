@@ -4,7 +4,7 @@ import { useAdminAuthStore } from '../../store/admin/useAuth';
 import { useUserAuthStore } from '../../store/user/useAuth';
 import { loginApi } from '../../services/api/auth';
 import Cookies from 'js-cookie';
-import { useActivity } from '../../utils/ActivityContext'; // Import useActivity
+import { useActivity } from '../../utils/ActivityContext';
 
 const useLoginAuth = () => {
   const [error, setError] = useState(null);
@@ -14,7 +14,7 @@ const useLoginAuth = () => {
   const { setUserData: setAdminUserData, setToken: setAdminToken, setRole: setAdminRole, reset: resetAdmin } = useAdminAuthStore();
   const { setUserData: setUserUserData, setToken: setUserToken, setRole: setUserRole, reset: resetUser } = useUserAuthStore();
 
-  const { logUserActivity } = useActivity(); // Get the logUserActivity function
+  const { logUserActivity } = useActivity();
 
   const mutate = async (username, password, rememberMe) => {
     setIsLoading(true);
@@ -25,65 +25,58 @@ const useLoginAuth = () => {
 
       if (response.success) {
         const token = response.token;
-        const role = response.role; // Get the role from the response
+        const role = response.role;
 
-        if (response.role === 'admin') {
-          resetUser(); // Clear User auth to prevent overlap
+        // Handle role-based logic (admin or user)
+        if (role === 'admin') {
+          resetUser();
           setAdminUserData({ username });
-          setAdminRole(role); // Set the admin role
+          setAdminRole(role);
           setAdminToken(token);
 
-          logUserActivity(username, 'Login', `This user just logged-in`);
+          logUserActivity(username, 'Login', `This user just logged in`);
 
-          
-          // Store role and token in session storage
-          sessionStorage.setItem('adminAuth', JSON.stringify({
-            state: {
-              userData: { username, role }, // Include role here
-              token,
-            },
-            version: 0,
-          }));
+          // Choose storage based on rememberMe
+          const storage = rememberMe ? localStorage : sessionStorage;
+          storage.setItem('adminAuth', JSON.stringify({ userData: { username, role }, token }));
 
-          // Set a unique cookie for the admin
+          // Set cookies for persistence
           Cookies.set(`authToken_${username}`, token, {
-            expires: rememberMe ? 7 : 1,
-            secure: false, // Change to true if using HTTPS
+            expires: rememberMe ? 7 : 1, // 7 days if Remember Me, else 1 day
+            secure: false, // Set true if you're using HTTPS
             sameSite: 'Strict',
           });
+
           navigate('/admin/dashboard', { replace: true });
-        } else if (response.role === 'user') {
-          resetAdmin(); // Clear Admin auth to prevent overlap
+        } else if (role === 'user') {
+          resetAdmin();
           setUserUserData({ username });
-          setUserRole(role); // Set the user role
+          setUserRole(role);
           setUserToken(token);
 
-          // Log user login activity
-          logUserActivity(username, 'Login', `This user just logged-in`);
-          // Store role and token in session storage
-          sessionStorage.setItem('userAuth', JSON.stringify({
-            state: {
-              userData: { username, role }, // Include role here
-              token,
-            },
-            version: 0,
-          }));
+          logUserActivity(username, 'Login', `This user just logged in`);
 
-          // Set a unique cookie for the user
+          // Choose storage based on rememberMe
+          const storage = rememberMe ? localStorage : sessionStorage;
+          storage.setItem('userAuth', JSON.stringify({ userData: { username, role }, token }));
+
+          // Set cookies for persistence
           Cookies.set(`authToken_${username}`, token, {
-            expires: rememberMe ? 7 : 1,
-            secure: false,
+            expires: rememberMe ? 7 : 1, // 7 days if Remember Me, else 1 day
+            secure: false, // Set true if you're using HTTPS
             sameSite: 'Strict',
           });
+
           navigate('/user/dashboard', { replace: true });
         }
-        return { success: true }; // Return success here
+
+        return { success: true };
       } else {
-        return { success: false, message: response.message || 'Login failed' }; // Return failure with message
+        return { success: false, message: response.message || 'Login failed' };
       }
     } catch (error) {
       setError('Failed to log in. Please try again.');
-      return { success: false, message: 'Login failed due to a network error.' }; // Return error for network issue
+      return { success: false, message: 'Login failed due to a network error.' };
     } finally {
       setIsLoading(false);
     }

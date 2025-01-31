@@ -2,9 +2,9 @@ import { axiosAuth } from "../axios"; // Adjust the path as per your folder stru
 
 export const logoutUser = async () => {
   try {
-    // Retrieve the token from sessionStorage
-    const adminAuth = JSON.parse(sessionStorage.getItem("adminAuth"));
-    const userAuth = JSON.parse(sessionStorage.getItem("userAuth"));
+    // Retrieve the token from localStorage
+    const adminAuth = JSON.parse(localStorage.getItem("adminAuth"));
+    const userAuth = JSON.parse(localStorage.getItem("userAuth"));
     const token = adminAuth?.state?.token || userAuth?.state?.token;
 
     if (!token) {
@@ -24,8 +24,6 @@ export const logoutUser = async () => {
     );
 
     if (response.data.success) {
-      // Broadcast logout event to all tabs
-      localStorage.setItem("logout", Date.now()); // Add timestamp to trigger change
       return { success: true };
     } else {
       // If the API response is not successful, throw an error

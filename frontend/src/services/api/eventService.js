@@ -13,8 +13,8 @@ export const fetchEvents = async () => {
 // Add a new event
 export const addEvent = async (eventData) => {
   // Check for both user and admin tokens
-  const userToken = JSON.parse(sessionStorage.getItem('userAuth'))?.state?.token;
-  const adminToken = JSON.parse(sessionStorage.getItem('adminAuth'))?.state?.token;
+  const userToken = JSON.parse(localStorage.getItem('userAuth'))?.state?.token;
+  const adminToken = JSON.parse(localStorage.getItem('adminAuth'))?.state?.token;
 
   // Use whichever token is present (admin takes precedence if both exist)
   const token = adminToken || userToken;
@@ -37,9 +37,9 @@ export const addEvent = async (eventData) => {
 
 // Delete an event
 export const deleteEvent = async (eventId) => {
-  // Get token from sessionStorage
-  const userToken = JSON.parse(sessionStorage.getItem('userAuth'))?.state?.token;
-  const adminToken = JSON.parse(sessionStorage.getItem('adminAuth'))?.state?.token;
+  // Get token from localStorage
+  const userToken = JSON.parse(localStorage.getItem('userAuth'))?.state?.token;
+  const adminToken = JSON.parse(localStorage.getItem('adminAuth'))?.state?.token;
 
   // Use whichever token is present (admin takes precedence if both exist)
   const token = adminToken || userToken;

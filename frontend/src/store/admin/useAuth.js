@@ -14,7 +14,7 @@ export const useAdminAuthStore = create(
     }),
     {
       name: "adminAuth",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

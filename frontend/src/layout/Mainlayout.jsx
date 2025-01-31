@@ -63,14 +63,10 @@ const MainLayout = () => {
       if (success) {
         // Retrieve the username from the auth store
         const username = isAdmin ? adminAuth.userData.username : userAuth.userData.username;
-
+  
+        // Log the user activity
         logUserActivity(username, 'Logout', `This user just logged-out`);
-  
-        // Broadcast logout event to all tabs
-        const tokenToLogout = isAdmin ? adminAuth.token : userAuth.token;
-        const timestamp = Date.now();
-        localStorage.setItem("logout", JSON.stringify({ token: tokenToLogout, timestamp }));
-  
+    
         // Reset authentication state for the correct role
         if (isAdmin) {
           adminAuth.reset();
@@ -78,7 +74,7 @@ const MainLayout = () => {
           userAuth.reset();
         }
   
-        // Clear session storage and localStorage for the logged-in user/admin
+        // Clear sessionStorage and localStorage for the logged-in user/admin
         if (isAdmin) {
           sessionStorage.removeItem("adminAuth");
           localStorage.removeItem("adminAuth");
@@ -92,17 +88,17 @@ const MainLayout = () => {
           Cookies.remove(`authToken_${username}`);
         }
   
+        // Navigate to login screen
         navigate("/login", { replace: true });
       } else {
-        console.error(message);
+        console.error(message); // Log the error message if logout was unsuccessful
       }
     } catch (error) {
-      console.error("Error during logout:", error);
+      console.error("Error during logout:", error); // Log any unexpected errors
     }
   };
   
   
-
   const onClick = (e) => {
     if (e.key === 'logout') {
       setIsModalVisible(true);

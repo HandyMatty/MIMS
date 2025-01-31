@@ -109,7 +109,7 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
         </Form.Item>
 
         <Form.Item
-          label="Location"
+          label="Detachment/Office"
           name="location"
           rules={[{ required: true, message: 'Please input the location!' }]} >
           <Input />

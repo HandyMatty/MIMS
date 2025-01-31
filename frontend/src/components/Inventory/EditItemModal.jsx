@@ -109,7 +109,7 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
           </Select>
         </Form.Item>
 
-        <Form.Item label="Location" name="location" rules={[{ required: true, message: 'Please input the location!' }]}>
+        <Form.Item label="Detachment/Office" name="location" rules={[{ required: true, message: 'Please input the location!' }]}>
           <Input />
         </Form.Item>
 

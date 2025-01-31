@@ -1,10 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, message, notification } from 'antd'; // Import notification
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLoginAuth from '../../services/request/useLoginAuth';
 import SINSSILogo from "../../../assets/SINSSI_LOGO-removebg-preview.png"; // Update the path if required
 import vectors from "../../../assets/vectors.svg";
+import { useAdminAuthStore } from '../../store/admin/useAuth'; // Make sure this import is correct
+import { useUserAuthStore } from '../../store/user/useAuth';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -14,7 +16,28 @@ const Login = () => {
   const { mutate, isLoading, error } = useLoginAuth();
   const navigate = useNavigate();
 
-  const handleLogin = useCallback(async (e) => {
+  // Correctly accessing the Zustand store methods
+  const { setUserData: setAdminUserData, setRole: setAdminRole, setToken: setAdminToken } = useAdminAuthStore();
+  const { setUserData: setUserUserData, setRole: setUserRole, setToken: setUserToken } = useUserAuthStore();
+
+  useEffect(() => {
+    const adminAuth = JSON.parse(localStorage.getItem('adminAuth'));
+    const userAuth = JSON.parse(localStorage.getItem('userAuth'));
+
+    if (adminAuth && adminAuth.token) {
+      setAdminUserData(adminAuth.userData);  // Ensure you're accessing the function correctly
+      setAdminRole(adminAuth.role);          // Ensure you're accessing the function correctly
+      setAdminToken(adminAuth.token);        // Ensure you're accessing the function correctly
+      navigate('/admin/dashboard', { replace: true });
+    } else if (userAuth && userAuth.token) {
+      setUserUserData(userAuth.userData);    // Ensure you're accessing the function correctly
+      setUserRole(userAuth.role);            // Ensure you're accessing the function correctly
+      setUserToken(userAuth.token);          // Ensure you're accessing the function correctly
+      navigate('/user/dashboard', { replace: true });
+    }
+  }, [navigate, setAdminUserData, setAdminRole, setAdminToken, setUserUserData, setUserRole, setUserToken]);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!username) {
@@ -31,11 +54,10 @@ const Login = () => {
       const response = await mutate(username, password, rememberMe);
 
       if (response.success) {
-        // Display notification
         notification.success({
           message: `Welcome Back, ${username}!`,
           description: 'You have successfully logged in. Enjoy your session!',
-          placement: 'topRight', // Adjust position
+          placement: 'topRight',
         });
       } else {
         message.error(response.message || 'Login failed. Please check your credentials.');
@@ -43,7 +65,8 @@ const Login = () => {
     } catch (err) {
       message.error('Login failed. Please try again.');
     }
-  }, [username, password, rememberMe, mutate]);
+  };
+  
 
   const handleForgotPassword = useCallback(() => {
     navigate('/forgotpassword', { replace: true });
