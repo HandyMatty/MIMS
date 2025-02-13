@@ -34,7 +34,7 @@ INSERT INTO history
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
-$history_action = 'Updated';
+$history_action = 'QRCode Update';
 $issuedDate = !empty($issuedDate) ? $issuedDate : NULL;
 $purchaseDate = !empty($purchaseDate) ? $purchaseDate : NULL;
 
@@ -53,6 +53,27 @@ $status
 );
 
 $history_stmt->execute();
+
+// Insert into mobile_history table
+$mobile_history_stmt = $conn->prepare("
+INSERT INTO mobile_history 
+(item_id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, scanned_at) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+");
+
+$mobile_history_stmt->bind_param(
+    "issssssss", 
+    $id, 
+    $type, 
+    $brand, 
+    $serialNumber, 
+    $issuedDate, 
+    $purchaseDate, 
+    $condition, 
+    $location, 
+    $status
+);
+$mobile_history_stmt->execute();
 
 // Now update the inventory item
 $stmt = $conn->prepare("UPDATE inventory SET type = ?, brand = ?, serial_number = ?, issued_date = ?, purchase_date = ?, `condition` = ?, location = ?, status = ? WHERE id = ?");

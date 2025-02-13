@@ -2,7 +2,8 @@ import React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import AdminRoutes from './pageRoutes/AdminRoutes';
 import UserRoutes from './pageRoutes/UserRoutes';
-import PublicRoutes from './pageRoutes/PublicRoutes'; // Import your new PublicRoutes
+import PublicRoutes from './pageRoutes/PublicRoutes'; // Import PublicRoutes
+import GuestRoutes from './pageRoutes/GuestRoutes'; // Import GuestRoutes
 
 const RootRoutes = () => {
   const router = createBrowserRouter([
@@ -13,6 +14,10 @@ const RootRoutes = () => {
     {
       path: '/user/*',
       element: <UserRoutes />,
+    },
+    {
+      path: '/guest/*', // Define routes for guests
+      element: <GuestRoutes />,
     },
     {
       path: '/*',

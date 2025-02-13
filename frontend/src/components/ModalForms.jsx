@@ -15,12 +15,18 @@ const ModalForms = ({
   securityQuestions,
   handleChangeSecurityQuestion,
   currentUserSecurityQuestion,
+  isRoleModalVisible,
+  setIsRoleModalVisible,
+  currentUserRole,
+  handleRoleUpdate,
 }) => {
   const [isEditingSecurityQuestion, setIsEditingSecurityQuestion] = useState(false);
 
   // Form instances
   const [addUserForm] = Form.useForm();
   const [securityQuestionForm] = Form.useForm();
+  const [roleForm] = Form.useForm();
+  const [selectedRole, setSelectedRole] = useState(null);
 
   return (
     <>
@@ -115,7 +121,8 @@ const ModalForms = ({
         open={isAddModalVisible}
         onCancel={() => {
           setIsAddModalVisible(false);
-          addUserForm.resetFields(['username', 'department', 'role', 'security_question', 'security_answer']); // Reset specific fields
+          addUserForm.resetFields(); 
+          setSelectedRole(null); 
         }}
         footer={null}
       >
@@ -123,7 +130,9 @@ const ModalForms = ({
           form={addUserForm}
           onFinish={(values) => {
             handleAddUser(values);
-            addUserForm.resetFields(['username', 'department', 'role', 'security_question', 'security_answer']); // Reset specific fields after submission
+            addUserForm.resetFields(); 
+            setSelectedRole(null); 
+            setIsAddModalVisible(false); 
           }}
         >
           <Form.Item
@@ -140,36 +149,46 @@ const ModalForms = ({
           >
               <Input placeholder="Enter the department" />
           </Form.Item>
-          <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: 'Please select a role!' }]}
-          >
-            <Select placeholder="Select a role">
-              <Select.Option value="user">User</Select.Option>
-              <Select.Option value="admin">Admin</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="security_question"
-            label="Security Question"
-            rules={[{ required: true, message: 'Please select a security question!' }]}
-          >
-             <Select placeholder="Select a security question">
-              {securityQuestions.map((question, index) => (
-                <Select.Option key={index} value={question}>
-                  {question}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="security_answer"
-            label="Security Answer"
-            rules={[{ required: true, message: 'Please provide an answer!' }]}
-          >
-           <Input.Password placeholder="Enter your answer" />
-          </Form.Item>
+            <Form.Item
+              name="role"
+              label="Role"
+              rules={[{ required: true, message: 'Please select a role!' }]}
+            >
+              <Select
+                placeholder="Select a role"
+                onChange={(value) => setSelectedRole(value)} // Update state when role changes
+              >
+                <Select.Option value="user">User</Select.Option>
+                <Select.Option value="admin">Admin</Select.Option>
+                <Select.Option value="guest">Guest</Select.Option>
+              </Select>
+            </Form.Item>
+
+            {/* Show security question only if role is NOT 'Guest' */}
+            {selectedRole !== 'guest' && (
+              <>
+                <Form.Item
+                  name="security_question"
+                  label="Security Question"
+                  rules={[{ required: true, message: 'Please select a security question!' }]}
+                >
+                  <Select placeholder="Select a security question">
+                    {securityQuestions.map((question, index) => (
+                      <Select.Option key={index} value={question}>
+                        {question}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  name="security_answer"
+                  label="Security Answer"
+                  rules={[{ required: true, message: 'Please provide an answer!' }]}
+                >
+                  <Input.Password placeholder="Enter your answer" />
+                </Form.Item>
+              </>
+            )}
           <Button type="primary" htmlType="submit">
             Add User
           </Button>
@@ -185,6 +204,46 @@ const ModalForms = ({
       >
         <p>Your temporary password is: {temporaryPassword}</p>
       </Modal>
+
+          {/* Edit Role Modal */}
+        <Modal
+          title="Edit Role"
+          open={isRoleModalVisible}
+          onCancel={() => {
+            setIsRoleModalVisible(false);
+            roleForm.resetFields(); // Reset form fields when modal closes
+          }}
+          footer={null}
+          afterOpenChange={(visible) => {
+            if (visible) {
+              roleForm.setFieldsValue({ role: currentUserRole }); // Ensure the current role is pre-filled
+            }
+          }}
+        >
+          <Form
+            form={roleForm}
+            onFinish={(values) => {
+              handleRoleUpdate(values);
+              roleForm.resetFields(); // Reset form fields after submission
+              setIsRoleModalVisible(false); // Close modal after updating role
+            }}
+          >
+            <Form.Item
+              name="role"
+              label="Role"
+              rules={[{ required: true, message: 'Please select a role!' }]}
+            >
+              <Select>
+                <Select.Option value="user">User</Select.Option>
+                <Select.Option value="admin">Admin</Select.Option>
+                <Select.Option value="guest">Guest</Select.Option>
+              </Select>
+            </Form.Item>
+            <Button type="primary" htmlType="submit">
+              Update Role
+            </Button>
+          </Form>
+        </Modal>
     </>
   );
 };

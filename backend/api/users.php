@@ -3,15 +3,16 @@ include('cors.php');
 include('database.php');
 
 // Fetch all users including status and latest activity
-$stmt = $conn->prepare("SELECT id, username, department, status FROM users");
+$stmt = $conn->prepare("SELECT id, username, role, department, status FROM users");
 $stmt->execute();
-$stmt->bind_result($id, $username, $department, $status);
+$stmt->bind_result($id, $username, $role, $department, $status);
 
 $users = array();
 while ($stmt->fetch()) {
     $users[] = array(
         'id' => $id,
         'username' => $username,
+        'role' => $role,
         'department' => $department,
         'status' => $status 
     );

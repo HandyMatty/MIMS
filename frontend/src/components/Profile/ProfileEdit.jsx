@@ -12,23 +12,24 @@ const { Title, Text } = Typography;
 
 const ProfileEdit = () => {
   const [isEditable, setIsEditable] = useState(false);
-  const [username, setUsername] = useState(''); // Displayed username
-  const [newUsername, setNewUsername] = useState(''); // New username for editing
+  const [username, setUsername] = useState('');
+  const [newUsername, setNewUsername] = useState('');
   const [department, setDepartment] = useState('');
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
-  const [originalUsername, setOriginalUsername] = useState(''); // Original username
-  const [originalDepartment, setOriginalDepartment] = useState(''); // Original department
+  const [originalUsername, setOriginalUsername] = useState('');
+  const [originalDepartment, setOriginalDepartment] = useState('');
   const [fileList, setFileList] = useState([]);
-  const [isSaving, setIsSaving] = useState(false); // Track saving state
+  const [isSaving, setIsSaving] = useState(false);
 
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
 
+  // Retrieve the correct token based on user type
   const getAuthToken = () => {
-    const userAuth = JSON.parse(localStorage.getItem('userAuth'))?.state?.userData?.username;
-    const adminAuth = JSON.parse(localStorage.getItem('adminAuth'))?.state?.userData?.username;
-    const loggedInUsername = userAuth || adminAuth;
+    const userAuth = JSON.parse(localStorage.getItem('userAuth'));
+    const adminAuth = JSON.parse(localStorage.getItem('adminAuth'));
+    const loggedInUsername = userAuth?.state?.userData?.username || adminAuth?.state?.userData?.username;
 
     if (!loggedInUsername) {
       window.location.href = '/login';
@@ -52,8 +53,8 @@ const ProfileEdit = () => {
           setOriginalDepartment(data.department);
           setDepartment(data.department);
           setImageUrl(data.avatar || '');
-          setUsername(data.username); // Set the username once fetched
-          setNewUsername(data.username); // Set newUsername as well
+          setUsername(data.username);
+          setNewUsername(data.username);
         })
         .catch((error) => {
           message.error('Failed to fetch profile data');
@@ -62,66 +63,38 @@ const ProfileEdit = () => {
     }
   }, []);
 
-  const handleEdit = async () => {
-    const token = getAuthToken();
-    if (!token) return;
+  const updateLocalStorageAndCookies = (newUsername, token) => {
+    Cookies.remove(`authToken_${username}`);
+    Cookies.set(`authToken_${newUsername}`, token);
+    
+    const userAuth = JSON.parse(localStorage.getItem('userAuth'));
+    const adminAuth = JSON.parse(localStorage.getItem('adminAuth'));
+    
+    if (userAuth?.state?.userData?.username === username) {
+      localStorage.setItem('userAuth', JSON.stringify({ state: { userData: { username: newUsername }, token } }));
+    } else if (adminAuth?.state?.userData?.username === username) {
+      localStorage.setItem('adminAuth', JSON.stringify({ state: { userData: { username: newUsername }, token } }));
+    }
+  };
 
+  const handleEdit = async () => {
     if (isEditable) {
       Modal.confirm({
         title: 'Save Changes?',
         content: 'Are you sure you want to save these changes?',
         onOk: async () => {
+          const token = getAuthToken();
+          if (!token) return;
+
           setIsSaving(true);
           try {
-            // Update profile data
             await updateProfileData(token, { username: newUsername, department });
-
             message.success('Profile updated successfully!');
-
-            // Update cookies and localStorage for the new username
-            Cookies.remove(`authToken_${username}`);
-            Cookies.set(`authToken_${newUsername}`, token);
-
-            // Update userAuth or adminAuth in localStorage
-            const userAuth = JSON.parse(localStorage.getItem('userAuth'));
-            const adminAuth = JSON.parse(localStorage.getItem('adminAuth'));
-
-            if (userAuth && userAuth.state?.userData?.username === username) {
-              localStorage.setItem(
-                'userAuth',
-                JSON.stringify({
-                  state: {
-                    userData: { username: newUsername },
-                    token,
-                  },
-                })
-              );
-            } else if (adminAuth && adminAuth.state?.userData?.username === username) {
-              localStorage.setItem(
-                'adminAuth',
-                JSON.stringify({
-                  state: {
-                    userData: { username: newUsername },
-                    token,
-                  },
-                })
-              );
-            }
-
-            // Update state
+            updateLocalStorageAndCookies(newUsername, token);
             setUsername(newUsername);
             setOriginalUsername(newUsername);
             setOriginalDepartment(department);
-
-            // Log user activities for both changes
-            if (newUsername !== originalUsername) {
-              logUserActivity(newUsername, 'Profile Update', `Updated username to: ${newUsername}`);
-            }
-            if (department !== originalDepartment) {
-              logUserActivity(newUsername, 'Profile Update', `Updated department to: ${department}`);
-            }
-
-            // Log user notification
+            logUserActivity(newUsername, 'Profile Update', `Updated username to: ${newUsername}`);
             logUserNotification('Profile Update', 'Your profile was updated successfully.');
           } catch (error) {
             console.error(error);
@@ -132,7 +105,6 @@ const ProfileEdit = () => {
         },
       });
     }
-
     setIsEditable(!isEditable);
   };
 
@@ -151,10 +123,14 @@ const ProfileEdit = () => {
     }
 
     if (info.file.status === 'done') {
-      message.success('Avatar uploaded successfully!');
-      setImageUrl(info.file.response.avatar);
-      logUserActivity(username, 'Avatar', `User updated their avatar.`);
-      logUserNotification('Avatar Updated', 'Your avatar was updated successfully.');
+      if (info.file.response?.avatar) {
+        message.success('Avatar uploaded successfully!');
+        setImageUrl(info.file.response.avatar);
+        logUserActivity(username, 'Avatar', `User updated their avatar.`);
+        logUserNotification('Avatar Updated', 'Your avatar was updated successfully.');
+      } else {
+        message.error('Avatar upload response is missing avatar field!');
+      }
     } else if (info.file.status === 'error') {
       message.error('Avatar upload failed!');
     }

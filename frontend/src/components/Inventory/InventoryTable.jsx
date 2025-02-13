@@ -353,12 +353,14 @@ const InventoryTable = () => {
           className="w-80 bg-[#a7f3d0] border border-black custom-search"
         />
         <Tooltip title="Add Item">
-          <Button
-            type="text"
-            icon={<PlusCircleOutlined />}
-            onClick={() => setIsModalVisible(true)} 
-            style={{ width: '32px', height: '32px', border: 'none', cursor: 'pointer' }}
-          />
+          {(isAdmin || userUserData) && (
+            <Button
+              type="text"
+              icon={<PlusCircleOutlined />}
+              onClick={() => setIsModalVisible(true)}
+              style={{ width: '32px', height: '32px', border: 'none', cursor: 'pointer' }}
+            />
+          )}
         </Tooltip>
 
         {isAdmin && (

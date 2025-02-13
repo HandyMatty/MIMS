@@ -14,6 +14,7 @@ import Cookies from 'js-cookie';
 import { HeaderBar } from '../components/index';
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
+import { useGuestAuthStore } from '../store/guest/useAuth';
 import { logoutUser } from '../services/api/logout';
 import { useActivity } from '../utils/ActivityContext';
 import SINSSILogo from "../../assets/SINSSI_LOGO-removebg-preview.png";
@@ -31,6 +32,7 @@ const MainLayout = () => {
 
   const adminAuth = useAdminAuthStore();
   const userAuth = useUserAuthStore();
+  const guestAuth = useGuestAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   const { logUserActivity } = useActivity();
@@ -38,6 +40,7 @@ const MainLayout = () => {
 
   const isAdmin = adminAuth.token && adminAuth.userData;
   const isUser = userAuth.token && userAuth.userData;
+  const isGuest = guestAuth.token && guestAuth.userData;
 
   const adminItems = [
     { label: 'Dashboard', key: '/admin/dashboard', icon: <DashboardOutlined style={{ fontSize: '20px' }} /> },
@@ -54,47 +57,61 @@ const MainLayout = () => {
     { label: 'QR Code', key: '/user/qrcode', icon: <QrcodeOutlined style={{ fontSize: '20px' }} /> },
   ];
 
-  const items = isAdmin ? adminItems : isUser ? userItems : [];
+  const guestItems = [
+    { label: 'Dashboard', key: '/guest/dashboard', icon: <DashboardOutlined style={{ fontSize: '20px' }} /> },
+    { label: 'Inventory', key: '/guest/inventory', icon: <AppstoreOutlined style={{ fontSize: '20px' }} /> },
+    { label: 'History', key: '/guest/history', icon: <HistoryOutlined style={{ fontSize: '20px' }} /> },
+    { label: 'QR Code', key: '/guest/qrcode', icon: <QrcodeOutlined style={{ fontSize: '20px' }} /> },
+  ];
+
+  const items = isAdmin ? adminItems : isUser ? userItems : isGuest ? guestItems : [];
 
   const handleLogout = async () => {
     try {
-      const { success, message } = await logoutUser();
+      let role, username;
+  
+      if (isAdmin) {
+        role = "admin";
+        username = adminAuth.userData.username;
+      } else if (isUser) {
+        role = "user";
+        username = userAuth.userData.username;
+      } else if (isGuest) {
+        role = "guest";
+        username = guestAuth.userData.username;
+      }
+  
+      if (!role || !username) {
+        console.error("No user role detected for logout.");
+        return;
+      }
+  
+      const { success, message } = await logoutUser(role);
   
       if (success) {
-        // Retrieve the username from the auth store
-        const username = isAdmin ? adminAuth.userData.username : userAuth.userData.username;
+        logUserActivity(username, "Logout", `User ${username} just logged out`);
   
-        // Log the user activity
-        logUserActivity(username, 'Logout', `This user just logged-out`);
-    
-        // Reset authentication state for the correct role
-        if (isAdmin) {
-          adminAuth.reset();
-        } else if (isUser) {
-          userAuth.reset();
-        }
+        // ✅ Reset the correct role
+        if (role === "admin") adminAuth.reset();
+        if (role === "user") userAuth.reset();
+        if (role === "guest") guestAuth.reset();
   
-        // Clear sessionStorage and localStorage for the logged-in user/admin
-        if (isAdmin) {
-          sessionStorage.removeItem("adminAuth");
-          localStorage.removeItem("adminAuth");
-        } else if (isUser) {
-          sessionStorage.removeItem("userAuth");
-          localStorage.removeItem("userAuth");
-        }
+        // ✅ Remove all session storage and local storage
+        sessionStorage.clear(); // Ensure sessionStorage is cleared
+        localStorage.clear(); // Ensure localStorage is cleared
+        Cookies.remove(`authToken_${username}`); // Remove the specific auth token
+        Cookies.remove("authToken"); // Optionally remove the global auth token
   
-        // Remove unique cookie using username
-        if (username) {
-          Cookies.remove(`authToken_${username}`);
-        }
+        console.log("✅ Logout successful. Redirecting to login...");
   
-        // Navigate to login screen
+        // ✅ Navigate to login after clearing all data
         navigate("/login", { replace: true });
+  
       } else {
-        console.error(message); // Log the error message if logout was unsuccessful
+        console.error("Logout failed:", message);
       }
     } catch (error) {
-      console.error("Error during logout:", error); // Log any unexpected errors
+      console.error("Error during logout:", error);
     }
   };
   
@@ -118,6 +135,34 @@ const MainLayout = () => {
   };
 
   useEffect(() => {
+    const checkCookieExpiration = () => {
+      const storedAdminAuth = JSON.parse(localStorage.getItem('adminAuth'));
+      const storedUserAuth = JSON.parse(localStorage.getItem('userAuth'));
+      const storedGuestAuth = JSON.parse(localStorage.getItem('guestAuth'));
+    
+      // Check for expired cookies for each role
+      const checkExpiration = (role) => {
+        const cookieExpiration = localStorage.getItem(`cookieExpiration_${role}`);
+        const currentTime = Date.now();
+    
+        if (cookieExpiration && currentTime > cookieExpiration) {
+          // Cookie expired, remove corresponding data
+          localStorage.removeItem(`${role}Auth`);
+          localStorage.removeItem(`cookieExpiration_${role}`);
+          Cookies.remove(`authToken_${role}`);
+        }
+      };
+    
+      // Check expiration for all roles
+      if (storedAdminAuth) checkExpiration('admin');
+      if (storedUserAuth) checkExpiration('user');
+      if (storedGuestAuth) checkExpiration('guest');
+    };
+  
+    checkCookieExpiration();
+  }, []);    
+
+  useEffect(() => {
     const delay = setTimeout(() => {
       setLoading(false);
     }, 300);
@@ -135,33 +180,31 @@ const MainLayout = () => {
   useEffect(() => {
     const handleStorageChange = (event) => {
       if (event.key === "logout") {
-        const logoutData = JSON.parse(event.newValue);
-        if (logoutData && logoutData.token) {
-          // Only reset auth if the logged-out token matches the current session's token
-          if (isAdmin && adminAuth.token === logoutData.token) {
+        try {
+          const logoutData = JSON.parse(event.newValue);
+          if (!logoutData || !logoutData.token) return;
+  
+          if ((isAdmin && adminAuth.token === logoutData.token) || (isUser && userAuth.token === logoutData.token)) {
             adminAuth.reset();
-            sessionStorage.clear();
-            localStorage.clear();
-            Cookies.remove("authToken");
-            navigate("/login", { replace: true });
-          }
-          if (isUser && userAuth.token === logoutData.token) {
             userAuth.reset();
             sessionStorage.clear();
             localStorage.clear();
             Cookies.remove("authToken");
             navigate("/login", { replace: true });
           }
+        } catch (error) {
+          console.error("Error handling logout event:", error);
         }
       }
     };
-
+  
     window.addEventListener("storage", handleStorageChange);
-
+  
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, [adminAuth, userAuth, isAdmin, isUser, navigate]);
+  
 
   if (loading) {
     return (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Button, Input, Card, Pagination, Tooltip, Modal, message, Typography } from 'antd';
-import { UserAddOutlined, DeleteOutlined, SearchOutlined, LockOutlined, EditOutlined } from '@ant-design/icons';
-import { fetchUsersData, deleteUsers, addUser, updateSecurityQuestion, getSecurityQuestion } from '../../services/api/usersdata';
+import { UserAddOutlined, DeleteOutlined, SearchOutlined, LockOutlined, EditOutlined, SecurityScanOutlined } from '@ant-design/icons';
+import { fetchUsersData, deleteUsers, addUser, updateSecurityQuestion, getSecurityQuestion, updateRole } from '../../services/api/usersdata';
 import { resetPasswordApi } from '../../services/api/resetpassword';
 import { generateTempPassword } from '../../utils/password';
 import ModalForms from '../ModalForms';
@@ -28,8 +28,44 @@ const UsersList = () => {
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
   const [loading, setLoading] = useState(true); // Loading state
+  const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState(null);
+  const [currentUserIdForRole, setCurrentUserIdForRole] = useState(null);
+  const [loadingRoleUpdate, setLoadingRoleUpdate] = useState(false);
 
+  const handleRoleUpdate = async (values) => {
+    setLoadingRoleUpdate(true);
+    try {
+      const response = await updateRole(currentUserIdForRole, values.role);
+      if (response.success) {
+        message.success(response.message || 'Role updated successfully');
+        setIsRoleModalVisible(false);
+  
+        // Update the user role in the local state immediately to reflect the change in UI
+        setUsers(prevUsers => prevUsers.map(user => 
+          user.id === currentUserIdForRole ? { ...user, role: values.role } : user
+        ));
+        setFilteredData(prevFilteredData => prevFilteredData.map(user => 
+          user.id === currentUserIdForRole ? { ...user, role: values.role } : user
+        ));
 
+        logUserActivity('Admin', 'User Management', `Updated the role of user with ID: "${currentUserIdForRole}" to "${values.role}"`);
+        logUserNotification('User Management', `You have updated the role of user with ID: "${currentUserIdForRole}" to "${values.role}"`);
+      } else {
+        message.error(response.message || 'Failed to update role');
+      }
+    } catch (error) {
+      message.error('An error occurred while updating the role');
+    } finally {
+      setLoadingRoleUpdate(false);
+    }
+  };
+  
+  const showEditRoleModal = (record) => {
+    setCurrentUserRole(record.role);
+    setCurrentUserIdForRole(record.id);
+    setIsRoleModalVisible(true);
+  };
 
   // Populate security questions on mount
   useEffect(() => {
@@ -57,7 +93,7 @@ const UsersList = () => {
       } catch (error) {
         console.error('Error fetching users data:', error);
       } finally {
-        setLoading(false);
+        setLoading(false); 
       }
     };
 
@@ -190,9 +226,16 @@ const UsersList = () => {
   
 
   const columns = [
+    {
+      title: 'ID', 
+      dataIndex: 'id', 
+      key: 'id', 
+      sorter: (a, b) => a.id - b.id, 
+    },
     { title: 'Username', dataIndex: 'username', key: 'username', ellipsis: 'true',
       sorter: (a, b) => a.username.localeCompare(b.username) },
     { title: 'Department', dataIndex: 'department', key: 'department', sorter: (a, b) => a.department.localeCompare(b.department) },
+    { title: 'Role', dataIndex: 'role', key: 'role', render: (role) => <Tag color={role === 'admin' ? 'blue' : role === 'user' ? 'green' : 'orange'}>{role}</Tag> },
     {
       title: 'Status',
       dataIndex: 'status',
@@ -207,8 +250,14 @@ const UsersList = () => {
           <Tooltip title="Reset Password">
             <Button icon={<LockOutlined />} type="text" onClick={() => handleResetPassword(record.id)} />
           </Tooltip>
-          <Tooltip title="Security Question">
-            <Button icon={<EditOutlined />} type="text" onClick={() => handleSecurityQuestion(record.id)} />
+           {/* Show Security Question button only if role is NOT guest */}
+      {record.role !== 'guest' && (
+        <Tooltip title="Security Question">
+          <Button icon={<SecurityScanOutlined />} type="text" onClick={() => handleSecurityQuestion(record.id)} />
+        </Tooltip>
+      )}
+          <Tooltip title="Edit Role">
+            <Button icon={<EditOutlined />} type="text" onClick={() => showEditRoleModal(record)} loading={loadingRoleUpdate} />
           </Tooltip>
         </div>
       ),
@@ -242,7 +291,7 @@ const UsersList = () => {
           />
         </Tooltip>
       </div>
-      <div style={{ height: '300px' }}>
+      <div style={{ height: '380px' }}>
         <Table
           columns={columns}
           dataSource={filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
@@ -251,7 +300,7 @@ const UsersList = () => {
           rowKey="id"
           rowSelection={rowSelection}
           loading={loading}
-          scroll={{ x: 'max-content', y: 280 }} 
+          scroll={{ x: 'max-content', y: 330 }} 
         />
       </div>
       <div className="flex justify-between items-center mt-4">
@@ -282,6 +331,10 @@ const UsersList = () => {
         securityQuestions={securityQuestions}
         handleChangeSecurityQuestion={handleChangeSecurityQuestion}
         currentUserSecurityQuestion={currentUserSecurityQuestion}
+        isRoleModalVisible={isRoleModalVisible}
+        setIsRoleModalVisible={setIsRoleModalVisible}
+        currentUserRole={currentUserRole}
+        handleRoleUpdate={handleRoleUpdate}
       />
     </Card>
   );

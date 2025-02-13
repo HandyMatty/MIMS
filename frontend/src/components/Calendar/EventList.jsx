@@ -5,7 +5,7 @@ import { deleteEvent } from '../../services/api/eventService'; // Import the del
 import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
 
-const EventList = ({ currentDate, info, events, showModal, isAdmin, currentUser, setEvents }) => {
+const EventList = ({ currentDate, info, events, showModal, isAdmin, currentUser, setEvents, isGuest  }) => {
   const { logUserActivity } = useActivity(); 
   const { logUserNotification } = useNotification();
 
@@ -70,14 +70,16 @@ const EventList = ({ currentDate, info, events, showModal, isAdmin, currentUser,
             )}
           </li>
         ))}
-        <Tooltip title="Add Event">
-          <Button
-            type="link"
-            icon={<PlusOutlined />}
-            onClick={() => showModal(currentDate)}
-            style={{ padding: 0 }}
-          />
-        </Tooltip>
+        {!isGuest && (
+          <Tooltip title="Add Event">
+            <Button
+              type="link"
+              icon={<PlusOutlined />}
+              onClick={() => showModal(currentDate)}
+              style={{ padding: 0 }}
+            />
+          </Tooltip>
+        )}
       </ul>
     );
   }

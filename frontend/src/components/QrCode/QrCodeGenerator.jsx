@@ -15,6 +15,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
   const { userData: userUserData } = useUserAuthStore();
   
   const username = adminUserData?.username || userUserData?.username || 'Unknown User';
+  const isAuthenticated = adminUserData || userUserData;
 
   const defaultItemData = {
     id: "N/A",
@@ -132,6 +133,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
                 className={`text-black ${
                   selectedFormat === 'PNG' ? 'bg-lime-200' : 'bg-[#EAF4E2]'
                 }`}
+                disabled={!isAuthenticated}
               >
                 PNG
               </Button>
@@ -141,6 +143,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
                 className={`text-black ${
                   selectedFormat === 'SVG' ? 'bg-lime-200' : 'bg-[#EAF4E2]'
                 }`}
+                disabled={!isAuthenticated}
               >
                 SVG
               </Button>
@@ -153,6 +156,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
             className="bg-lime-200 shadow-md text-[#072C1C] text-lg"
             type="primary"
             style={{ width: '100%', maxWidth: '177px', height: '31px' }}
+            disabled={!isAuthenticated}
           >
             Download {selectedFormat}
           </Button>
@@ -163,6 +167,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
             className="bg-lime-200 shadow-md text-[#072C1C] text-lg"
             type="primary"
             style={{ width: '100%', maxWidth: '177px', height: '31px' }}
+            disabled={!isAuthenticated}
           >
             Print QR Code
           </Button>

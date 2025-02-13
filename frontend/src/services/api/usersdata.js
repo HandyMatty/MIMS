@@ -70,6 +70,20 @@ export const updateSecurityQuestion = async (userId, securityQuestion, securityA
   }
 };
 
+// API to update role
+export const updateRole = async (userId, role) => {
+  try {
+    const response = await axiosAuth.post("/update_role.php", {
+      userId,  // Ensure userId is being sent, not just username
+      role
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating role:", error);
+    throw error;
+  }
+};
+
 
 
 

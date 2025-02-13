@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, message, notification } from 'antd'; // Import notification
+import { Button, message, notification } from 'antd';
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLoginAuth from '../../services/request/useLoginAuth';
-import SINSSILogo from "../../../assets/SINSSI_LOGO-removebg-preview.png"; // Update the path if required
-import vectors from "../../../assets/vectors.svg";
-import { useAdminAuthStore } from '../../store/admin/useAuth'; // Make sure this import is correct
-import { useUserAuthStore } from '../../store/user/useAuth';
+import SINSSILogo from '../../../assets/SINSSI_LOGO-removebg-preview.png';
+import vectors from '../../../assets/vectors.svg';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -16,26 +14,22 @@ const Login = () => {
   const { mutate, isLoading, error } = useLoginAuth();
   const navigate = useNavigate();
 
-  // Correctly accessing the Zustand store methods
-  const { setUserData: setAdminUserData, setRole: setAdminRole, setToken: setAdminToken } = useAdminAuthStore();
-  const { setUserData: setUserUserData, setRole: setUserRole, setToken: setUserToken } = useUserAuthStore();
-
+  
+  // On mount, check if any auth data is already saved.
+  // If so, immediately redirect to the corresponding dashboard.
   useEffect(() => {
-    const adminAuth = JSON.parse(localStorage.getItem('adminAuth'));
-    const userAuth = JSON.parse(localStorage.getItem('userAuth'));
-
-    if (adminAuth && adminAuth.token) {
-      setAdminUserData(adminAuth.userData);  // Ensure you're accessing the function correctly
-      setAdminRole(adminAuth.role);          // Ensure you're accessing the function correctly
-      setAdminToken(adminAuth.token);        // Ensure you're accessing the function correctly
+    const storedAdminAuth = localStorage.getItem('adminAuth');
+    const storedUserAuth = localStorage.getItem('userAuth');
+    const storedGuestAuth = localStorage.getItem('guestAuth');
+  
+    if (storedAdminAuth) {
       navigate('/admin/dashboard', { replace: true });
-    } else if (userAuth && userAuth.token) {
-      setUserUserData(userAuth.userData);    // Ensure you're accessing the function correctly
-      setUserRole(userAuth.role);            // Ensure you're accessing the function correctly
-      setUserToken(userAuth.token);          // Ensure you're accessing the function correctly
+    } else if (storedUserAuth) {
       navigate('/user/dashboard', { replace: true });
+    } else if (storedGuestAuth) {
+      navigate('/guest/dashboard', { replace: true });
     }
-  }, [navigate, setAdminUserData, setAdminRole, setAdminToken, setUserUserData, setUserRole, setUserToken]);
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -52,13 +46,14 @@ const Login = () => {
 
     try {
       const response = await mutate(username, password, rememberMe);
-
       if (response.success) {
         notification.success({
           message: `Welcome Back, ${username}!`,
           description: 'You have successfully logged in. Enjoy your session!',
           placement: 'topRight',
         });
+        // Note: the mutate function (useLoginAuth hook) saves the auth info
+        // and calls navigate() to redirect the user.
       } else {
         message.error(response.message || 'Login failed. Please check your credentials.');
       }
@@ -66,7 +61,6 @@ const Login = () => {
       message.error('Login failed. Please try again.');
     }
   };
-  
 
   const handleForgotPassword = useCallback(() => {
     navigate('/forgotpassword', { replace: true });

@@ -3,14 +3,15 @@ import { Route, Routes, Navigate } from 'react-router-dom';
 import { ForgotPassword, Login } from '../../pages/index';
 import { useAdminAuthStore } from '../../store/admin/useAuth';
 import { useUserAuthStore } from '../../store/user/useAuth';
+import { useGuestAuthStore } from '../../store/guest/useAuth';
 
 const PublicRoutes = () => {
   const isAdminAuthenticated = useAdminAuthStore(state => state.isAuthenticated);
   const isUserAuthenticated = useUserAuthStore(state => state.isAuthenticated);
-  
+  const isGuestAuthenticated = useGuestAuthStore(state => state.isAuthenticated); // Check guest auth
+
   return (
     <Routes>
-      {/* Redirect authenticated users away from the login page */}
       <Route
         path="/login"
         element={
@@ -18,6 +19,8 @@ const PublicRoutes = () => {
             <Navigate to="/admin/dashboard" replace />
           ) : isUserAuthenticated ? (
             <Navigate to="/user/dashboard" replace />
+          ) : isGuestAuthenticated ? (
+            <Navigate to="/guest/dashboard" replace />
           ) : (
             <Login />
           )
@@ -26,14 +29,13 @@ const PublicRoutes = () => {
       <Route
         path="/forgotpassword"
         element={
-          isAdminAuthenticated || isUserAuthenticated ? (
-            <Navigate to={isAdminAuthenticated ? "/admin/dashboard" : "/user/dashboard"} replace />
+          isAdminAuthenticated || isUserAuthenticated || isGuestAuthenticated ? (
+            <Navigate to={isAdminAuthenticated ? "/admin/dashboard" : isUserAuthenticated ? "/user/dashboard" : "/guest/dashboard"} replace />
           ) : (
             <ForgotPassword />
           )
         }
-      />    
-      {/* Redirect all other routes to /login */}
+      />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

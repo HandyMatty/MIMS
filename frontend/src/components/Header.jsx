@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Menu, Badge } from 'antd';
+import { Layout, Menu, Badge, Modal } from 'antd';
 import { BellOutlined, UserOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
+import { useGuestAuthStore } from '../store/guest/useAuth';
 import Cookies from 'js-cookie';
 import { useNotification } from '../utils/NotificationContext';
 
@@ -12,18 +13,24 @@ const { Header } = Layout;
 const HeaderBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const adminAuth = useAdminAuthStore();
   const userAuth = useUserAuthStore();
-  
+  const guestAuth = useGuestAuthStore();  // Added guestAuth store
+
   const [username, setUsername] = useState(null);
   const { notifications } = useNotification(); // Fetch notifications from context
 
-  // Dynamically calculate unread notifications count
-  const unreadNotifications = notifications.filter((notif) => !notif.read).length;
-
+  // Check if the user is authenticated (admin, user, or guest)
   const isAdmin = !!(adminAuth.token && adminAuth.userData);
   const isUser = !!(userAuth.token && userAuth.userData);
+  const isGuest = !!(guestAuth.token && guestAuth.userData);
+
+  // If neither is true, we treat the user as a guest
+  const guestFallback = !isAdmin && !isUser;
+
+  // Dynamically calculate unread notifications count only for authenticated users
+  const unreadNotifications = guestFallback ? 0 : notifications.filter((notif) => !notif.read).length;
 
   // Fetch username from cookies if not available in the store
   useEffect(() => {
@@ -31,12 +38,23 @@ const HeaderBar = () => {
       setUsername(adminAuth.userData?.username || Cookies.get('username'));
     } else if (isUser) {
       setUsername(userAuth.userData?.username || Cookies.get('username'));
+    } else if (isGuest) {
+      setUsername(guestAuth.userData?.username || Cookies.get('username'));
+    } else {
+      // Fallback for no authenticated user
+      setUsername(null);
     }
-  }, [adminAuth, userAuth, isAdmin, isUser]);
+  }, [adminAuth, userAuth, guestAuth, isAdmin, isUser, isGuest]);
 
   const onClick = (e) => {
     if (e.key === '/profile') {
-      if (isAdmin) {
+      if (guestFallback) {
+        Modal.info({
+          title: 'Guests Don\'t Have Profile',
+          content: 'You are currently logged in as a guest and cannot access a profile.',
+          onOk() {},
+        });
+      } else if (isAdmin) {
         navigate('/admin/profile', { replace: true });
       } else if (isUser) {
         navigate('/user/profile', { replace: true });
@@ -46,16 +64,19 @@ const HeaderBar = () => {
         navigate('/admin/calendar', { replace: true });
       } else if (isUser) {
         navigate('/user/calendar', { replace: true });
+      } else {
+        navigate('/guest/calendar', { replace: true }); // Guest calendar page
       }
     } else if (e.key === '/notifications') {
       if (isAdmin) {
         navigate('/admin/notifications', { replace: true });
       } else if (isUser) {
         navigate('/user/notifications', { replace: true });
+      } else {
+        navigate('/guest/notifications', { replace: true }); // Guest notifications
       }
     }
   };
-
   const items = [
     {
       key: '/profile',

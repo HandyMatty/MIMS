@@ -101,6 +101,7 @@ const Calendar = () => {
       isAdmin={isAdmin} 
       currentUser={currentUser}
       setEvents={setEvents} // Pass setEvents here
+      isGuest={!isAdmin && !currentUser}
     />
   )}
 />

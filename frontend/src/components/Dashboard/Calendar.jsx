@@ -82,11 +82,18 @@ const AntCalendar = () => {
   const onDateClick = (date) => {
     fetchEventsForDate(date);
     setSelectedDate(date);
+  
+    // Ensure selectedYear is set when a date is clicked
+    const selectedYear = date.year();
+    const selectedMonth = date.month();
+    setSelectedYear(selectedYear);
+    setSelectedMonth(selectedMonth);
+  
     const hasEvents = allEvents.some(
       (event) => event.event_date === date.format('YYYY-MM-DD')
     );
     setIsModalOpen(hasEvents); // Open modal only if there are events
-  };
+  };  
 
   // Handle month select
   const onMonthSelect = (newMonth, currentYear) => {
@@ -263,11 +270,8 @@ const AntCalendar = () => {
       <Modal
         title={
           viewType === 'year'
-            ? `Events in ${selectedYear}`
-            : `Events in ${dayjs()
-                .month(selectedMonth)
-                .year(selectedYear)
-                .format('MMMM YYYY')}`
+            ? `Events in ${selectedYear || dayjs().year()}` // Fallback to current year if selectedYear is null
+            : `Events in ${selectedMonth !== null ? dayjs().month(selectedMonth).year(selectedYear).format('MMMM YYYY') : 'Select Month'}` // Add fallback logic for month and year
         }
         open={isModalOpen}
         onCancel={handleModalClose}
