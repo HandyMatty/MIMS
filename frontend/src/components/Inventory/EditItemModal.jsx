@@ -19,6 +19,7 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
         condition: item.condition,
         location: item.location,
         status: item.status,
+        remarks: item.remarks,
       });
     }
   }, [item, form]);
@@ -30,6 +31,7 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
         ...values,
         issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null, // Format the date
         purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, // Format the date
+        remarks: values.remarks, 
       };
       console.log(updatedItem); // Log the object to check it
       await onEdit(updatedItem);
@@ -75,12 +77,19 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
             <Option value="Keyboard">Keyboard</Option>
             <Option value="Mouse">Mouse</Option>
             <Option value="AVR">AVR</Option>
-            
+            <Option value="Others">Others</Option>
           </Select>
         </Form.Item>
 
         <Form.Item label="Brand" name="brand" rules={[{ required: true, message: 'Please input the brand!' }]}>
           <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="Remarks"
+          name="remarks"
+          rules={[{ required: false, message: 'Please add remarks if necessary!' }]} >
+          <Input.TextArea />
         </Form.Item>
 
         <Form.Item label="Serial Number" name="serialNumber" rules={[{ required: true, message: 'Please input the serial number!' }]}>

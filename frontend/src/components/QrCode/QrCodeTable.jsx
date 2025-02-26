@@ -1,8 +1,11 @@
+// QrCodeTable.js
+
 import React, { useState, useEffect } from 'react';
-import { Input, Select, Table, Pagination, Typography, Tag, Card } from 'antd';
-import { SearchOutlined, QrcodeOutlined, DownOutlined } from '@ant-design/icons';
+import { Input, Select, Table, Pagination, Typography, Card } from 'antd';
+import { SearchOutlined, DownOutlined } from '@ant-design/icons';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import QrCodeModal from './QrCodeModal';
+import columns from './QrCodeTableColumns';  // Import the columns
 
 const { Option } = Select;
 
@@ -16,8 +19,6 @@ const QrCodeTable = ({ onItemSelect }) => {
   const [qrDetails, setQrDetails] = useState(null);
   const { Text } = Typography;
   const [loading, setLoading] = useState(true); // Loading state
-
-  
 
   useEffect(() => {
     const fetchInventoryData = async () => {
@@ -46,7 +47,7 @@ const QrCodeTable = ({ onItemSelect }) => {
     fetchInventoryData();
   }, [onItemSelect, qrDetails]);
 
-  // Filter the data based on the search text
+  // Filter and sort the data based on the selected search text and sort order
   const filteredData = Array.isArray(data)
     ? data.filter(item =>
         Object.values(item)
@@ -56,61 +57,26 @@ const QrCodeTable = ({ onItemSelect }) => {
       )
     : [];
 
-  // Sort the data based on the selected sort order
   const sortedData = [...filteredData].sort((a, b) => {
     if (sortOrder === 'newest') {
-      return b.id - a.id; // Newest items have the highest IDs
+      return b.id - a.id;
     } else if (sortOrder === 'oldest') {
-      return a.id - b.id; // Oldest items have the lowest IDs
+      return a.id - b.id;
     }
-    return 0; // Default fallback (no sorting)
+    return 0;
   });
 
-
   const totalEntries = data.length;
-  
+
   const handleSortOrderChange = (value) => {
     setSortOrder(value.toLowerCase());
-    setCurrentPage(1); // Reset to the first page when sorting changes
+    setCurrentPage(1);
   };
+  
   const handlePageChange = (page, pageSize) => {
     setCurrentPage(page);
     setPageSize(pageSize);
   };
-
-  const getStatusTag = (status) => {
-    let color;
-    switch (status) {
-      case 'On Stock':
-        color = 'green';
-        break;
-      case 'For Repair':
-        color = 'volcano';
-        break;
-      case 'Deployed':
-        color = 'blue';
-        break;
-      default:
-        color = 'gray';
-    }
-    return <Tag color={color}>{status}</Tag>;
-  };
-
-  const getConditionTag = (condition) => {
-    let color;
-    switch (condition) {
-      case 'Brand New':
-        color = 'gold';
-        break;
-      case 'Good Condition':
-        color = 'green';
-        break;
-      case 'Defective':
-        color = 'red';
-        break;
-    }
-    return <Tag color={color}>{condition}</Tag>
-  }
 
   const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -120,91 +86,12 @@ const QrCodeTable = ({ onItemSelect }) => {
   };
 
   const handleRowClick = (item) => {
-    onItemSelect(item); 
+    onItemSelect(item);
     setQrDetails(item); 
   };
 
-  const columns = [
-    {
-      title: 'QR Code',
-      dataIndex: 'qrCode',
-      key: 'qrCode',
-      align:'center',
-      ellipsis: 'true',
-      render: (_, item) => (
-        <QrcodeOutlined
-          style={{ fontSize: '24px', cursor: 'pointer' }}
-          onClick={() => handleQrCodeClick(item)}
-          title="Generate QR Code"
-        />
-      ),
-    },
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      align:'center',
-      sorter: (a, b) => a.id.localeCompare(b.id),
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-      align:'center',
-      sorter: (a, b) => a.type.localeCompare(b.type),
-    },
-    {
-      title: 'Brand',
-      dataIndex: 'brand',
-      key: 'brand',
-      align:'center',
-      sorter: (a, b) => a.brand.localeCompare(b.brand),
-    },
-    {
-      title: 'Serial Number',
-      dataIndex: 'serialNumber',
-      key: 'serialNumber',
-      align:'center',
-      sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
-    },
-    {
-      title: 'Issued Date',
-      dataIndex: 'issuedDate',
-      key: 'issuedDate',
-      align: 'center',
-      sorter: (a, b) => a.issuedDate.localeCompare(b.issuedDate),
-    },
-    {
-      title: 'Purchased Date',
-      dataIndex: 'purchaseDate',
-      key: 'purchaseDate',
-      align: 'center',
-      sorter: (a, b) => a.purchaseDate.localeCompare(b.purchaseDate),
-    },
-    {
-      title: 'Condition',
-      dataIndex: 'condition',
-      key: 'condition',
-      align:'center',
-      render: (condition) => getConditionTag(condition),
-    },
-    {
-      title: 'Detachment/Office',
-      dataIndex: 'location',
-      key: 'location',
-      align:'center',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      align:'center',
-      render: (status) => getStatusTag(status),
-    },
-  ];
-
   return (
-    <Card title={<span className="text-5xl-6 font-bold flex justify-center">ITEMS</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
+    <Card title={<span className="text-5xl-6 font-bold flex justify-center">ITEMS</span>} className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
       <div className="flex items-center space-x-4 mb-4">
         <Input
           placeholder="Search"
@@ -230,7 +117,7 @@ const QrCodeTable = ({ onItemSelect }) => {
       <div style={{ height: '680px' }}>
         <Table
           rowKey="id"
-          columns={columns}
+          columns={columns(handleQrCodeClick)}  // Pass handleQrCodeClick to columns
           dataSource={paginatedData.map((item) => ({ ...item, key: item.id }))}
           pagination={false}
           bordered

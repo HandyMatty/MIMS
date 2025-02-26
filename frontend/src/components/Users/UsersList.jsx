@@ -1,241 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Tag, Button, Input, Card, Pagination, Tooltip, Modal, message, Typography } from 'antd';
-import { UserAddOutlined, DeleteOutlined, SearchOutlined, LockOutlined, EditOutlined, SecurityScanOutlined } from '@ant-design/icons';
-import { fetchUsersData, deleteUsers, addUser, updateSecurityQuestion, getSecurityQuestion, updateRole } from '../../services/api/usersdata';
-import { resetPasswordApi } from '../../services/api/resetpassword';
-import { generateTempPassword } from '../../utils/password';
+// UsersList.jsx
+import React from 'react';
+import {
+  Table,
+  Tag,
+  Button,
+  Input,
+  Card,
+  Pagination,
+  Tooltip,
+  Typography,
+} from 'antd';
+import {
+  UserAddOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+  LockOutlined,
+  EditOutlined,
+  SecurityScanOutlined,
+} from '@ant-design/icons';
 import ModalForms from '../ModalForms';
-import { useActivity } from '../../utils/ActivityContext';
-import { useNotification } from '../../utils/NotificationContext';
-
+import useUsersList from '../../hooks/useUsersList'; // Adjust the path if needed
 
 const { Text } = Typography;
 
 const UsersList = () => {
-  const [users, setUsers] = useState([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [searchText, setSearchText] = useState('');
-  const [filteredData, setFilteredData] = useState([]);
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
-  const [isSecurityQuestionModalVisible, setIsSecurityQuestionModalVisible] = useState(false);
-  const [temporaryPassword, setTemporaryPassword] = useState('');
-  const [securityQuestions, setSecurityQuestions] = useState([]);
-  const [currentUserSecurityQuestion, setCurrentUserSecurityQuestion] = useState(null);
-  const [currentUserId, setCurrentUserId] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const { logUserActivity } = useActivity();
-  const { logUserNotification } = useNotification();
-  const [loading, setLoading] = useState(true); // Loading state
-  const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
-  const [currentUserRole, setCurrentUserRole] = useState(null);
-  const [currentUserIdForRole, setCurrentUserIdForRole] = useState(null);
-  const [loadingRoleUpdate, setLoadingRoleUpdate] = useState(false);
-
-  const handleRoleUpdate = async (values) => {
-    setLoadingRoleUpdate(true);
-    try {
-      const response = await updateRole(currentUserIdForRole, values.role);
-      if (response.success) {
-        message.success(response.message || 'Role updated successfully');
-        setIsRoleModalVisible(false);
-  
-        // Update the user role in the local state immediately to reflect the change in UI
-        setUsers(prevUsers => prevUsers.map(user => 
-          user.id === currentUserIdForRole ? { ...user, role: values.role } : user
-        ));
-        setFilteredData(prevFilteredData => prevFilteredData.map(user => 
-          user.id === currentUserIdForRole ? { ...user, role: values.role } : user
-        ));
-
-        logUserActivity('Admin', 'User Management', `Updated the role of user with ID: "${currentUserIdForRole}" to "${values.role}"`);
-        logUserNotification('User Management', `You have updated the role of user with ID: "${currentUserIdForRole}" to "${values.role}"`);
-      } else {
-        message.error(response.message || 'Failed to update role');
-      }
-    } catch (error) {
-      message.error('An error occurred while updating the role');
-    } finally {
-      setLoadingRoleUpdate(false);
-    }
-  };
-  
-  const showEditRoleModal = (record) => {
-    setCurrentUserRole(record.role);
-    setCurrentUserIdForRole(record.id);
-    setIsRoleModalVisible(true);
-  };
-
-  // Populate security questions on mount
-  useEffect(() => {
-    setSecurityQuestions([
-      'What is your mother\'s maiden name?',
-      'What was the name of your first pet?',
-      'What is your favorite color?',
-      'In what city were you born?',
-      'What is the name of your first school?',
-      'What is your favorite movie?',
-      'Who is your favorite author?',
-      'What is the name of your best friend?',
-      'What is your dream job?',
-      'Where did you go on your last vacation?',
-    ]);
-  }, []);
-
-  // Fetch user data on component mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchUsersData();
-        setUsers(data.users);
-        setFilteredData(data.users);
-      } catch (error) {
-        console.error('Error fetching users data:', error);
-      } finally {
-        setLoading(false); 
-      }
-    };
-
-    fetchData();
-  }, []); 
-
-  const onSearch = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchText(value);
-    const filtered = users.filter((item) =>
-      Object.values(item).some((field) => String(field).toLowerCase().includes(value))
-    );
-    setFilteredData(filtered);
-  };
-
-  const handlePageChange = (page, pageSize) => {
-    setCurrentPage(page);
-    setPageSize(pageSize);
-  };
-
-  const handleBatchDelete = () => {
-    Modal.confirm({
-      title: 'Confirm Deletion',
-      content: `Are you sure you want to delete ${selectedRowKeys.length} user(s)? This action cannot be undone.`,
-      okText: 'Yes, Delete',
-      cancelText: 'Cancel',
-      onOk: async () => {
-        try {
-          const response = await deleteUsers(selectedRowKeys); 
-          if (response.success) {
-            message.success(response.message || 'Users deleted successfully');
-            const updatedUsers = users.filter((user) => !selectedRowKeys.includes(user.id));
-            setUsers(updatedUsers);
-            setFilteredData(updatedUsers);
-            setSelectedRowKeys([]); // Clear selection
-            logUserActivity('Admin', 'User Management', `Deleted ${selectedRowKeys.length} user(s)`);
-            logUserNotification ('User Management', `You have deleted ${selectedRowKeys.length} user(s)`);
-          } else {
-            message.error(response.message || 'Failed to delete users');
-          }
-        } catch (error) {
-          console.error('Error deleting users:', error);
-          message.error('Failed to delete users');
-        }
-      },
-    });
-  };
-
-  const handleAddUser = async (values) => {
-    const tempPassword = generateTempPassword();
-    try {
-      await addUser({ ...values, password: tempPassword });
-      message.success('User added successfully');
-      setTemporaryPassword(tempPassword);
-      setIsAddModalVisible(false);
-      setIsPasswordModalVisible(true);
-      const data = await fetchUsersData();
-      setUsers(data.users);
-      setFilteredData(data.users);
-      logUserActivity('Admin', 'User Management', `Added a new user with username: "${values.username}"`);
-      logUserNotification ('User Management', `You have added a new user with username: "${values.username}"`);
-    } catch (error) {
-      console.error('Error adding user:', error);
-      message.error('Failed to add user');
-    }
-  };
-
-  const handleResetPassword = (userId) => {
-    Modal.confirm({
-      title: 'Are you sure you want to reset the password?',
-      content: 'This action will reset the user\'s password to a temporary one.',
-      okText: 'Yes',
-      cancelText: 'No',
-      onOk: async () => {
-        const tempPassword = generateTempPassword();
-        try {
-          await resetPasswordApi(userId, tempPassword);
-          message.success('Password reset successfully');
-          setTemporaryPassword(tempPassword);
-          setIsPasswordModalVisible(true);
-          logUserActivity('Admin', 'User Management', `Reset the password for user with ID: "${userId}"`);
-          logUserNotification ('User Management', `You have reset the password for user with ID: "${userId}"`);
-        } catch (error) {
-          console.error('Error resetting password:', error);
-          message.error('Failed to reset password');
-        }
-      },
-    });
-  };
-
-  const handleSecurityQuestion = async (userId) => {
-    try {
-      const response = await getSecurityQuestion(userId);
-      if (response.success) {
-        setCurrentUserSecurityQuestion(response.security_question);
-        setCurrentUserId(userId);
-        setIsSecurityQuestionModalVisible(true);
-      } else {
-        message.error('Failed to fetch security question');
-      }
-    } catch (error) {
-      console.error('Error fetching security question:', error);
-      message.error('Failed to fetch security question');
-    }
-  };  
-  
-
-  const handleChangeSecurityQuestion = async (values) => {
-    try {
-      const response = await updateSecurityQuestion(
-        currentUserId,
-        values.security_question,
-        values.security_answer
-      );
-  
-      if (response.success) {
-        message.success('Security question updated successfully.');
-        setIsSecurityQuestionModalVisible(false);
-        logUserActivity('Admin', 'User Management',  `Updated the security question for user with ID: "${currentUserId}"`);
-        logUserNotification ('User Management', `You have updated the security question for user with ID: "${currentUserId}"`);
-      } else {
-        message.error(response.message || 'Failed to update security question.');
-      }
-    } catch (error) {
-      console.error('Error updating security question:', error);
-      message.error('Failed to update security question.');
-    }
-  };
-  
-  
+  const {
+    users,
+    selectedRowKeys,
+    searchText,
+    filteredData,
+    isAddModalVisible,
+    isPasswordModalVisible,
+    isSecurityQuestionModalVisible,
+    temporaryPassword,
+    securityQuestions,
+    currentUserSecurityQuestion,
+    currentUserId,
+    currentPage,
+    pageSize,
+    loading,
+    isRoleModalVisible,
+    setIsRoleModalVisible, // Ensure this is included!
+    currentUserRole,
+    loadingRoleUpdate,
+    setSelectedRowKeys,
+    setIsAddModalVisible,
+    setIsPasswordModalVisible,
+    setIsSecurityQuestionModalVisible,
+    onSearch,
+    handlePageChange,
+    handleBatchDelete,
+    handleAddUser,
+    handleResetPassword,
+    handleSecurityQuestion,
+    showEditRoleModal,
+    handleRoleUpdate,
+    handleChangeSecurityQuestion,
+  } = useUsersList();
 
   const columns = [
     {
-      title: 'ID', 
-      dataIndex: 'id', 
-      key: 'id', 
-      sorter: (a, b) => a.id - b.id, 
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      sorter: (a, b) => a.id - b.id,
     },
-    { title: 'Username', dataIndex: 'username', key: 'username', ellipsis: 'true',
-      sorter: (a, b) => a.username.localeCompare(b.username) },
-    { title: 'Department', dataIndex: 'department', key: 'department', sorter: (a, b) => a.department.localeCompare(b.department) },
-    { title: 'Role', dataIndex: 'role', key: 'role', render: (role) => <Tag color={role === 'admin' ? 'blue' : role === 'user' ? 'green' : 'orange'}>{role}</Tag> },
+    {
+      title: 'Username',
+      dataIndex: 'username',
+      key: 'username',
+      ellipsis: true,
+      sorter: (a, b) => a.username.localeCompare(b.username),
+    },
+    {
+      title: 'Department',
+      dataIndex: 'department',
+      key: 'department',
+      ellipsis: true,
+      sorter: (a, b) => a.department.localeCompare(b.department),
+    },
+    {
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
+      render: (role) => (
+        <Tag color={role === 'admin' ? 'blue' : role === 'user' ? 'green' : 'orange'}>
+          {role}
+        </Tag>
+      ),
+    },
     {
       title: 'Status',
       dataIndex: 'status',
@@ -248,16 +101,28 @@ const UsersList = () => {
       render: (_, record) => (
         <div>
           <Tooltip title="Reset Password">
-            <Button icon={<LockOutlined />} type="text" onClick={() => handleResetPassword(record.id)} />
+            <Button
+              icon={<LockOutlined />}
+              type="text"
+              onClick={() => handleResetPassword(record.id)}
+            />
           </Tooltip>
-           {/* Show Security Question button only if role is NOT guest */}
-      {record.role !== 'guest' && (
-        <Tooltip title="Security Question">
-          <Button icon={<SecurityScanOutlined />} type="text" onClick={() => handleSecurityQuestion(record.id)} />
-        </Tooltip>
-      )}
+          {record.role !== 'guest' && (
+            <Tooltip title="Security Question">
+              <Button
+                icon={<SecurityScanOutlined />}
+                type="text"
+                onClick={() => handleSecurityQuestion(record.id)}
+              />
+            </Tooltip>
+          )}
           <Tooltip title="Edit Role">
-            <Button icon={<EditOutlined />} type="text" onClick={() => showEditRoleModal(record)} loading={loadingRoleUpdate} />
+            <Button
+              icon={<EditOutlined />}
+              type="text"
+              onClick={() => showEditRoleModal(record)}
+              loading={loadingRoleUpdate}
+            />
           </Tooltip>
         </div>
       ),
@@ -270,7 +135,10 @@ const UsersList = () => {
   };
 
   return (
-    <Card title={<span className="text-5xl-6 font-bold flex justify-center">ALL USERS</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
+    <Card
+      title={<span className="text-5xl-6 font-bold flex justify-center">ALL USERS</span>}
+      className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none"
+    >
       <div className="flex justify-start items-center mb-4 space-x-2">
         <Input
           placeholder="Search users..."
@@ -280,7 +148,11 @@ const UsersList = () => {
           className="w-64 bg-[#a7f3d0] border border-black custom-input-table"
         />
         <Tooltip title="Add User">
-          <Button icon={<UserAddOutlined />} type="text" onClick={() => setIsAddModalVisible(true)} />
+          <Button
+            icon={<UserAddOutlined />}
+            type="text"
+            onClick={() => setIsAddModalVisible(true)}
+          />
         </Tooltip>
         <Tooltip title="Delete">
           <Button
@@ -300,7 +172,7 @@ const UsersList = () => {
           rowKey="id"
           rowSelection={rowSelection}
           loading={loading}
-          scroll={{ x: 'max-content', y: 330 }} 
+          scroll={{ x: 'max-content', y: 300 }}
         />
       </div>
       <div className="flex justify-between items-center mt-4">
@@ -332,7 +204,7 @@ const UsersList = () => {
         handleChangeSecurityQuestion={handleChangeSecurityQuestion}
         currentUserSecurityQuestion={currentUserSecurityQuestion}
         isRoleModalVisible={isRoleModalVisible}
-        setIsRoleModalVisible={setIsRoleModalVisible}
+        setIsRoleModalVisible={setIsRoleModalVisible} 
         currentUserRole={currentUserRole}
         handleRoleUpdate={handleRoleUpdate}
       />

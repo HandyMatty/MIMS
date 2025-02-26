@@ -18,6 +18,7 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
         condition: values.condition,
         location: values.location,
         status: values.status,
+        remarks: values.remarks,
       };
 
       onAdd(itemData); 
@@ -66,6 +67,7 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
             <Option value="Keyboard">Keyboard</Option>
             <Option value="Mouse">Mouse</Option>
             <Option value="AVR">AVR</Option>
+            <Option value="Others">Others</Option>
           </Select>
         </Form.Item>
 
@@ -74,6 +76,13 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
           name="brand"
           rules={[{ required: true, message: 'Please input the brand!' }]} >
           <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="Remarks"
+          name="remarks"
+          rules={[{ required: false, message: 'Please add remarks if necessary!' }]} >
+          <Input.TextArea />
         </Form.Item>
 
         <Form.Item

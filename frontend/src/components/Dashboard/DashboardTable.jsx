@@ -1,8 +1,10 @@
+// DashboardTable.jsx
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Input, Typography, Pagination, Card, message, Select } from 'antd';
-import { SearchOutlined, QrcodeOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import QrCodeModal from '../../components/QrCode/QrCodeModal';
+import { getDashboardTableColumns } from './DashboardTableColumns'; // Adjust the path as needed
 
 const { Option } = Select;
 
@@ -15,9 +17,9 @@ const DashboardTable = () => {
   const [qrDetails, setQrDetails] = useState(null);
   const [sortOrder, setSortOrder] = useState('newest');
   const [sorterConfig, setSorterConfig] = useState({ field: 'id', order: 'descend' });
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
 
-
+  // Fetch inventory data
   useEffect(() => {
     const fetchInventoryData = async () => {
       try {
@@ -29,45 +31,8 @@ const DashboardTable = () => {
         setLoading(false);
       }
     };
-
     fetchInventoryData();
   }, []);
-
-  const getStatusTag = (status) => {
-    let color;
-    switch (status) {
-      case 'On Stock':
-        color = 'green';
-        break;
-      case 'For Repair':
-        color = 'volcano';
-        break;
-      case 'Deployed':
-        color = 'blue';
-        break;
-      default:
-        color = 'gray';
-    }
-    return <Tag color={color}>{status}</Tag>;
-  };
-
-  const getConditionTag = (condition) => {
-    let color;
-    switch (condition) {
-      case 'Brand New':
-        color = 'gold';
-        break;
-      case 'Good Condition':
-        color = 'green';
-        break;
-      case 'Defective':
-        color = 'red';
-        break;
-      default:
-        color = 'gray';
-    }
-    return <Tag color={color}>{condition}</Tag>;
-  };
 
   // Filter the data based on the search text
   const filteredData = Array.isArray(dataSource)
@@ -100,11 +65,10 @@ const DashboardTable = () => {
   };
 
   const handleSortOrderChange = (value) => {
-    // When the dropdown changes, update the global sorterConfig to match the order
     setSortOrder(value.toLowerCase());
     const order = value.toLowerCase() === 'newest' ? 'descend' : 'ascend';
     setSorterConfig({ field: 'id', order });
-    setCurrentPage(1); // Reset to the first page when sorting changes
+    setCurrentPage(1);
   };
 
   const handleQrCodeClick = (item) => {
@@ -113,99 +77,13 @@ const DashboardTable = () => {
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
-    // Only update sorterConfig if a column sort is triggered
     if (sorter.field) {
       setSorterConfig({ field: sorter.field, order: sorter.order });
     }
   };
 
-  const columns = [
-    {
-      title: 'QR Code',
-      dataIndex: 'qrCode',
-      key: 'qrCode',
-      align: 'center',
-      width: 100,
-      render: (_, item) => (
-        <QrcodeOutlined
-          style={{ fontSize: '24px', cursor: 'pointer' }}
-          onClick={() => handleQrCodeClick(item)}
-          title="Generate QR Code"
-        />
-      ),
-    },
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      align: 'center',
-      sorter: true,
-      width: 100,
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-      align: 'center',
-      sorter: true,
-      width: 120,
-    },
-    {
-      title: 'Brand',
-      dataIndex: 'brand',
-      key: 'brand',
-      align: 'center',
-      sorter: true,
-      width: 150,
-    },
-    {
-      title: 'Serial Number',
-      dataIndex: 'serialNumber',
-      key: 'serialNumber',
-      align: 'center',
-      sorter: true,
-      width: 200,
-    },
-    {
-      title: 'Issued Date',
-      dataIndex: 'issuedDate',
-      key: 'issuedDate',
-      align: 'center',
-      sorter: true,
-      width: 150,
-    },
-    {
-      title: 'Purchased Date',
-      dataIndex: 'purchaseDate',
-      key: 'purchaseDate',
-      align: 'center',
-      sorter: true,
-      width: 150,
-    },
-    {
-      title: 'Condition',
-      dataIndex: 'condition',
-      key: 'condition',
-      align: 'center',
-      width: 120,
-      render: (condition) => getConditionTag(condition),
-    },
-    {
-      title: 'Detachment/Office',
-      dataIndex: 'location',
-      key: 'location',
-      align: 'center',
-      width: 150,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      align: 'center',
-      width: 120,
-      render: (status) => getStatusTag(status),
-    },
-  ];
+  // Get columns from the separate file and pass in the QR code click handler
+  const columns = getDashboardTableColumns(handleQrCodeClick);
 
   return (
     <Card className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow p-6 border-none">
@@ -237,7 +115,7 @@ const DashboardTable = () => {
           bordered
           rowKey="id"
           onChange={handleTableChange}
-          scroll={{ x: 'max-content', y: 600 }}  
+          scroll={{ x: 'max-content', y: 600 }}
           loading={loading}
         />
       </div>

@@ -13,18 +13,21 @@ $purchaseDate = htmlspecialchars($data['purchaseDate']);
 $condition = htmlspecialchars($data['condition']);
 $location = htmlspecialchars($data['location']);
 $status = htmlspecialchars($data['status']);
+$remarks = htmlspecialchars($data['remarks']);
 
-// Insert into the inventory table with the new issued_date column
-$stmt = $conn->prepare("INSERT INTO inventory (type, brand, serial_number, issued_date, purchase_date, `condition`, location, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssssssss", $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status);
+// Insert into the inventory table with the remarks field
+$stmt = $conn->prepare("INSERT INTO inventory (type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, remarks) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sssssssss", $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks);
 
 if ($stmt->execute()) {
     $last_id = $stmt->insert_id;
 
-    // Record in the history table with the renamed issued_date column
-    $history_stmt = $conn->prepare("INSERT INTO history (action, item_id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    // Record in the history table with the remarks field
+    $history_stmt = $conn->prepare("INSERT INTO history (action, item_id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, remarks) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $history_action = 'added';
-    $history_stmt->bind_param("sissssssss", $history_action, $last_id, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status);
+    $history_stmt->bind_param("sisssssssss", $history_action, $last_id, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks);
     $history_stmt->execute();
 
     http_response_code(201); // Set HTTP response status

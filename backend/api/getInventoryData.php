@@ -17,7 +17,8 @@ if ($result->num_rows > 0) {
             "purchaseDate" => $row["purchase_date"], 
             "condition" => $row["condition"],
             "location" => $row["location"],
-            "status" => $row["status"]
+            "status" => $row["status"],
+            "remarks" => $row["remarks"],
         ];
     }
     header('Content-Type: application/json');

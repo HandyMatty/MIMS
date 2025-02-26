@@ -1,5 +1,8 @@
 import { axiosAuth } from "../axios";
 import Cookies from "js-cookie";
+import { useAdminAuthStore } from "../../store/admin/useAuth";
+import { useUserAuthStore } from "../../store/user/useAuth";
+import { useGuestAuthStore } from "../../store/guest/useAuth";
 
 export const logoutUser = async (role) => {
   try {
@@ -9,40 +12,39 @@ export const logoutUser = async (role) => {
     if (role === "guest") authData = JSON.parse(localStorage.getItem("guestAuth"));
 
     if (!authData || !authData.state?.token) {
-      throw new Error("No authentication token found");
+      clearAuthData(role, authData?.state?.username);
+      return { success: false, message: "No authentication token found" };
     }
 
     const token = authData.state.token;
-    const username = authData.state.username;
-    const cookieName = `authToken_${username}`;
 
-    // Clear auth data even if the request fails
-    clearAuthData(role, username);
+    // Send logout request to the server
+    await axiosAuth.post("/logout.php", {}, { headers: { Authorization: `Bearer ${token}` } });
 
-    const response = await axiosAuth.post(
-      "/logout.php",
-      {},
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    // Clear stored data regardless of response
+    clearAuthData(role, authData.state.username);
 
-    if (response.data.success) {
-      return { success: true };
-    } else {
-      throw new Error(response.data.message || "Logout failed");
-    }
+    return { success: true };
   } catch (error) {
     console.error("Error during logout:", error);
-    return { success: false, message: error.message || "Logout error" };
+    return { success: false, message: "Logout error" };
   }
 };
 
-// ✅ **Clear Cookies, Local Storage, & Session Storage**
+
+// ✅ Clear all storage and cookies
 const clearAuthData = (role, username) => {
   sessionStorage.clear(); // Clear sessionStorage completely
-  localStorage.clear(); // Clear localStorage completely
-  Cookies.remove(`authToken_${username}`); // Remove cookie for the specific user
-  Cookies.remove(`cookieExpiration_${username}`); // Remove expiration cookie for the specific user
-  
-  // Optionally remove all other cookies if needed:
-  Cookies.remove("authToken"); // This removes the global authToken cookie
+  localStorage.clear();   // Clear localStorage completely
+
+  if (username) {
+    Cookies.remove(`authToken_${username}`); // Remove user-specific cookie
+    Cookies.remove(`cookieExpiration_${username}`); // Remove expiration cookie if used
+  }
+  Cookies.remove("authToken"); // Remove global auth token cookie
+
+  // Reset Zustand stores
+  if (role === "admin") useAdminAuthStore.getState().reset();
+  if (role === "user") useUserAuthStore.getState().reset();
+  if (role === "guest") useGuestAuthStore.getState().reset();
 };

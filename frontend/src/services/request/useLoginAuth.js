@@ -23,23 +23,20 @@ const useLoginAuth = () => {
     setError(null);
 
     try {
-      // Remove expired cookies and clear localStorage
+      // Check and clear expired cookies (if the cookie value is missing, remove the stored auth)
       checkAndClearExpiredCookies();
 
       const existingAdminAuth = JSON.parse(localStorage.getItem('adminAuth'));
       const existingUserAuth = JSON.parse(localStorage.getItem('userAuth'));
       const existingGuestAuth = JSON.parse(localStorage.getItem('guestAuth'));
 
-      // If an admin is already logged in, prevent another user from logging in
+      // Prevent login if a different user is already logged in
       if (existingAdminAuth && existingAdminAuth.userData.username !== username) {
         return { success: false, message: 'A different admin is already logged in. Please log out first.' };
       }
-
-      // If a user is already logged in, prevent another user from logging in
       if (existingUserAuth && existingUserAuth.userData.username !== username) {
         return { success: false, message: 'A different user is already logged in. Please log out first.' };
       }
-
       if (existingGuestAuth && existingGuestAuth.userData.username !== username) {
         return { success: false, message: 'A different guest is already logged in. Please log out first.' };
       }
@@ -96,19 +93,19 @@ const useLoginAuth = () => {
     }
   };
 
+  // Checks if a cookie value is missing (expired) and removes the corresponding local auth.
   const checkAndClearExpiredCookies = () => {
     const allCookies = Cookies.get();
-    for (const cookieName in allCookies) {
-      // Check if the cookie has expired
-      const cookieValue = Cookies.get(cookieName);
-      if (!cookieValue) {
-        if (cookieName.startsWith('authToken_')) {
-          const username = cookieName.split('_')[1];
-          localStorage.removeItem(`${username}Auth`);
-          Cookies.remove(cookieName);
-        }
+    Object.keys(allCookies).forEach((cookieName) => {
+      // If a cookie with name starting with 'authToken_' is missing its value, clear the related auth
+      if (cookieName.startsWith('authToken_') && !allCookies[cookieName]) {
+        const username = cookieName.split('_')[1];
+        localStorage.removeItem(`adminAuth`);
+        localStorage.removeItem(`userAuth`);
+        localStorage.removeItem(`guestAuth`);
+        Cookies.remove(cookieName);
       }
-    }
+    });
   };
 
   return { mutate, isLoading, error };

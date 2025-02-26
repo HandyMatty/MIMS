@@ -10,6 +10,18 @@ if (isset($data['username'], $data['department'], $data['role'], $data['password
     $role = $data['role'];
     $password = $data['password'];
 
+    // Check if the username already exists
+    $checkStmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM users WHERE username = ?");
+    $checkStmt->bind_param("s", $username);
+    $checkStmt->execute();
+    $checkStmt->bind_result($count);
+    $checkStmt->fetch();
+    $checkStmt->close();
+    if ($count > 0) {
+        echo json_encode(['success' => false, 'message' => 'Username already exists.']);
+        exit;
+    }
+
     // Hash the password
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 

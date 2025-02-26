@@ -231,3 +231,8 @@ input[type="password"]::-ms-reveal {
   background-color: #5fe7a7 !important;
   border-bottom: 2px solid #a7f3d0; /* Red border for example */
 }
+/* Apply to entire table body */
+.ant-table-tbody td {
+  word-wrap: break-word;
+  word-break: break-word;
+}

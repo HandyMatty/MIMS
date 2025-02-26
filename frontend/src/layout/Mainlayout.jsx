@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Spin, Modal } from 'antd';
+import { Layout, Menu, Spin, Modal, message } from 'antd';
 import {
   DashboardOutlined,
   AppstoreOutlined,
@@ -69,7 +69,6 @@ const MainLayout = () => {
   const handleLogout = async () => {
     try {
       let role, username;
-  
       if (isAdmin) {
         role = "admin";
         username = adminAuth.userData.username;
@@ -80,33 +79,29 @@ const MainLayout = () => {
         role = "guest";
         username = guestAuth.userData.username;
       }
-  
+
       if (!role || !username) {
         console.error("No user role detected for logout.");
         return;
       }
-  
+
       const { success, message } = await logoutUser(role);
-  
+
       if (success) {
         logUserActivity(username, "Logout", `User ${username} just logged out`);
-  
-        // ✅ Reset the correct role
+
+        // Reset the correct auth store
         if (role === "admin") adminAuth.reset();
         if (role === "user") userAuth.reset();
         if (role === "guest") guestAuth.reset();
-  
-        // ✅ Remove all session storage and local storage
-        sessionStorage.clear(); // Ensure sessionStorage is cleared
-        localStorage.clear(); // Ensure localStorage is cleared
-        Cookies.remove(`authToken_${username}`); // Remove the specific auth token
-        Cookies.remove("authToken"); // Optionally remove the global auth token
-  
-        console.log("✅ Logout successful. Redirecting to login...");
-  
-        // ✅ Navigate to login after clearing all data
+
+        // Clear all storages and cookies
+        sessionStorage.clear();
+        localStorage.clear();
+        Cookies.remove(`authToken_${username}`);
+        Cookies.remove("authToken");
+
         navigate("/login", { replace: true });
-  
       } else {
         console.error("Logout failed:", message);
       }
@@ -114,8 +109,7 @@ const MainLayout = () => {
       console.error("Error during logout:", error);
     }
   };
-  
-  
+
   const onClick = (e) => {
     if (e.key === 'logout') {
       setIsModalVisible(true);
@@ -135,33 +129,54 @@ const MainLayout = () => {
   };
 
   useEffect(() => {
-    const checkCookieExpiration = () => {
-      const storedAdminAuth = JSON.parse(localStorage.getItem('adminAuth'));
-      const storedUserAuth = JSON.parse(localStorage.getItem('userAuth'));
-      const storedGuestAuth = JSON.parse(localStorage.getItem('guestAuth'));
-    
-      // Check for expired cookies for each role
-      const checkExpiration = (role) => {
-        const cookieExpiration = localStorage.getItem(`cookieExpiration_${role}`);
-        const currentTime = Date.now();
-    
-        if (cookieExpiration && currentTime > cookieExpiration) {
-          // Cookie expired, remove corresponding data
-          localStorage.removeItem(`${role}Auth`);
-          localStorage.removeItem(`cookieExpiration_${role}`);
-          Cookies.remove(`authToken_${role}`);
+    const checkCookieValidity = async () => {
+      let username, role;
+      if (isAdmin) {
+        username = adminAuth.userData?.username;
+        role = "admin";
+      } else if (isUser) {
+        username = userAuth.userData?.username;
+        role = "user";
+      } else if (isGuest) {
+        username = guestAuth.userData?.username;
+        role = "guest";
+      }
+  
+      if (username && role) {
+        const tokenCookie = Cookies.get(`authToken_${username}`);
+        if (!tokenCookie) {
+          message.warning("Your session has expired. You have been logged out.", 3);
+          
+          logUserActivity(username, "Logout", `User ${username} was automatically logged out due to session expiration`);
+          
+          // Call the logout function to notify the server
+          await logoutUser(role);
+  
+          // Reset the correct auth store
+          if (role === "admin") adminAuth.reset();
+          if (role === "user") userAuth.reset();
+          if (role === "guest") guestAuth.reset();
+  
+          // Clear all storages and cookies
+          sessionStorage.clear();
+          localStorage.clear();
+          Cookies.remove(`authToken_${username}`);
+          Cookies.remove("authToken");
+  
+          // Redirect to login
+          navigate("/login", { replace: true });
         }
-      };
-    
-      // Check expiration for all roles
-      if (storedAdminAuth) checkExpiration('admin');
-      if (storedUserAuth) checkExpiration('user');
-      if (storedGuestAuth) checkExpiration('guest');
+      }
     };
   
-    checkCookieExpiration();
-  }, []);    
-
+    // Check immediately on mount
+    checkCookieValidity();
+  
+    // Then check every minute (60000 ms)
+    const interval = setInterval(checkCookieValidity, 60000);
+    return () => clearInterval(interval);
+  }, [adminAuth, userAuth, guestAuth, isAdmin, isUser, isGuest, navigate]);
+  
   useEffect(() => {
     const delay = setTimeout(() => {
       setLoading(false);
@@ -199,10 +214,7 @@ const MainLayout = () => {
     };
   
     window.addEventListener("storage", handleStorageChange);
-  
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, [adminAuth, userAuth, isAdmin, isUser, navigate]);
   
 
