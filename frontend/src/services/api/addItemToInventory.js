@@ -1,14 +1,17 @@
 import { axiosAuth } from "../axios"; // Assuming axios is properly set up
 
 export const addItemToInventory = async (itemData) => {
-    try {
-      const response = await axiosAuth.post("/add_item.php", itemData);
-      return response.data.item; // Return the item data with the generated ID
-    } catch (error) {
+  try {
+      const response = await axiosAuth.post("/add_item.php", itemData, {
+          headers: { "Content-Type": "application/json" },
+      });
+      return response.data; 
+  } catch (error) {
       console.error("Add item API Error:", error);
-      throw error; // Rethrow the error to handle it where the function is called
-    }
-  };
+      throw error;
+  }
+};
+
 
   export const getInventoryData = async () => {
     try {

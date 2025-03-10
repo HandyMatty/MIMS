@@ -29,11 +29,16 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
     }
   };
 
+  const handleClose = () => {
+    form.resetFields(); // Reset fields before closing the modal
+    onClose();
+  };  
+
   return (
     <Modal
       title="Add New Item"
       open={visible}
-      onCancel={onClose}
+      onCancel={handleClose}
       footer={null}
       width={600}
     >

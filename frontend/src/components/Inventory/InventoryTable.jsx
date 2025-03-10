@@ -99,26 +99,29 @@ const InventoryTable = () => {
 
   const handleAddItem = async (newItem) => {
     try {
-      await addItemToInventory(newItem);
-      const updatedData = await getInventoryData();
-      setDataSource(updatedData);
-      const newItemWithId = updatedData.find(item => item.serialNumber === newItem.serialNumber);
-      if (newItemWithId?.id) {
-        message.success('Item added successfully!');
-        await logUserActivity(username, 'Inventory', `Added item with ID: ${newItemWithId.id}`);
-        await logUserNotification('Inventory Update', `You added an item with ID: ${newItemWithId.id}`);
+      setIsLoading(true);
+      const response = await addItemToInventory(newItem); 
+  
+      if (response && response.id) {
+        message.success(`Item added successfully! ID: ${response.id}`);
+        await logUserActivity(username, 'Inventory', `Added item with ID: ${response.id}`);
+        await logUserNotification('Inventory Update', `You added an item with ID: ${response.id}`);
+  
+        const updatedData = await getInventoryData(); 
+        setDataSource(updatedData); 
       } else {
         message.error('Failed to retrieve item ID.');
       }
     } catch (error) {
+      console.error('Error adding item:', error);
       message.error('Failed to add item.');
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   const handleEdit = (item) => {
-    console.log("Editing item:", item);
     setEditingItem(item); 
     setIsEditModalVisible(true);
   };
@@ -126,20 +129,25 @@ const InventoryTable = () => {
   const handleEditItem = async (updatedItem) => {
     setIsLoading(true);
     try {
-      const response = await updateItem(updatedItem); 
-      const updatedData = await getInventoryData(); 
-      setDataSource(updatedData);
-      message.success(`Item with ID ${updatedItem.id} updated successfully!`);
-      await logUserActivity(username, 'Inventory', `Updated item with ID: ${updatedItem.id}`);
-      await logUserNotification('Inventory Update', `You edited an item with ID: ${updatedItem.id}`);
-      setIsEditModalVisible(false);
+      const response = await updateItem({ ...updatedItem, id: editingItem?.id }); // Ensure ID is included
+      if (response.message === "Item updated successfully") {
+        const updatedData = await getInventoryData();
+        setDataSource(updatedData);
+        message.success(`Item with ID ${updatedItem.id} updated successfully!`);
+        await logUserActivity(username, "Inventory", `Updated item with ID: ${updatedItem.id}`);
+        await logUserNotification("Inventory Update", `You edited an item with ID: ${updatedItem.id}`);
+        setIsEditModalVisible(false);
+      } else {
+        message.error("Failed to update item.");
+      }
     } catch (error) {
       console.error("Error updating item:", error);
-      message.error('Failed to update item. Please try again.');
+      message.error("Failed to update item. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   const handleBatchDelete = async () => {
     if (!isAdmin) {

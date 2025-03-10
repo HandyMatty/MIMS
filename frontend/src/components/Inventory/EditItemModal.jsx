@@ -33,7 +33,6 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
         purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, // Format the date
         remarks: values.remarks, 
       };
-      console.log(updatedItem); // Log the object to check it
       await onEdit(updatedItem);
       onClose(); 
     } catch (error) {

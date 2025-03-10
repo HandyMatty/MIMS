@@ -8,30 +8,51 @@ $data = json_decode(file_get_contents("php://input"), true);
 $type = htmlspecialchars($data['type']);
 $brand = htmlspecialchars($data['brand']);
 $serialNumber = htmlspecialchars($data['serialNumber']);
-$issuedDate = htmlspecialchars($data['issuedDate']); 
-$purchaseDate = htmlspecialchars($data['purchaseDate']); 
+$issuedDate = htmlspecialchars($data['issuedDate']);
+$purchaseDate = htmlspecialchars($data['purchaseDate']);
 $condition = htmlspecialchars($data['condition']);
 $location = htmlspecialchars($data['location']);
 $status = htmlspecialchars($data['status']);
 $remarks = htmlspecialchars($data['remarks']);
 
-// Insert into the inventory table with the remarks field
-$stmt = $conn->prepare("INSERT INTO inventory (type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, remarks) 
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("sssssssss", $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks);
+// Format purchase date for ID generation (YYYYMMDD)
+$purchaseDateFormatted = date("Ymd", strtotime($purchaseDate));
+
+// Fetch the last item with the same purchase date
+$query = "SELECT id FROM inventory WHERE id LIKE ? ORDER BY id DESC LIMIT 1";
+$stmt = $conn->prepare($query);
+$likeParam = $purchaseDateFormatted . "%";
+$stmt->bind_param("s", $likeParam);
+$stmt->execute();
+$stmt->bind_result($lastId);
+$stmt->fetch();
+$stmt->close();
+
+// Generate new ID
+if ($lastId) {
+    $lastCounter = (int)substr($lastId, -2); // Extract last two digits
+    $newCounter = str_pad($lastCounter + 1, 2, "0", STR_PAD_LEFT);
+} else {
+    $newCounter = "01"; // Start with 01 if no previous item exists
+}
+$newId = $purchaseDateFormatted . $newCounter;
+
+// Insert into inventory
+$stmt = $conn->prepare("INSERT INTO inventory (id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, remarks) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("ssssssssss", $newId, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks);
 
 if ($stmt->execute()) {
-    $last_id = $stmt->insert_id;
-
-    // Record in the history table with the remarks field
+    // Record in history
     $history_stmt = $conn->prepare("INSERT INTO history (action, item_id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, remarks) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $history_action = 'added';
-    $history_stmt->bind_param("sisssssssss", $history_action, $last_id, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks);
+    $history_stmt->bind_param("sssssssssss", $history_action, $newId, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks);
     $history_stmt->execute();
+    $history_stmt->close();
 
-    http_response_code(201); // Set HTTP response status
-    echo json_encode(["message" => "Item added successfully", "id" => $last_id]);
+    http_response_code(201);
+    echo json_encode(["message" => "Item added successfully", "id" => $newId]);
 } else {
     http_response_code(500);
     echo json_encode(["message" => "Error: " . $stmt->error]);
