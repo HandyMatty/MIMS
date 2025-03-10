@@ -40,6 +40,7 @@ export const columns = [
     key: 'action',
     align: 'center',
     width: 150, // Set the width of the 'Action' column
+    fixed: 'left',
   },
   {
     title: 'Action Date',
@@ -49,6 +50,7 @@ export const columns = [
     sorter: true,
     width: 180, // Set width for Action Date column
     render: (text) => new Date(text).toLocaleDateString(),
+    fixed: 'left',
   },
   {
     title: 'Item ID',
@@ -57,6 +59,7 @@ export const columns = [
     align: 'center',
     sorter: true,
     width: 120, // Set width for Item ID column
+    fixed: 'left',
   },
   {
     title: 'Type',

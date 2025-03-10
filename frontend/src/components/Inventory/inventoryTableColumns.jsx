@@ -45,13 +45,15 @@ export const columns = (handleEdit, sortOrder) => [
     title: 'ID',
     dataIndex: 'id',
     key: 'id',
+    fixed: 'left',
     align: 'center',
-    width: 100,
+    width: 120,
     sorter: (a, b) => a.id.localeCompare(b.id),
   },
   {
     title: 'Type',
     dataIndex: 'type',
+    fixed: 'left',
     key: 'type',
     align: 'center',
     width: 120,
@@ -60,6 +62,7 @@ export const columns = (handleEdit, sortOrder) => [
   {
     title: 'Brand',
     dataIndex: 'brand',
+    fixed: 'left',
     key: 'brand',
     align: 'center',
     width: 150,
@@ -67,7 +70,7 @@ export const columns = (handleEdit, sortOrder) => [
   },
   {
     title: 'Remarks',
-    dataIndex: 'remarks', // Make sure the backend returns this key
+    dataIndex: 'remarks', 
     key: 'remarks',
     align: 'center',
     width: 200,

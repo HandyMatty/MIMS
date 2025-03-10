@@ -50,6 +50,8 @@ const columns = (handleQrCodeClick) => [
     key: 'qrCode',
     align: 'center',
     ellipsis: true,
+    fixed: 'left',
+    width: 80,
     render: (_, item) => (
       <QrcodeOutlined
         style={{ fontSize: '24px', cursor: 'pointer' }}
@@ -63,6 +65,8 @@ const columns = (handleQrCodeClick) => [
     dataIndex: 'id',
     key: 'id',
     align: 'center',
+    fixed: 'left',
+    width: 130,
     sorter: (a, b) => a.id.localeCompare(b.id),
   },
   {
@@ -70,6 +74,8 @@ const columns = (handleQrCodeClick) => [
     dataIndex: 'type',
     key: 'type',
     align: 'center',
+    fixed: 'left',
+    width: 120,
     sorter: (a, b) => a.type.localeCompare(b.type),
   },
   {

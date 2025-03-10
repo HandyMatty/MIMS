@@ -49,6 +49,7 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     key: 'qrCode',
     align: 'center',
     width: 100,
+    fixed: 'left',
     render: (_, item) => (
       <QrcodeOutlined
         style={{ fontSize: '24px', cursor: 'pointer' }}
@@ -63,7 +64,8 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     key: 'id',
     align: 'center',
     sorter: true,
-    width: 100,
+    width: 120,
+    fixed: 'left'
   },
   {
     title: 'Type',
@@ -72,6 +74,7 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     sorter: true,
     width: 120,
+    fixed: 'left'
   },
   {
     title: 'Brand',
