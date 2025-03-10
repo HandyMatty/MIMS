@@ -1,4 +1,3 @@
-// DashboardTableColumns.js
 import React from 'react';
 import { Tag } from 'antd';
 import { QrcodeOutlined } from '@ant-design/icons';

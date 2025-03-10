@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
+  CartesianGrid, ResponsiveContainer, LabelList
+} from 'recharts';
 import { getInventoryData } from '../../services/api/addItemToInventory'; // Adjust the path as needed
 import { Spin } from 'antd'; // Import Ant Design's Spin component for loading indicator
-import './customBarGraph.css'; 
+import './customBarGraph.css';
 
-const HistoryBarGraph = () => {
+const HistoryBarGraph = ({ searchText }) => { // Accept searchText as a prop
   const [barData, setBarData] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
 
@@ -13,8 +16,16 @@ const HistoryBarGraph = () => {
       try {
         const data = await getInventoryData();
 
+        // Filter data based on searchText
+        const filteredData = data.filter(item =>
+          Object.values(item)
+            .join(' ')
+            .toLowerCase()
+            .includes(searchText.toLowerCase())
+        );
+
         // Group by type and count items
-        const typeCounts = data.reduce((acc, item) => {
+        const typeCounts = filteredData.reduce((acc, item) => {
           const { type } = item; // Extract type field
           if (!acc[type]) {
             acc[type] = 0;
@@ -38,7 +49,7 @@ const HistoryBarGraph = () => {
     };
 
     fetchInventoryData();
-  }, []);
+  }, [searchText]); // Refetch data when searchText changes
 
   return (
     <div className="history-bar-graph-container">
@@ -56,10 +67,11 @@ const HistoryBarGraph = () => {
               wrapperClassName="custom-tooltip" // Add custom class name
               cursor={{ fill: 'rgba(56, 161, 105, 0.2)' }} // Hover effect on bars
             />
-            <Legend
-              formatter={(value) => `Type: ${value}`} // Custom legend text
-            />
-            <Bar dataKey="items" fill="#2f855a" barSize={50} />
+            <Legend formatter={(value) => `Type: ${value}`} /> {/* Custom legend text */}
+            <Bar dataKey="items" fill="#2f855a" barSize={50}>
+              {/* Display item count inside the bar */}
+              <LabelList dataKey="items" position="middle" fill="black" fontSize={14} fontWeight="bold" />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       )}

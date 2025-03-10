@@ -1,16 +1,13 @@
-// DashboardTable.jsx
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Input, Typography, Pagination, Card, message, Select } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Table, Typography, Pagination, Card, message, Select } from 'antd';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import QrCodeModal from '../../components/QrCode/QrCodeModal';
 import { getDashboardTableColumns } from './DashboardTableColumns'; // Adjust the path as needed
 
 const { Option } = Select;
 
-const DashboardTable = () => {
+const DashboardTable = ({ searchText }) => {
   const [dataSource, setDataSource] = useState([]);
-  const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -88,14 +85,6 @@ const DashboardTable = () => {
   return (
     <Card className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow p-6 border-none">
       <div className="flex items-center space-x-4 mb-4">
-        <Input
-          placeholder="Search by type, brand, or serial number"
-          prefix={<SearchOutlined />}
-          onChange={(e) => setSearchText(e.target.value)}
-          className="w-80 bg-[#a7f3d0] border border-black custom-input-table"
-        />
-
-        <div className="flex justify-end">
           <Select
             defaultValue="Newest"
             className="w-32 transparent-select"
@@ -104,7 +93,6 @@ const DashboardTable = () => {
             <Option value="Newest">Newest</Option>
             <Option value="Oldest">Oldest</Option>
           </Select>
-        </div>
       </div>
 
       <div style={{ height: '680px' }}>

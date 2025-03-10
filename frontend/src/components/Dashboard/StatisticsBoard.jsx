@@ -10,39 +10,45 @@ import {
   TagsOutlined,
 } from '@ant-design/icons';
 import './customStatisticBoard.css';
-import { getInventoryCounts } from '../../services/api/getInventory';
+import { getInventoryData } from '../../services/api/addItemToInventory';
 
-const StatisticsBoard = () => {
-  const [inventoryCounts, setInventoryCounts] = useState({
-    totalEquipment: 0,
-    BrandNew: 0,
-    deployed: 0,
-    OnStock: 0,
-    goodCondition: 0,
-    defective: 0,
-    forrepair: 0,
-  });
-  const [loading, setLoading] = useState(true); // Loading state
-
+const StatisticsBoard = ({ searchText }) => {
+  const [inventoryData, setInventoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCounts = async () => {
+    const fetchInventory = async () => {
       try {
-        const data = await getInventoryCounts();
-        setInventoryCounts(data);
+        const data = await getInventoryData();
+        setInventoryData(data);
       } catch (error) {
-        console.error('Error fetching inventory counts:', error);
+        console.error('Error fetching inventory data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchCounts();
+    fetchInventory();
   }, []);
+
+  // Filter inventory based on searchText
+  const filteredData = inventoryData.filter((item) =>
+    Object.values(item).join(' ').toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  // Calculate counts from filtered data
+  const inventoryCounts = {
+    totalEquipment: filteredData.length,
+    BrandNew: filteredData.filter((item) => item.condition === 'Brand New').length,
+    deployed: filteredData.filter((item) => item.status === 'Deployed').length,
+    OnStock: filteredData.filter((item) => item.status === 'On Stock').length,
+    goodCondition: filteredData.filter((item) => item.condition === 'Good Condition').length,
+    defective: filteredData.filter((item) => item.condition === 'Defective').length,
+    forrepair: filteredData.filter((item) => item.status === 'For Repair').length,
+  };
 
   return (
     <div className="status-dashboard">
-      {/* First Row */}
-      <Row gutter={[12, 24]} justify="space-around" className='mb-5'>
+      <Row gutter={[12, 24]} justify="space-around" className="mb-5">
         <Col xs={12} sm={8} md={6}>
           <Card
             title={<span className="text-lg font-semibold"><LaptopOutlined className="text-black text-5xl" /> Total Equipment</span>}
@@ -51,10 +57,7 @@ const StatisticsBoard = () => {
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic
-              value={inventoryCounts.totalEquipment}
-              valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}
-            />
+            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.totalEquipment} />
           </Card>
         </Col>
 
@@ -66,10 +69,7 @@ const StatisticsBoard = () => {
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic
-              value={inventoryCounts.BrandNew}
-              valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}
-            />
+            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.BrandNew} />
           </Card>
         </Col>
 
@@ -81,10 +81,7 @@ const StatisticsBoard = () => {
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic
-              value={inventoryCounts.goodCondition}
-              valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}
-            />
+            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.goodCondition} />
           </Card>
         </Col>
 
@@ -96,15 +93,11 @@ const StatisticsBoard = () => {
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic
-              value={inventoryCounts.defective}
-              valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}
-            />
+            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.defective} />
           </Card>
         </Col>
       </Row>
 
-      {/* Second Row */}
       <Row gutter={[12, 24]} justify="space-around">
         <Col xs={12} sm={8} md={8}>
           <Card
@@ -114,10 +107,7 @@ const StatisticsBoard = () => {
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic
-              value={inventoryCounts.OnStock}
-              valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}
-            />
+            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.OnStock} />
           </Card>
         </Col>
 
@@ -129,10 +119,7 @@ const StatisticsBoard = () => {
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic
-              value={inventoryCounts.deployed}
-              valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}
-            />
+            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.deployed} />
           </Card>
         </Col>
 
@@ -144,10 +131,7 @@ const StatisticsBoard = () => {
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic
-              value={inventoryCounts.forrepair}
-              valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}
-            />
+            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.forrepair} />
           </Card>
         </Col>
       </Row>
