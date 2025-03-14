@@ -73,7 +73,7 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     key: 'type',
     align: 'center',
     sorter: true,
-    width: 120,
+    width: 130,
     fixed: 'left'
   },
   {

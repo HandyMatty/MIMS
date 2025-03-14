@@ -1,30 +1,30 @@
-// HistoryTable.js
-
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Typography, Pagination, Card } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { getHistory } from '../../services/api/getHistory'; // Import the API function
-import { columns } from './HistoryTableConfig'; // Import columns and helper functions
+import { getHistory } from '../../services/api/getHistory'; 
+import { getColumns } from './HistoryTableConfig';
+import HistoryModal from './HistoryModal'; 
 
 const HistoryTable = () => {
-  const [historyData, setHistoryData] = useState([]); // Store the fetched data
+  const [historyData, setHistoryData] = useState([]); 
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [sorterConfig, setSorterConfig] = useState({ field: null, order: null });
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true); 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
-  // Fetch history data on component mount
   useEffect(() => {
     const fetchHistoryData = async () => {
       try {
         const data = await getHistory();
         if (data.length === 0) {
-          console.warn("No history data found"); // Optional: Log a warning instead of an error
+          console.warn("No history data found"); 
         }
-        setHistoryData(data); // Set empty array or fetched data
+        setHistoryData(data); 
       } catch (error) {
-        console.error("Error fetching history data:", error); // Log only for actual errors
+        console.error("Error fetching history data:", error); 
       } finally {
         setLoading(false);
       }
@@ -93,6 +93,11 @@ const HistoryTable = () => {
     setPageSize(newPageSize);
   };
 
+  const showModal = (record) => {
+    setSelectedRecord(record);
+    setModalVisible(true);
+  };
+
   return (
     <Card title={<span className="text-5xl-6 font-bold flex justify-center">HISTORY</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
       <div className="flex justify-start mb-4">
@@ -108,11 +113,11 @@ const HistoryTable = () => {
         <Table
           rowKey="id"
           dataSource={paginatedData}
-          columns={columns}
+          columns={getColumns(showModal)}
           bordered
           pagination={false}
           onChange={handleTableChange}
-          scroll={{ x: 'max-content', y: 660 }}  
+          scroll={{ x: 'max-content', y: 620 }}  
           loading={loading}
         />
       </div>
@@ -129,6 +134,7 @@ const HistoryTable = () => {
           onChange={handlePageChange}
         />
       </div>
+      <HistoryModal visible={modalVisible} onClose={() => setModalVisible(false)} record={selectedRecord} />
     </Card>
   );
 };

@@ -1,7 +1,5 @@
-// HistoryTableConfig.js
-
 import React from 'react';
-import { Tag } from 'antd';
+import { Tag, Button } from 'antd';
 
 // Helper function to generate status tag
 export const getStatusTag = (status) => {
@@ -24,7 +22,7 @@ export const getConditionTag = (condition) => {
 };
 
 // Column definitions for the table
-export const columns = [
+export const getColumns = (showModal) => [
   {
     title: 'ID',
     dataIndex: 'id',
@@ -60,6 +58,25 @@ export const columns = [
     sorter: true,
     width: 120, // Set width for Item ID column
     fixed: 'left',
+  },
+  {
+    title: "Field Changed",
+    dataIndex: "field_changed",
+    key: "field_changed",
+    align: "center",
+    width: 200,
+    render: (fields) => fields ? fields.join(", ") : "N/A", // Display all changed fields
+  },
+  {
+    title: "Changed Details",
+    key: "changed_details",
+    align: "center",
+    width: 250,
+    render: (_, record) => (
+      record.action === "Updated" ? (
+        <Button type="link" onClick={() => showModal(record)}>View Changes</Button>
+      ) : "N/A"
+    ),
   },
   {
     title: 'Type',
