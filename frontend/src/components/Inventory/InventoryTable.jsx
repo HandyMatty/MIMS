@@ -31,7 +31,9 @@ const InventoryTable = () => {
   const { userData: userUserData } = useUserAuthStore();
 
   const username = adminUserData?.username || userUserData?.username || 'Unknown User';
-  const isAdmin = !!adminUserData; 
+  const isAdmin = !!adminUserData;
+  const isUser = !!userUserData;
+  const userRole = isAdmin ? 'admin' : isUser ? 'user' : 'guest'; 
   const { Text } = Typography;
 
   useEffect(() => {
@@ -236,7 +238,7 @@ const InventoryTable = () => {
           rowSelection={rowSelection}
           rowKey="id"
           dataSource={paginatedData}
-          columns={columns(handleEdit, sortOrder)}  // Pass required props to columns
+          columns={columns(handleEdit, sortOrder, userRole)}  // Pass required props to columns
           pagination={false}
           bordered
           onChange={handleTableChange}

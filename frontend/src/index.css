@@ -236,3 +236,12 @@ input[type="password"]::-ms-reveal {
   word-wrap: break-word;
   word-break: break-word;
 }
+.ant-tabs-tab {
+  border: 1px solid black !important; /* Change border color */
+  border-radius: 5px; /* Optional: Add rounded corners */
+}
+
+/* Optional: Change active tab border */
+.ant-tabs-tab-active {
+  border-bottom: 3px solid #5fe7a7 !important;
+}

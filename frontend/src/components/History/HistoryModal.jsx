@@ -2,9 +2,7 @@ import React from "react";
 import { Modal } from "antd";
 
 const HistoryModal = ({ visible, onClose, record }) => {
-  if (!record || !record.field_changed || !record.old_value || !record.new_value) {
-    return null; // Prevents rendering if record data is missing
-  }
+  if (!record) return null;
 
   return (
     <Modal title="Change Details" open={visible} onCancel={onClose} footer={null}>
