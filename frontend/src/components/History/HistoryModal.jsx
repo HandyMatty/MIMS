@@ -5,7 +5,7 @@ const HistoryModal = ({ visible, onClose, record }) => {
   if (!record) return null;
 
   return (
-    <Modal title="Change Details" open={visible} onCancel={onClose} footer={null}>
+    <Modal title="Changed Details" open={visible} onCancel={onClose} footer={null}>
       <div>
         <p><strong>Item ID:</strong> {record.item_id}</p>
         <p><strong>Action Date:</strong> {new Date(record.action_date).toLocaleString()}</p>

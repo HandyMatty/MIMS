@@ -106,6 +106,7 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     sorter: true,
     width: 150,
+    render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
   },
   {
     title: 'Purchased Date',
@@ -122,7 +123,13 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     width: 120,
     render: (condition) => getConditionTag(condition),
-  },
+    filters: [
+      { text: 'Brand New', value: 'Brand New' },
+      { text: 'Good Condition', value: 'Good Condition' },
+      { text: 'Defective', value: 'Defective' },
+    ],
+    onFilter: (value, record) => record.condition.includes(value),
+  }, 
   {
     title: 'Detachment/Office',
     dataIndex: 'location',
@@ -137,5 +144,11 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     width: 120,
     render: (status) => getStatusTag(status),
+    filters: [
+      { text: 'On Stock', value: 'On Stock' },
+      { text: 'For Repair', value: 'For Repair' },
+      { text: 'Deployed', value: 'Deployed' },
+    ],
+    onFilter: (value, record) => record.status.includes(value),
   },
 ];

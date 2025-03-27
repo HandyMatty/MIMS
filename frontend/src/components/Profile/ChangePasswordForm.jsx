@@ -145,7 +145,7 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
               Save
             </Button>
             <Button 
-              className="ml-2" 
+              className="ml-2 bg-red-500 text-white w-1/5" 
               type="default" 
               onClick={handleCancel}
             >

@@ -105,6 +105,7 @@ const columns = (handleQrCodeClick) => [
     key: 'issuedDate',
     align: 'center',
     sorter: (a, b) => a.issuedDate.localeCompare(b.issuedDate),
+    render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
   },
   {
     title: 'Purchased Date',
@@ -119,6 +120,12 @@ const columns = (handleQrCodeClick) => [
     key: 'condition',
     align: 'center',
     render: (condition) => getConditionTag(condition),
+    filters: [
+      { text: 'Brand New', value: 'Brand New' },
+      { text: 'Good Condition', value: 'Good Condition' },
+      { text: 'Defective', value: 'Defective' },
+    ],
+    onFilter: (value, record) => record.condition.includes(value),
   },
   {
     title: 'Detachment/Office',
@@ -132,6 +139,12 @@ const columns = (handleQrCodeClick) => [
     key: 'status',
     align: 'center',
     render: (status) => getStatusTag(status),
+    filters: [
+      { text: 'On Stock', value: 'On Stock' },
+      { text: 'For Repair', value: 'For Repair' },
+      { text: 'Deployed', value: 'Deployed' },
+    ],
+    onFilter: (value, record) => record.status.includes(value),
   },
 ];
 

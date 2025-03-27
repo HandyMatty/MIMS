@@ -38,7 +38,7 @@ export const getStatusTag = (status) => {
   return <Tag color={color}>{status}</Tag>;
 };
 
-export const columns = (handleEdit, sortOrder, userRole) => {
+export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
   const baseColumns = [
     {
       title: 'ID',
@@ -82,30 +82,64 @@ export const columns = (handleEdit, sortOrder, userRole) => {
       width: 200,
       sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
     },
-    {
-      title: 'Issued Date',
-      dataIndex: 'issuedDate',
-      key: 'issuedDate',
-      align: 'center',
-      width: 150,
-      sorter: (a, b) => {
-        const dateA = new Date(a.issuedDate);
-        const dateB = new Date(b.issuedDate);
-        return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-      },
-    },
-    {
-      title: 'Purchased Date',
-      dataIndex: 'purchaseDate',
-      key: 'purchaseDate',
-      align: 'center',
-      width: 150,
-      sorter: (a, b) => {
-        const dateA = new Date(a.purchaseDate);
-        const dateB = new Date(b.purchaseDate);
-        return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-      },
-    },
+    ...(activeTab === 'default'
+      ? [
+          {
+            title: 'Issued Date',
+            dataIndex: 'issuedDate',
+            key: 'issuedDate',
+            align: 'center',
+            width: 150,
+            sorter: (a, b) => {
+              const dateA = new Date(a.issuedDate);
+              const dateB = new Date(b.issuedDate);
+              return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+            },
+            render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
+          },
+          {
+            title: 'Purchased Date',
+            dataIndex: 'purchaseDate',
+            key: 'purchaseDate',
+            align: 'center',
+            width: 150,
+            sorter: (a, b) => {
+              const dateA = new Date(a.purchaseDate);
+              const dateB = new Date(b.purchaseDate);
+              return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+            },
+          },
+        ]
+      : activeTab === 'issuedDate'
+      ? [
+          {
+            title: 'Issued Date',
+            dataIndex: 'issuedDate',
+            key: 'issuedDate',
+            align: 'center',
+            width: 150,
+            sorter: (a, b) => {
+              const dateA = new Date(a.issuedDate);
+              const dateB = new Date(b.issuedDate);
+              return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+            },
+            render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
+          },
+        ]
+      : [
+          {
+            title: 'Purchased Date',
+            dataIndex: 'purchaseDate',
+            key: 'purchaseDate',
+            align: 'center',
+            width: 150,
+            sorter: (a, b) => {
+              const dateA = new Date(a.purchaseDate);
+              const dateB = new Date(b.purchaseDate);
+              return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+            },
+          },
+        ]),
     {
       title: 'Condition',
       dataIndex: 'condition',
@@ -113,6 +147,12 @@ export const columns = (handleEdit, sortOrder, userRole) => {
       align: 'center',
       width: 120,
       render: (condition) => getConditionTag(condition),
+      filters: [
+        { text: 'Brand New', value: 'Brand New' },
+        { text: 'Good Condition', value: 'Good Condition' },
+        { text: 'Defective', value: 'Defective' },
+      ],
+      onFilter: (value, record) => record.condition.includes(value),
     },
     {
       title: 'Detachment/Office',
@@ -128,6 +168,12 @@ export const columns = (handleEdit, sortOrder, userRole) => {
       align: 'center',
       width: 120,
       render: (status) => getStatusTag(status),
+      filters: [
+        { text: 'On Stock', value: 'On Stock' },
+        { text: 'For Repair', value: 'For Repair' },
+        { text: 'Deployed', value: 'Deployed' },
+      ],
+      onFilter: (value, record) => record.status.includes(value),
     },
   ];
 

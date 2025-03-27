@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Form, Input, Select, Button, DatePicker } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 
@@ -6,17 +6,22 @@ const { Option } = Select;
 
 const AddItemModal = ({ visible, onClose, onAdd }) => {
   const [form] = Form.useForm();
+  const [isHeadOffice, setIsHeadOffice] = useState(false);
 
   const handleSubmit = async (values) => {
     try {
+      const formattedLocation = isHeadOffice
+        ? `Head Office - ${values.department}`
+        : values.location;
+
       const itemData = {
         type: values.type,
         brand: values.brand,
         serialNumber: values.serialNumber,
-        issuedDate: values.issuedDate.format('YYYY-MM-DD'), 
+        issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : "NO DATE", 
         purchaseDate: values.purchaseDate.format('YYYY-MM-DD'), 
         condition: values.condition,
-        location: values.location,
+        location: formattedLocation,
         status: values.status,
         remarks: values.remarks,
       };
@@ -40,7 +45,7 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
       open={visible}
       onCancel={handleClose}
       footer={null}
-      width={600}
+      width={900}
     >
       <Form
         form={form}
@@ -52,6 +57,9 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
           status: 'On Stock',
         }}
       >
+      <div style={{ display: 'flex', gap: '20px' }}>
+          {/* LEFT COLUMN */}
+          <div style={{ flex: 1 }}>
         <Form.Item
           label="Type"
           name="type"
@@ -100,7 +108,7 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
         <Form.Item
           label="Issued Date"
           name="issuedDate"
-          rules={[{ required: true, message: 'Please select the issued date!' }]} >
+          rules={[{ required: false }]} >
           <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
         </Form.Item>
 
@@ -110,7 +118,9 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
           rules={[{ required: true, message: 'Please select the purchase date!' }]} >
           <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
         </Form.Item>
+        </div>
 
+        <div style={{ flex: 1 }}>
         <Form.Item
           label="Condition"
           name="condition"
@@ -124,10 +134,44 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
 
         <Form.Item
           label="Detachment/Office"
-          name="location"
-          rules={[{ required: true, message: 'Please input the location!' }]} >
-          <Input />
+          name="locationType"
+          rules={[{ required: true, message: 'Please select a location!' }]}
+        >
+          <Select
+            onChange={(value) => setIsHeadOffice(value === 'Head Office')} // Track if Head Office is selected
+          >
+            <Option value="Head Office">Head Office</Option>
+            <Option value="Other">Other (Specify Below)</Option>
+          </Select>
         </Form.Item>
+
+        {/* Show department selection only if "Head Office" is selected */}
+        {isHeadOffice && (
+          <Form.Item
+            label="Department (Head Office)"
+            name="department"
+            rules={[{ required: true, message: 'Please select a department!' }]}
+          >
+            <Select>
+              <Option value="SOD">SOD</Option>
+              <Option value="CID">CID</Option>
+              <Option value="GAD">GAD</Option>
+              <Option value="HRD">HRD</Option>
+              <Option value="AFD">AFD</Option>
+            </Select>
+          </Form.Item>
+        )}
+
+        {/* Show manual input field only if "Other" is selected */}
+        {!isHeadOffice && (
+          <Form.Item
+            label="Specific Location"
+            name="location"
+            rules={[{ required: true, message: 'Please input a location!' }]}
+          >
+            <Input />
+          </Form.Item>
+        )}
 
         <Form.Item
           label="Status"
@@ -139,7 +183,8 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
             <Option value="For Repair">For Repair</Option>
           </Select>
         </Form.Item>
-
+        </div>
+      </div>
         <Form.Item>
           <Button
             type="primary"

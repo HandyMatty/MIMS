@@ -99,6 +99,7 @@ export const getColumns = (showModal, tabType) => {
         align: "center",
         sorter: true,
         width: 150,
+        render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
       },
       {
         title: "Purchased Date",
@@ -115,6 +116,12 @@ export const getColumns = (showModal, tabType) => {
         align: "center",
         width: 150,
         render: (condition) => getConditionTag(condition),
+        filters: [
+          { text: "Brand New", value: "Brand New" },
+          { text: "Good Condition", value: "Good Condition" },
+          { text: "Defective", value: "Defective" },
+        ],
+        onFilter: (value, record) => record.condition.includes(value),
       },
       {
         title: "Detachment/Office",
@@ -130,6 +137,12 @@ export const getColumns = (showModal, tabType) => {
         align: "center",
         width: 120,
         render: (status) => getStatusTag(status),
+        filters: [
+          { text: "On Stock", value: "On Stock" },
+          { text: "For Repair", value: "For Repair" },
+          { text: "Deployed", value: "Deployed" },
+        ],
+        onFilter: (value, record) => record.status.includes(value),
       }
     );
   }

@@ -119,9 +119,15 @@ const HistoryTable = () => {
       title={<span className="text-5xl-6 font-bold flex justify-center">HISTORY</span>}
       className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none"
     >
-      <Tabs defaultActiveKey="1" type="card" >
-        {/* 🔵 ADDED TAB */}
-        <TabPane tab="Added" key="1">
+      <Tabs 
+  defaultActiveKey="1" 
+  type="card"
+  items={[
+    {
+      key: "1",
+      label: "Added",
+      children: (
+        <>
           <div className="flex justify-between mb-4">
             <Input
               placeholder="Search..."
@@ -131,20 +137,22 @@ const HistoryTable = () => {
               className="w-64 bg-[#a7f3d0] border border-black custom-input-table"
             />
           </div>
-          <Table
-            rowKey="id"
-            dataSource={addedData.slice(
-              (currentPages.added - 1) * pageSizes.added,
-              currentPages.added * pageSizes.added
-            )}
-            columns={getColumns(showModal, "Added")}
-            bordered
-            pagination={false}
-            onChange={(pagination, filters, sorter) => handleTableChange("added", pagination, filters, sorter)}
-            scroll={{ x: "max-content", y: 620 }}
-            loading={loading}
-          />
-           <div className="flex items-center justify-between mt-5">
+          <div style={{ height: '680px' }}>
+            <Table
+              rowKey="id"
+              dataSource={addedData.slice(
+                (currentPages.added - 1) * pageSizes.added,
+                currentPages.added * pageSizes.added
+              )}
+              columns={getColumns(showModal, "Added")}
+              bordered
+              pagination={false}
+              onChange={(pagination, filters, sorter) => handleTableChange("added", pagination, filters, sorter)}
+              scroll={{ x: "max-content", y: 620 }}
+              loading={loading}
+            />
+          </div>
+          <div className="flex items-center justify-between mt-5">
             <Typography.Text style={{ color: "#072C1C" }}>
               Showing {addedData.length > 0 ? (currentPages.added - 1) * pageSizes.added + 1 : 0} to{" "}
               {Math.min(currentPages.added * pageSizes.added, addedData.length)} of {addedData.length} entries
@@ -158,10 +166,14 @@ const HistoryTable = () => {
               onChange={(page, pageSize) => handlePageChange("added", page, pageSize)}
             />
           </div>
-        </TabPane>
-
-        {/* 🟢 UPDATED / QR CODE UPDATE TAB */}
-        <TabPane tab="Updated / QRCode Update" key="2">
+        </>
+      ),
+    },
+    {
+      key: "2",
+      label: "Updated / QRCode Update",
+      children: (
+        <>
           <div className="flex justify-between mb-4">
             <Input
               placeholder="Search..."
@@ -171,20 +183,22 @@ const HistoryTable = () => {
               className="w-64 bg-[#a7f3d0] border border-black custom-input-table"
             />
           </div>
-          <Table
-            rowKey="id"
-            dataSource={updatedData.slice(
-              (currentPages.updated - 1) * pageSizes.updated,
-              currentPages.updated * pageSizes.updated
-            )}
-            columns={getColumns(showModal, "Updated")}
-            bordered
-            pagination={false}
-            onChange={(pagination, filters, sorter) => handleTableChange("updated", pagination, filters, sorter)}
-            scroll={{ x: "max-content", y: 620 }}
-            loading={loading}
-          />
-            <div className="flex items-center justify-between mt-5">
+          <div style={{ height: '680px' }}>
+            <Table
+              rowKey="id"
+              dataSource={updatedData.slice(
+                (currentPages.updated - 1) * pageSizes.updated,
+                currentPages.updated * pageSizes.updated
+              )}
+              columns={getColumns(showModal, "Updated")}
+              bordered
+              pagination={false}
+              onChange={(pagination, filters, sorter) => handleTableChange("updated", pagination, filters, sorter)}
+              scroll={{ x: "max-content", y: 620 }}
+              loading={loading}
+            />
+          </div>
+          <div className="flex items-center justify-between mt-5">
             <Typography.Text style={{ color: "#072C1C" }}>
               Showing {updatedData.length > 0 ? (currentPages.updated - 1) * pageSizes.updated + 1 : 0} to{" "}
               {Math.min(currentPages.updated * pageSizes.updated, updatedData.length)} of {updatedData.length} entries
@@ -198,10 +212,14 @@ const HistoryTable = () => {
               onChange={(page, pageSize) => handlePageChange("updated", page, pageSize)}
             />
           </div>
-        </TabPane>
-
-        {/* 🔴 DELETED TAB */}
-        <TabPane tab="Deleted" key="3">
+        </>
+      ),
+    },
+    {
+      key: "3",
+      label: "Deleted",
+      children: (
+        <>
           <div className="flex justify-between mb-4">
             <Input
               placeholder="Search..."
@@ -211,20 +229,22 @@ const HistoryTable = () => {
               className="w-64 bg-[#a7f3d0] border border-black custom-input-table"
             />
           </div>
-          <Table
-            rowKey="id"
-            dataSource={deletedData.slice(
-              (currentPages.deleted - 1) * pageSizes.deleted,
-              currentPages.deleted * pageSizes.deleted
-            )}
-            columns={getColumns(showModal, "Deleted")}
-            bordered
-            pagination={false}
-            onChange={(pagination, filters, sorter) => handleTableChange("deleted", pagination, filters, sorter)}
-            scroll={{ x: "max-content", y: 620 }}
-            loading={loading}
-          />
-           <div className="flex items-center justify-between mt-5">
+          <div style={{ height: '680px' }}>
+            <Table
+              rowKey="id"
+              dataSource={deletedData.slice(
+                (currentPages.deleted - 1) * pageSizes.deleted,
+                currentPages.deleted * pageSizes.deleted
+              )}
+              columns={getColumns(showModal, "Deleted")}
+              bordered
+              pagination={false}
+              onChange={(pagination, filters, sorter) => handleTableChange("deleted", pagination, filters, sorter)}
+              scroll={{ x: "max-content", y: 620 }}
+              loading={loading}
+            />
+          </div>
+          <div className="flex items-center justify-between mt-5">
             <Typography.Text style={{ color: "#072C1C" }}>
               Showing {deletedData.length > 0 ? (currentPages.deleted - 1) * pageSizes.deleted + 1 : 0} to{" "}
               {Math.min(currentPages.deleted * pageSizes.deleted, deletedData.length)} of {deletedData.length} entries
@@ -238,8 +258,12 @@ const HistoryTable = () => {
               onChange={(page, pageSize) => handlePageChange("deleted", page, pageSize)}
             />
           </div>
-        </TabPane>
-      </Tabs>
+        </>
+      ),
+    },
+  ]}
+/>
+
 
       <HistoryModal visible={modalVisible} onClose={() => setModalVisible(false)} record={selectedRecord} />
     </Card>

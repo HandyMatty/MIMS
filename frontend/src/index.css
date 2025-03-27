@@ -236,12 +236,23 @@ input[type="password"]::-ms-reveal {
   word-wrap: break-word;
   word-break: break-word;
 }
+
 .ant-tabs-tab {
-  border: 1px solid black !important; /* Change border color */
+  border-top: 1px solid black !important; /* Change border color */
+  border-left: 1px solid black !important;
+  border-right: 1px solid black !important;
+  border-bottom: 0.5px black !important;
   border-radius: 5px; /* Optional: Add rounded corners */
+}
+.ant-tabs-nav-wrap {
+  border-bottom: 1px solid black !important; 
 }
 
 /* Optional: Change active tab border */
 .ant-tabs-tab-active {
   border-bottom: 3px solid #5fe7a7 !important;
+}
+
+.ant-table-filter-trigger.active {
+  color: #072c1c !important;
 }

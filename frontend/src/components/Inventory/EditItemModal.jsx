@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, Select, Button, DatePicker } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -7,29 +7,45 @@ const { Option } = Select;
 
 const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
   const [form] = Form.useForm();
+  const [isHeadOffice, setIsHeadOffice] = useState(false);
 
   useEffect(() => {
     if (item) {
+      const isHeadOfficeSelected = item.location?.startsWith('Head Office -');
+      const department = isHeadOfficeSelected ? item.location.split(' - ')[1] : '';
+
+      setIsHeadOffice(isHeadOfficeSelected);
       form.setFieldsValue({
         type: item.type,
         brand: item.brand,
         serialNumber: item.serialNumber,
-        issuedDate: item.issuedDate ? moment(item.issuedDate, 'YYYY-MM-DD') : null,
-        purchaseDate: item.purchaseDate ? moment(item.purchaseDate, 'YYYY-MM-DD') : null,
+        issuedDate: item.issuedDate && moment(item.issuedDate, 'YYYY-MM-DD').isValid() 
+        ? moment(item.issuedDate, 'YYYY-MM-DD') 
+        : null,
+      purchaseDate: item.purchaseDate && moment(item.purchaseDate, 'YYYY-MM-DD').isValid() 
+        ? moment(item.purchaseDate, 'YYYY-MM-DD') 
+        : null,
         condition: item.condition,
-        location: item.location,
+        locationType: isHeadOfficeSelected ? 'Head Office' : 'Other',
+        department: isHeadOfficeSelected ? department : null,
+        location: isHeadOfficeSelected ? '' : item.location,
         status: item.status,
         remarks: item.remarks,
       });
     }
-  }, [item, form]);
+  }, [item, form, visible]);
 
   const handleSubmit = async (values) => {
     try {
+      const formattedLocation = isHeadOffice
+        ? `Head Office - ${values.department}`
+        : values.location;
+
       const updatedItem = {
         id: item.id,
         ...values,
-        issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null, // Format the date
+        location: formattedLocation,
+        issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : "NO DATE", // Format the date
         purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, // Format the date
         remarks: values.remarks, 
       };
@@ -47,7 +63,7 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
       open={visible}
       onCancel={onClose}
       footer={null}
-      width={600}
+      width={900}
     >
       <Form
         form={form}
@@ -59,6 +75,9 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
           status: 'On Stock',
         }}
       >
+    <div style={{ display: 'flex', gap: '20px' }}>
+          {/* LEFT COLUMN */}
+      <div style={{ flex: 1 }}>
         <Form.Item label="Type" name="type" rules={[{ required: true, message: 'Please select the item type!' }]}>
           <Select>
             <Option value="Radio">Radio</Option>
@@ -98,7 +117,7 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
         <Form.Item
           label="Issued Date"
           name="issuedDate"
-          rules={[{ required: true, message: 'Please select the issued date!' }]} >
+          rules={[{ required: false }]} >
           <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
         </Form.Item>
 
@@ -108,7 +127,9 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
           rules={[{ required: true, message: 'Please select the purchase date!' }]} >
           <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
         </Form.Item>
+      </div>
 
+    <div style={{ flex: 1 }}>
         <Form.Item label="Condition" name="condition" rules={[{ required: true, message: 'Please select the condition!' }]}>
           <Select>
           <Option value="Brand New">Brand New</Option>
@@ -117,9 +138,44 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
           </Select>
         </Form.Item>
 
-        <Form.Item label="Detachment/Office" name="location" rules={[{ required: true, message: 'Please input the location!' }]}>
-          <Input />
+        <Form.Item
+          label="Detachment/Office"
+          name="locationType"
+          rules={[{ required: true, message: 'Please select a location!' }]}
+        >
+          <Select
+            onChange={(value) => setIsHeadOffice(value === 'Head Office')}
+          >
+            <Option value="Head Office">Head Office</Option>
+            <Option value="Other">Other (Specify Below)</Option>
+          </Select>
         </Form.Item>
+
+        {isHeadOffice && (
+          <Form.Item
+            label="Department (Head Office)"
+            name="department"
+            rules={[{ required: true, message: 'Please select a department!' }]}
+          >
+            <Select>
+              <Option value="SOD">SOD</Option>
+              <Option value="CID">CID</Option>
+              <Option value="GAD">GAD</Option>
+              <Option value="HRD">HRD</Option>
+              <Option value="AFD">AFD</Option>
+            </Select>
+          </Form.Item>
+        )}
+
+        {!isHeadOffice && (
+          <Form.Item
+            label="Specific Location"
+            name="location"
+            rules={[{ required: true, message: 'Please input a location!' }]}
+          >
+            <Input />
+          </Form.Item>
+        )}
 
         <Form.Item label="Status" name="status" rules={[{ required: true, message: 'Please select the status!' }]}>
           <Select>
@@ -128,7 +184,8 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
             <Option value="For Repair">For Repair</Option>
           </Select>
         </Form.Item>
-
+      </div>
+    </div>
         <Form.Item>
           <Button
             type="primary"

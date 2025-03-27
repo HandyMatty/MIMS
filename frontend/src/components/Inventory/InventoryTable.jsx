@@ -1,6 +1,6 @@
 // InventoryTable.js
 import React, { useState, useEffect } from 'react';
-import { Table, Select, Input, Button, Typography, Pagination, Tooltip, Card, message } from 'antd';
+import { Table, Select, Input, Button, Typography, Pagination, Tooltip, Card, message, Tabs } from 'antd';
 import { SearchOutlined, DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import AddItemModal from './AddItemModal'; 
 import EditItemModal from './EditItemModal';
@@ -12,6 +12,7 @@ import { useUserAuthStore } from '../../store/user/useAuth';
 import { columns } from './inventoryTableColumns'; // Import the columns here
 
 const { Option } = Select;
+const { TabPane } = Tabs;
 
 const InventoryTable = () => {
   const [searchText, setSearchText] = useState('');
@@ -25,6 +26,7 @@ const InventoryTable = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [isLoading, setIsLoading] = useState(false); 
+  const [activeTab, setActiveTab] = useState('default');
   const { logUserActivity } = useActivity(); 
   const { logUserNotification } = useNotification();
   const { userData: adminUserData } = useAdminAuthStore();
@@ -180,6 +182,11 @@ const InventoryTable = () => {
     }
   };
 
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+  };
+
+
   const rowSelection = isAdmin
     ? {
         selectedRowKeys,
@@ -189,65 +196,116 @@ const InventoryTable = () => {
 
   return (
     <Card title={<span className="text-5xl-6 font-bold flex justify-center">INVENTORY</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
-      <div className="flex justify-start items-center mb-4 space-x-2 w-full">
-        <Input
-          placeholder="Search"
-          prefix={<SearchOutlined />}
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          className="w-80 bg-[#a7f3d0] border border-black custom-search"
+      <div className="flex justify-between items-center mb-4 space-x-2 w-full">
+  {/* Search Input and Add/Delete Buttons */}
+  <div className="flex items-center space-x-2">
+    <Input
+      placeholder="Search"
+      prefix={<SearchOutlined />}
+      value={searchText}
+      onChange={(e) => setSearchText(e.target.value)}
+      className="w-80 bg-[#a7f3d0] border border-black custom-search"
+    />
+    <Tooltip title="Add Item">
+      {(isAdmin || userUserData) && (
+        <Button
+          type="text"
+          icon={<PlusCircleOutlined />}
+          onClick={() => setIsModalVisible(true)}
+          style={{ width: '32px', height: '32px', border: 'none', cursor: 'pointer' }}
         />
-        <Tooltip title="Add Item">
-          {(isAdmin || userUserData) && (
-            <Button
-              type="text"
-              icon={<PlusCircleOutlined />}
-              onClick={() => setIsModalVisible(true)}
-              style={{ width: '32px', height: '32px', border: 'none', cursor: 'pointer' }}
-            />
-          )}
-        </Tooltip>
-
-        {isAdmin && (
-        <Tooltip title="Delete">
-          <Button
-            type="text"
-            icon={<DeleteOutlined />}
-            onClick={handleBatchDelete}
-          />
-        </Tooltip>
       )}
+    </Tooltip>
+    {isAdmin && (
+      <Tooltip title="Delete">
+        <Button
+          type="text"
+          icon={<DeleteOutlined />}
+          onClick={handleBatchDelete}
+        />
+      </Tooltip>
+    )}
+  </div>
 
-        <div className="flex-grow"></div>
+  {/* Sorting Dropdown at the Right End */}
+  <div className="ml-auto">
+    <Select
+      defaultValue="Newest"
+      className="w-32 transparent-select"
+      onChange={handleSortOrderChange}
+    >
+      <Option value="Newest">Newest</Option>
+      <Option value="Oldest">Oldest</Option>
+    </Select>
+  </div>
+</div>
 
-        <div className="flex justify-end">
-        <Select
-          defaultValue="Newest"
-          className="w-32 transparent-select"
-          onChange={handleSortOrderChange}
-          >
-          <Option value="Newest">Newest</Option>
-          <Option value="Oldest">Oldest</Option>
-        </Select>
-
-        </div>
-      </div>
-
-      <div style={{ height: '720px'}}>
+<Tabs
+  defaultActiveKey="default"
+  onChange={handleTabChange}
+  type="card"
+  items={[
+    {
+      key: 'default',
+      label: 'Default',
+      children: (
+        <div style={{ height: '680px' }}>
         <Table
           rowSelection={rowSelection}
           rowKey="id"
           dataSource={paginatedData}
-          columns={columns(handleEdit, sortOrder, userRole)}  // Pass required props to columns
+          columns={columns(handleEdit, sortOrder, userRole, activeTab)}
           pagination={false}
           bordered
           onChange={handleTableChange}
-          scroll={{ x: 'max-content', y: 660 }} 
-          loading={isLoading} 
+          scroll={{ x: 'max-content', y: 620 }}
+          loading={isLoading}
         />
-      </div>
+        </div>
+      ),
+    },
+    {
+      key: 'issuedDate',
+      label: 'Issued Date',
+      children: (
+        <div style={{ height: '680px' }}>
+        <Table
+          rowSelection={rowSelection}
+          rowKey="id"
+          dataSource={paginatedData}
+          columns={columns(handleEdit, sortOrder, userRole, activeTab)}
+          pagination={false}
+          bordered
+          onChange={handleTableChange}
+          scroll={{ x: 'max-content', y: 620 }}
+          loading={isLoading}
+        />
+        </div>
+      ),
+    },
+    {
+      key: 'purchaseDate',
+      label: 'Purchased Date',
+      children: (
+        <div style={{ height: '680px' }}>
+        <Table
+          rowSelection={rowSelection}
+          rowKey="id"
+          dataSource={paginatedData}
+          columns={columns(handleEdit, sortOrder, userRole, activeTab)}
+          pagination={false}
+          bordered
+          onChange={handleTableChange}
+          scroll={{ x: 'max-content', y: 620 }}
+          loading={isLoading}
+        />
+        </div>
+      ),
+    }, 
+  ]}
+/>
 
-      <div className="flex items-center justify-between mt-10">
+    <div className="flex items-center justify-between mt-10">
         <Typography.Text style={{ color: '#072C1C' }}>
           Showing data of {totalEntries > 0 ? (currentPage - 1) * pageSize + 1 : 0} to {Math.min(currentPage * pageSize, totalEntries)} of {totalEntries} entries
         </Typography.Text>
@@ -259,7 +317,7 @@ const InventoryTable = () => {
           pageSizeOptions={['10', '20', '30']}
           onChange={handlePageChange}
         />
-      </div>
+    </div>
 
       <AddItemModal
         visible={isModalVisible}
