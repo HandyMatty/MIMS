@@ -122,7 +122,7 @@ const MainLayout = () => {
     setIsModalVisible(false);
     setLoading(true)
     setTimeout (() => {
-      handleLogout();}, 300);
+      handleLogout();}, 1000);
 
   };
 
