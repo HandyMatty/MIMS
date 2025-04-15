@@ -19,6 +19,7 @@ if ($result->num_rows > 0) {
             "location" => $row["location"],
             "status" => $row["status"],
             "remarks" => $row["remarks"],
+            "quantity" => $row["quantity"],
         ];
     }
     header('Content-Type: application/json');

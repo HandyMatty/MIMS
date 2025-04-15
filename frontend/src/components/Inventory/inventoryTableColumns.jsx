@@ -68,11 +68,20 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       sorter: (a, b) => a.brand.localeCompare(b.brand),
     },
     {
+      title: 'Qty', 
+      dataIndex: 'quantity',
+      key: 'quantity',
+      align: 'center',
+      width: 100,
+      sorter: (a, b) => a.quantity - b.quantity, 
+     },
+    {
       title: 'Remarks',
       dataIndex: 'remarks',
       key: 'remarks',
       align: 'center',
       width: 200,
+      render: (text) => text && text.trim() !== "" ? text : "-"
     },
     {
       title: 'Serial Number',
@@ -81,6 +90,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       align: 'center',
       width: 200,
       sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
+      render: (text) => text && text.trim() !== "" ? text : "-"
     },
     ...(activeTab === 'default'
       ? [

@@ -15,6 +15,44 @@ $condition = htmlspecialchars($data['condition']);
 $location = htmlspecialchars($data['location']);
 $status = htmlspecialchars($data['status']);
 $remarks = htmlspecialchars($data['remarks']);
+$quantity = intval($data['quantity']);
+
+if (!empty($serialNumber)) {
+    $checkSerialQuery = "SELECT id FROM inventory WHERE TRIM(UPPER(serial_number)) = ? AND id != ?";
+    $stmt = $conn->prepare($checkSerialQuery);
+    $stmt->bind_param("si", $serialNumber, $id);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        http_response_code(400);
+        echo json_encode(["message" => "Serial number already exists. Please use a unique serial number."]);
+        exit();
+    }
+    $stmt->close();
+}
+
+// Format the purchase date as YYYYMMDD
+$purchaseDateFormatted = date("Ymd", strtotime($purchaseDate));
+
+// Fetch the last item with the same purchase date (id, not item_id)
+$query = "SELECT id FROM inventory WHERE id LIKE ? ORDER BY id DESC LIMIT 1";
+$stmt = $conn->prepare($query);
+$likeParam = $purchaseDateFormatted . "%";
+$stmt->bind_param("s", $likeParam);
+$stmt->execute();
+$stmt->bind_result($lastItemId);
+$stmt->fetch();
+$stmt->close();
+
+// Generate new id
+if ($lastItemId) {
+    $lastCounter = (int)substr($lastItemId, -2); // Extract last two digits
+    $newCounter = str_pad($lastCounter + 1, 2, "0", STR_PAD_LEFT);
+} else {
+    $newCounter = "01"; // Start with 01 if no previous item exists
+}
+$newItemId = $purchaseDateFormatted . $newCounter;
 
 // Fetch existing item details before update
 $query = "SELECT * FROM inventory WHERE id = ?";
@@ -31,8 +69,9 @@ if (!$existingItem) {
     exit();
 }
 
-// Store changes in an array
+// Store changes in an array, including the old ID
 $changes = [];
+if ($existingItem['id'] !== $newItemId) $changes['Item ID'] = ["old" => $existingItem['id'], "new" => $newItemId];  // Add this to track ID changes
 if ($existingItem['type'] !== $type) $changes['Type'] = ["old" => $existingItem['type'], "new" => $type];
 if ($existingItem['brand'] !== $brand) $changes['Brand'] = ["old" => $existingItem['brand'], "new" => $brand];
 if ($existingItem['serial_number'] !== $serialNumber) $changes['Serial Number'] = ["old" => $existingItem['serial_number'], "new" => $serialNumber];
@@ -42,6 +81,7 @@ if ($existingItem['condition'] !== $condition) $changes['Condition'] = ["old" =>
 if ($existingItem['location'] !== $location) $changes['Location'] = ["old" => $existingItem['location'], "new" => $location];
 if ($existingItem['status'] !== $status) $changes['Status'] = ["old" => $existingItem['status'], "new" => $status];
 if ($existingItem['remarks'] !== $remarks) $changes['Remarks'] = ["old" => $existingItem['remarks'], "new" => $remarks];
+if ($existingItem['quantity'] !== $quantity) $changes['Quantity'] = ["old" => $existingItem['quantity'], "new" => $quantity];
 
 // If changes exist, insert them into the history table as a JSON object
 if (!empty($changes)) {
@@ -49,6 +89,7 @@ if (!empty($changes)) {
     $oldValues = json_encode(array_column($changes, "old")); // Store old values
     $newValues = json_encode(array_column($changes, "new")); // Store new values
 
+    // Add history for the ID change
     $history_stmt = $conn->prepare("
         INSERT INTO history (action, item_id, field_changed, old_value, new_value, action_date) 
         VALUES ('Updated', ?, ?, ?, ?, NOW())
@@ -58,16 +99,17 @@ if (!empty($changes)) {
     $history_stmt->close();
 }
 
+
 // Update the item details
 $update_stmt = $conn->prepare("
     UPDATE inventory 
-    SET type = ?, brand = ?, serial_number = ?, issued_date = ?, purchase_date = ?, `condition` = ?, location = ?, status = ?, remarks = ? 
+    SET id = ?, type = ?, brand = ?, serial_number = ?, issued_date = ?, purchase_date = ?, `condition` = ?, location = ?, status = ?, remarks = ?, quantity = ? 
     WHERE id = ?
 ");
-$update_stmt->bind_param("sssssssssi", $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks, $id);
+$update_stmt->bind_param("ssssssssssii", $newItemId, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks, $quantity, $id);
 
 if ($update_stmt->execute()) {
-    echo json_encode(["message" => "Item updated successfully"]);
+    echo json_encode(["message" => "Item updated successfully", "item_id" => $newItemId]); // Ensure the ID is returned here
 } else {
     http_response_code(500);
     echo json_encode(["message" => "Error: " . $update_stmt->error]);

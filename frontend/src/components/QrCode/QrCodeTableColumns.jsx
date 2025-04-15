@@ -86,11 +86,20 @@ const columns = (handleQrCodeClick) => [
     sorter: (a, b) => a.brand.localeCompare(b.brand),
   },
   {
+    title: 'Qty', 
+    dataIndex: 'quantity',
+    key: 'quantity',
+    align: 'center',
+    width: 100,
+    sorter: (a, b) => a.quantity - b.quantity, 
+   },
+  {
     title: 'Remarks', // New column for Remarks
     dataIndex: 'remarks', // Assuming 'remarks' will be a key in your data
     key: 'remarks',
     align: 'center',
     width: 200, // Set width for Remarks column
+    render: (text) => text && text.trim() !== "" ? text : "-"
   },
   {
     title: 'Serial Number',
@@ -98,6 +107,7 @@ const columns = (handleQrCodeClick) => [
     key: 'serialNumber',
     align: 'center',
     sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
+    render: (text) => text && text.trim() !== "" ? text : "-"
   },
   {
     title: 'Issued Date',

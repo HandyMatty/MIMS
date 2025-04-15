@@ -21,6 +21,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
     id: "N/A",
     Type: "N/A",
     Brand: "N/A",
+    quantity: "N/A",
     remarks: "N/A",
     "Serial Number": "N/A",
     "Issued Date": "N/A",
@@ -36,6 +37,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
         Type: itemDetails.type || "N/A",
         Brand: itemDetails.brand || "N/A",
         remarks: itemDetails.remarks || "N/A",
+        quantity: itemDetails.quantity || "N/A",
         "Serial Number": itemDetails.serialNumber || "N/A",
         "Issued Date": itemDetails.issuedDate || "N/A",
         "Purchased Date": itemDetails.purchaseDate || "N/A",
@@ -77,28 +79,30 @@ const QrCodeGenerator = ({ itemDetails }) => {
             className="p-4 rounded-lg bg-[#A8E1C5] shadow"
             style={{ border: '1px solid #072C1C', borderRadius: '8px' }}
           >
-            <Descriptions
-             title={
-              <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '18px' }}>
-                Latest Item Info
-              </div>
-            }
-              bordered
-              column={1}
-              size="small"
-              labelStyle={{
-                fontWeight: 'bold',
-                color: '#072C1C',
-                width: '120px',
-              }}
-              contentStyle={{ color: '#072C1C' }}
-            >
-              {Object.entries(itemData).map(([label, value]) => (
-                <Descriptions.Item key={label} label={label}>
-                  {value}
-                </Descriptions.Item>
-              ))}
-            </Descriptions>
+                <Descriptions
+                  title={
+                    <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '18px' }}>
+                      Latest Item Info
+                    </div>
+                  }
+                  bordered
+                  column={1}
+                  size="small"
+                  labelStyle={{
+                    fontWeight: 'bold',
+                    color: '#072C1C',
+                    width: '120px',
+                  }}
+                  contentStyle={{ color: '#072C1C' }}
+                >
+                  {Object.entries(itemData)
+                    .filter(([label]) => !(label === "quantity" && itemData["Serial Number"] !== "N/A"))
+                    .map(([label, value]) => (
+                      <Descriptions.Item key={label} label={label}>
+                        {value}
+                      </Descriptions.Item>
+                    ))}
+                </Descriptions>
           </div>
         </div>
 
@@ -115,7 +119,12 @@ const QrCodeGenerator = ({ itemDetails }) => {
             }}
           >
             <QRCode
-              value={itemDetails ? JSON.stringify(itemDetails) : 'https://example.com'}
+                value={JSON.stringify(
+                  Object.fromEntries(
+                    Object.entries(itemDetails || {}).filter(([key]) => !
+                    (key === "quantity" && itemDetails?.serialNumber))
+                  )
+                )}              
               type="svg" 
               style={{
                 width: '100%', 

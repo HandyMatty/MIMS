@@ -50,7 +50,7 @@ const UsersActivities = () => {
   // Define table columns
   const columns = [
     {
-      title: 'Id',
+      title: 'ID',
       dataIndex: 'id',
       key: 'id',
       ellipsis: true,

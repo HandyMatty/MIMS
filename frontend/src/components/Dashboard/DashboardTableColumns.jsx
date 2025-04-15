@@ -85,11 +85,20 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     width: 150,
   },
   {
+    title: 'Qty', 
+    dataIndex: 'quantity',
+    key: 'quantity',
+    align: 'center',
+    width: 100,
+    sorter: (a, b) => a.quantity - b.quantity, 
+  },
+  {
     title: 'Remarks', // New column for Remarks
     dataIndex: 'remarks', // Assuming 'remarks' will be a key in your data
     key: 'remarks',
     align: 'center',
     width: 200, // Set width for Remarks column
+    render: (text) => text && text.trim() !== "" ? text : "-"
   },
   {
     title: 'Serial Number',
@@ -98,6 +107,7 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     sorter: true,
     width: 200,
+    render: (text) => text && text.trim() !== "" ? text : "-"
   },
   {
     title: 'Issued Date',

@@ -79,11 +79,20 @@ export const getColumns = (showModal, tabType) => {
         width: 120,
       },
       {
+        title: 'Qty',  // <-- NEW COLUMN
+        dataIndex: 'quantity',
+        key: 'quantity',
+        align: 'center',
+        width: 100,
+        sorter: (a, b) => a.quantity - b.quantity,
+      },
+      {
         title: "Remarks",
         dataIndex: "remarks",
         key: "remarks",
         align: "center",
         width: 200,
+        render: (text) => text && text.trim() !== "" ? text : "-"
       },
       {
         title: "Serial No.",
@@ -91,6 +100,7 @@ export const getColumns = (showModal, tabType) => {
         key: "serial_number",
         align: "center",
         width: 200,
+        render: (text) => text && text.trim() !== "" ? text : "-"
       },
       {
         title: "Issued Date",

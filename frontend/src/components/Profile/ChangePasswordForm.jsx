@@ -136,6 +136,13 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
             />
           </Form.Item>
           <Form.Item style={{ textAlign: 'center' }}>
+          <Button 
+              className="mr-2 bg-red-500 text-white w-1/5" 
+              type="default" 
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
             <Button 
               className="bg-lime-200 text-green-950" 
               type="primary" 
@@ -143,13 +150,6 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
               loading={loading}
             >
               Save
-            </Button>
-            <Button 
-              className="ml-2 bg-red-500 text-white w-1/5" 
-              type="default" 
-              onClick={handleCancel}
-            >
-              Cancel
             </Button>
           </Form.Item>
         </Form>

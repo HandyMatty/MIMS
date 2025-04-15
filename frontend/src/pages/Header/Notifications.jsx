@@ -1,5 +1,5 @@
-import React from 'react';
-import { Typography, List, Card, Button, Tooltip } from 'antd';
+import React, { useState } from 'react';
+import { Typography, List, Card, Button, Tooltip, Pagination } from 'antd';
 import { CheckOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNotification } from '../../utils/NotificationContext';
 import { useAdminAuthStore } from '../../store/admin/useAuth';
@@ -11,50 +11,38 @@ const Notifications = () => {
   const { notifications, markAsRead, deleteNotif, markAllasread, clearall } = useNotification();
   const { userData: adminUserData } = useAdminAuthStore();
   const { userData: userUserData } = useUserAuthStore();
-  const { userData: guestUserData } = useGuestAuthStore(); // Guest Auth Store
+  const { userData: guestUserData } = useGuestAuthStore();
 
   const isAuthenticated = adminUserData || userUserData;
-  const isGuest = Boolean(guestUserData); 
+  const isGuest = Boolean(guestUserData);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   const handleMarkAsRead = async (id) => {
     if (!isAuthenticated) return;
-    const success = await markAsRead(id);
-    if (success) {
-      console.log(`Notification ${id} marked as read.`);
-    } else {
-      console.error(`Failed to mark notification ${id} as read.`);
-    }
+    await markAsRead(id);
   };
 
   const handleDelete = async (id) => {
     if (!isAuthenticated) return;
-    const success = await deleteNotif(id);
-    if (success) {
-      console.log(`Notification ${id} deleted successfully.`);
-    } else {
-      console.error(`Failed to delete notification ${id}.`);
-    }
+    await deleteNotif(id);
   };
 
   const handleMarkAllAsRead = async () => {
     if (!isAuthenticated) return;
-    const success = await markAllasread();
-    if (success) {
-      console.log("All notifications marked as read.");
-    } else {
-      console.error("Failed to mark all notifications as read.");
-    }
+    await markAllasread();
   };
 
   const handleClearAllNotifications = async () => {
     if (!isAuthenticated) return;
-    const success = await clearall();
-    if (success) {
-      console.log("All notifications cleared.");
-    } else {
-      console.error("Failed to clear all notifications.");
-    }
+    await clearall();
   };
+
+  const paginatedData = notifications.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
     <div className="flex flex-col w-full p-8">
@@ -65,7 +53,7 @@ const Notifications = () => {
             onClick={handleMarkAllAsRead}
             className="mr-4 bg-green-400"
             type="default"
-            disabled={!isAuthenticated} // Disabled for guests
+            disabled={!isAuthenticated}
           >
             Mark All as Read
           </Button>
@@ -73,7 +61,7 @@ const Notifications = () => {
             onClick={handleClearAllNotifications}
             type="default"
             className="bg-red-400"
-            disabled={!isAuthenticated} // Disabled for guests
+            disabled={!isAuthenticated}
           >
             Empty Notifications
           </Button>
@@ -84,59 +72,83 @@ const Notifications = () => {
         {isGuest ? (
           <div className="text-center text-gray-500">No notifications available for guests.</div>
         ) : (
-          <List
-            dataSource={notifications}
-            renderItem={(item) => (
-              <List.Item key={item.id}>
-                <Card
-                  title="Notification"
-                  extra={
-                    item.notification_date
-                      ? <small>{new Date(item.notification_date).toLocaleString()}</small>
-                      : <small>Invalid date</small>
-                  }
-                  style={{ width: '100%', background: '#eaf4e2', border: 'none' }}
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col">
-                      <div>
-                        <strong className='font-medium text-black'>Message: </strong>
-                        <span className="text-black text-lg">{item.message}</span>
+          <>
+            <List
+              dataSource={paginatedData}
+              pagination={false}
+              renderItem={(item) => (
+                <List.Item key={item.id}>
+                  <Card
+                    title="Notification"
+                    extra={item.notification_date ? (
+                      <small>{new Date(item.notification_date).toLocaleString()}</small>
+                    ) : (
+                      <small>Invalid date</small>
+                    )}
+                    style={{ width: '100%', background: '#eaf4e2', border: 'none' }}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-col">
+                        <div>
+                          <strong className='font-medium text-black'>Message: </strong>
+                          <span className="text-black text-lg">{item.message}</span>
+                        </div>
+                        <div>
+                          <strong className='font-medium text-black'>Details: </strong>
+                          <span className="text-black text-sm">{item.details}</span>
+                        </div>
                       </div>
-                      <div>
-                        <strong className='font-medium text-black'>Details: </strong>
-                        <span className="text-black text-sm">{item.details}</span>
-                      </div>
-                    </div>
 
-                    <div className="ml-4 flex gap-2">
-                      {!item.read && (
-                        <Tooltip title="Mark as read">
+                      <div className="ml-4 flex gap-2">
+                        {!item.read && (
+                          <Tooltip title="Mark as read">
+                            <Button
+                              onClick={() => handleMarkAsRead(item.id)}
+                              type="text"
+                              className='bg-green-400'
+                              icon={<CheckOutlined />}
+                              disabled={!isAuthenticated}
+                            />
+                          </Tooltip>
+                        )}
+
+                        <Tooltip title="Delete notification">
                           <Button
-                            onClick={() => handleMarkAsRead(item.id)}
+                            onClick={() => handleDelete(item.id)}
                             type="text"
-                            className='bg-green-400'
-                            icon={<CheckOutlined />}
-                            disabled={!isAuthenticated} // Disabled for guests
+                            className='bg-red-400'
+                            icon={<DeleteOutlined />}
+                            disabled={!isAuthenticated}
                           />
                         </Tooltip>
-                      )}
-
-                      <Tooltip title="Delete notification">
-                        <Button
-                          onClick={() => handleDelete(item.id)}
-                          type="text"
-                          className='bg-red-400'
-                          icon={<DeleteOutlined />}
-                          disabled={!isAuthenticated} // Disabled for guests
-                        />
-                      </Tooltip>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              </List.Item>
-            )}
-          />
+                  </Card>
+                </List.Item>
+              )}
+            />
+
+            <div className="flex justify-between items-center mt-4">
+              <div>
+                {`${(currentPage - 1) * pageSize + 1}-${Math.min(
+                  currentPage * pageSize,
+                  notifications.length
+                )} of ${notifications.length} notifications`}
+              </div>
+
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={notifications.length}
+                showSizeChanger
+                pageSizeOptions={['5', '10', '20', '50']}
+                onChange={(page, size) => {
+                  setCurrentPage(page);
+                  setPageSize(size);
+                }}
+              />
+            </div>
+          </>
         )}
       </div>
     </div>

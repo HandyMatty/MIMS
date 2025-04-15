@@ -12,7 +12,7 @@ import { useUserAuthStore } from '../../store/user/useAuth';
 import { columns } from './inventoryTableColumns'; // Import the columns here
 
 const { Option } = Select;
-const { TabPane } = Tabs;
+
 
 const InventoryTable = () => {
   const [searchText, setSearchText] = useState('');

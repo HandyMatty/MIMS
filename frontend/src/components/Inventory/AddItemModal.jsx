@@ -1,15 +1,34 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Select, Button, DatePicker } from 'antd';
+import { Modal, Form, Input, Select, Button, DatePicker, message } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
+import { getInventoryData } from '../../services/api/addItemToInventory';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
 const AddItemModal = ({ visible, onClose, onAdd }) => {
   const [form] = Form.useForm();
   const [isHeadOffice, setIsHeadOffice] = useState(false);
+  const [hasSerialNumber, setHasSerialNumber] = useState(false);
 
   const handleSubmit = async (values) => {
     try {
+      if (values.purchaseDate && values.purchaseDate.isAfter(dayjs())) {
+        message.error("Purchase date cannot be in the future.");
+        return;
+      }
+      
+      const existingInventory = await getInventoryData();
+    
+      // Check if serial number already exists
+      if (values.serialNumber) {
+        const serialExists = existingInventory.some(item => item.serialNumber === values.serialNumber);
+        if (serialExists) {
+          message.error("Serial number already exists. Please use a unique serial number.");
+          return;
+        }
+      }
+      
       const formattedLocation = isHeadOffice
         ? `Head Office - ${values.department}`
         : values.location;
@@ -17,13 +36,14 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
       const itemData = {
         type: values.type,
         brand: values.brand,
+        quantity: hasSerialNumber ? 1 : Math.max(1, values.quantity || 1),
         serialNumber: values.serialNumber,
         issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : "NO DATE", 
         purchaseDate: values.purchaseDate.format('YYYY-MM-DD'), 
         condition: values.condition,
         location: formattedLocation,
         status: values.status,
-        remarks: values.remarks,
+        remarks: values.remarks || null,
       };
 
       onAdd(itemData); 
@@ -35,9 +55,24 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
   };
 
   const handleClose = () => {
-    form.resetFields(); // Reset fields before closing the modal
+    form.resetFields(); 
+    setHasSerialNumber(false); 
     onClose();
-  };  
+  };
+  
+
+  const handleSerialChange = (e) => {
+    const value = e.target.value.trim();
+    setHasSerialNumber(value !== '');
+  
+    if (value !== '') {
+      form.setFieldsValue({ quantity: 1 });
+    } else {
+      form.setFieldsValue({ quantity: 1 });
+    }
+  };
+  
+  
 
   return (
     <Modal
@@ -55,11 +90,12 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
           type: 'Radio',
           condition: 'Brand New',
           status: 'On Stock',
+          quantity: 1,
         }}
       >
       <div style={{ display: 'flex', gap: '20px' }}>
           {/* LEFT COLUMN */}
-          <div style={{ flex: 1 }}>
+      <div style={{ flex: 1 }}>
         <Form.Item
           label="Type"
           name="type"
@@ -80,6 +116,20 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
             <Option value="Keyboard">Keyboard</Option>
             <Option value="Mouse">Mouse</Option>
             <Option value="AVR">AVR</Option>
+            <Option value="UPS">UPS</Option>
+            <Option value="Printer">Printer</Option>
+            <Option value="Headset">Headset</Option>
+            <Option value="Speaker">Speaker</Option>
+            <Option value="Router">Router</Option>
+            <Option value="Switch">Switch</Option>
+            <Option value="Modem">Modem</Option>
+            <Option value="Mesh">WIFI-Mesh</Option>
+            <Option value="Camera">Camera</Option>
+            <Option value="Microphone">Microphone</Option>
+            <Option value="CCTV">CCTV</Option>
+            <Option value="Podium">Podium</Option>
+            <Option value="Chassis">Under Chassis</Option>
+            <Option value="Pedestal">Mobile Pedestal</Option>
             <Option value="Others">Others</Option>
           </Select>
         </Form.Item>
@@ -93,34 +143,39 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
 
         <Form.Item
           label="Remarks"
-          name="remarks"
-          rules={[{ required: false, message: 'Please add remarks if necessary!' }]} >
+          name="remarks" >
           <Input.TextArea />
         </Form.Item>
 
         <Form.Item
           label="Serial Number"
-          name="serialNumber"
-          rules={[{ required: true, message: 'Please input the serial number!' }]} >
-          <Input />
+          name="serialNumber" >
+          <Input onChange={handleSerialChange} />
         </Form.Item>
 
-        <Form.Item
-          label="Issued Date"
-          name="issuedDate"
-          rules={[{ required: false }]} >
-          <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
-        </Form.Item>
+        {!hasSerialNumber && (
+              <Form.Item
+                label="Quantity"
+                name="quantity"
+                rules={[{ required: true, message: 'Please input the quantity!' }]}
+              >
+                <Input type="number" min={1} />
+              </Form.Item>
+            )}
 
+            <Form.Item label="Issued Date" name="issuedDate">
+              <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
+            </Form.Item>
+        </div>
+
+        <div style={{ flex: 1 }}>
         <Form.Item
           label="Purchased Date"
           name="purchaseDate"
           rules={[{ required: true, message: 'Please select the purchase date!' }]} >
           <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
         </Form.Item>
-        </div>
 
-        <div style={{ flex: 1 }}>
         <Form.Item
           label="Condition"
           name="condition"

@@ -3,20 +3,19 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
   CartesianGrid, ResponsiveContainer, LabelList
 } from 'recharts';
-import { getInventoryData } from '../../services/api/addItemToInventory'; // Adjust the path as needed
-import { Spin } from 'antd'; // Import Ant Design's Spin component for loading indicator
+import { getInventoryData } from '../../services/api/addItemToInventory';
+import { Spin } from 'antd';
 import './customBarGraph.css';
 
-const HistoryBarGraph = ({ searchText }) => { // Accept searchText as a prop
+const HistoryBarGraph = ({ searchText }) => {
   const [barData, setBarData] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchInventoryData = async () => {
       try {
         const data = await getInventoryData();
 
-        // Filter data based on searchText
         const filteredData = data.filter(item =>
           Object.values(item)
             .join(' ')
@@ -24,17 +23,16 @@ const HistoryBarGraph = ({ searchText }) => { // Accept searchText as a prop
             .includes(searchText.toLowerCase())
         );
 
-        // Group by type and count items
+        // Group by type and sum quantity
         const typeCounts = filteredData.reduce((acc, item) => {
-          const { type } = item; // Extract type field
+          const { type, quantity } = item;
           if (!acc[type]) {
             acc[type] = 0;
           }
-          acc[type]++;
+          acc[type] += parseInt(quantity) || 0;
           return acc;
         }, {});
 
-        // Transform the grouped data into an array format suitable for the graph
         const formattedData = Object.entries(typeCounts).map(([type, items]) => ({
           name: type,
           items,
@@ -44,18 +42,18 @@ const HistoryBarGraph = ({ searchText }) => { // Accept searchText as a prop
       } catch (error) {
         console.error('Failed to fetch inventory data:', error);
       } finally {
-        setLoading(false); // Set loading to false after fetching completes
+        setLoading(false);
       }
     };
 
     fetchInventoryData();
-  }, [searchText]); // Refetch data when searchText changes
+  }, [searchText]);
 
   return (
     <div className="history-bar-graph-container">
       {loading ? (
         <div className="loading-spinner">
-          <Spin size="large" /> {/* Show Ant Design spinner while loading */}
+          <Spin size="large" />
         </div>
       ) : (
         <ResponsiveContainer>
@@ -64,12 +62,11 @@ const HistoryBarGraph = ({ searchText }) => { // Accept searchText as a prop
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip
-              wrapperClassName="custom-tooltip" // Add custom class name
-              cursor={{ fill: 'rgba(56, 161, 105, 0.2)' }} // Hover effect on bars
+              wrapperClassName="custom-tooltip"
+              cursor={{ fill: 'rgba(56, 161, 105, 0.2)' }}
             />
-            <Legend formatter={(value) => `Type: ${value}`} /> {/* Custom legend text */}
+            <Legend formatter={(value) => `Type: ${value}`} />
             <Bar dataKey="items" fill="#2f855a" barSize={50}>
-              {/* Display item count inside the bar */}
               <LabelList dataKey="items" position="middle" fill="black" fontSize={14} fontWeight="bold" />
             </Bar>
           </BarChart>

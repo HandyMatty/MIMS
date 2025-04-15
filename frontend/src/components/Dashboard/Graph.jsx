@@ -21,30 +21,33 @@ const Graph = () => {
       try {
         const data = await getInventoryData();
         setLoading(false);
-        // Count the number of items added per month for `purchaseDate`
+
+        // Aggregate the quantity per month for 'purchaseDate'
         const purchaseCounts = data.reduce((acc, item) => {
-          const purchaseDate = item.purchaseDate; // Use the updated field
+          const purchaseDate = item.purchaseDate;
+          const quantity = item.quantity || 0; // Get quantity, default to 0 if undefined
           if (purchaseDate) {
             const date = new Date(purchaseDate);
             const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`; // Format: "Year-Month"
             if (!acc[monthYear]) {
               acc[monthYear] = 0;
             }
-            acc[monthYear]++;
+            acc[monthYear] += parseInt(quantity); // Sum quantity
           }
           return acc;
         }, {});
 
-        // Count the number of items added per month for `issuedDate`
+        // Aggregate the quantity per month for 'issuedDate'
         const issuedCounts = data.reduce((acc, item) => {
-          const issuedDate = item.issuedDate; // Use the updated field
+          const issuedDate = item.issuedDate;
+          const quantity = item.quantity || 0;
           if (issuedDate) {
             const date = new Date(issuedDate);
             const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`; // Format: "Year-Month"
             if (!acc[monthYear]) {
               acc[monthYear] = 0;
             }
-            acc[monthYear]++;
+            acc[monthYear] += parseInt(quantity); // Sum quantity
           }
           return acc;
         }, {});
@@ -86,7 +89,7 @@ const Graph = () => {
               <XAxis dataKey="monthYear" />
               <YAxis
                 label={{
-                  value: 'Count',
+                  value: 'Quantity',
                   angle: -90,
                   position: 'insideLeft',
                   fill: '#00000',

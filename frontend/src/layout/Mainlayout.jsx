@@ -79,36 +79,35 @@ const MainLayout = () => {
         role = "guest";
         username = guestAuth.userData.username;
       }
-
+  
       if (!role || !username) {
         console.error("No user role detected for logout.");
         return;
       }
-
-      const { success, message } = await logoutUser(role);
-
+  
+      const { success } = await logoutUser(role);
+  
       if (success) {
         logUserActivity(username, "Logout", `User ${username} just logged out`);
-
+  
         // Reset the correct auth store
         if (role === "admin") adminAuth.reset();
         if (role === "user") userAuth.reset();
         if (role === "guest") guestAuth.reset();
-
+  
         // Clear all storages and cookies
         sessionStorage.clear();
         localStorage.clear();
-        Cookies.remove(`authToken_${username}`);
-        Cookies.remove("authToken");
-
+        Cookies.remove(`authToken_${username}`, { path: '/' });
+        Cookies.remove("authToken", { path: '/' });
+        
+        localStorage.setItem("logout", JSON.stringify({ token: adminAuth.token || userAuth.token || guestAuth.token, time: Date.now() }));
         navigate("/login", { replace: true });
-      } else {
-        console.error("Logout failed:", message);
       }
     } catch (error) {
       console.error("Error during logout:", error);
     }
-  };
+  };  
 
   const onClick = (e) => {
     if (e.key === 'logout') {
@@ -121,7 +120,10 @@ const MainLayout = () => {
 
   const handleModalOk = () => {
     setIsModalVisible(false);
-    handleLogout(); // Call logout if confirmed
+    setLoading(true)
+    setTimeout (() => {
+      handleLogout();}, 300);
+
   };
 
   const handleModalCancel = () => {
@@ -129,53 +131,46 @@ const MainLayout = () => {
   };
 
   useEffect(() => {
-    const checkCookieValidity = async () => {
-      let username, role;
-      if (isAdmin) {
-        username = adminAuth.userData?.username;
-        role = "admin";
-      } else if (isUser) {
-        username = userAuth.userData?.username;
-        role = "user";
-      } else if (isGuest) {
-        username = guestAuth.userData?.username;
-        role = "guest";
-      }
-  
-      if (username && role) {
-        const tokenCookie = Cookies.get(`authToken_${username}`);
-        if (!tokenCookie) {
-          message.warning("Your session has expired. You have been logged out.", 3);
-          
-          logUserActivity(username, "Logout", `User ${username} was automatically logged out due to session expiration`);
-          
-          // Call the logout function to notify the server
-          await logoutUser(role);
-  
-          // Reset the correct auth store
-          if (role === "admin") adminAuth.reset();
-          if (role === "user") userAuth.reset();
-          if (role === "guest") guestAuth.reset();
-  
-          // Clear all storages and cookies
+    const checkCookiePresence = async () => {
+      const username =
+        adminAuth?.userData?.username ||
+        userAuth?.userData?.username ||
+        guestAuth?.userData?.username;
+    
+      if (!username) return;
+    
+      const tokenCookie = Cookies.get(`authToken_${username}`);
+      
+      if (!tokenCookie) {
+        message.warning("Your session has expired or was removed. You have been logged out.", 3);
+    
+        setLoading(true); // ✅ Trigger your loading screen
+    
+        setTimeout(async () => {
+          logUserActivity(username, "Logout", `User ${username} was automatically logged out due to missing auth cookie.`);
+    
+          const role = adminAuth.token ? "admin" : userAuth.token ? "user" : guestAuth.token ? "guest" : null;
+          if (role) await logoutUser(role);
+    
+          adminAuth.reset();
+          userAuth.reset();
+          guestAuth.reset();
           sessionStorage.clear();
           localStorage.clear();
-          Cookies.remove(`authToken_${username}`);
-          Cookies.remove("authToken");
-  
-          // Redirect to login
-          navigate("/login", { replace: true });
-        }
+          Cookies.remove(`authToken_${username}`, { path: '/' });
+          Cookies.remove("authToken", { path: '/' });
+    
+          navigate("/login", { replace: true }); // ✅ Delayed so loading screen is seen
+        }, 1000); // short delay to allow spinner to render
       }
     };
   
-    // Check immediately on mount
-    checkCookieValidity();
+    checkCookiePresence(); // Run once on load
   
-    // Then check every minute (60000 ms)
-    const interval = setInterval(checkCookieValidity, 60000);
+    const interval = setInterval(checkCookiePresence, 15000); // Then every 60 seconds
+  
     return () => clearInterval(interval);
-  }, [adminAuth, userAuth, guestAuth, isAdmin, isUser, isGuest, navigate]);
+  }, [adminAuth, userAuth, guestAuth, navigate, logUserActivity]);  
   
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -202,20 +197,43 @@ const MainLayout = () => {
           if ((isAdmin && adminAuth.token === logoutData.token) || (isUser && userAuth.token === logoutData.token)) {
             adminAuth.reset();
             userAuth.reset();
+            guestAuth.reset();
             sessionStorage.clear();
             localStorage.clear();
-            Cookies.remove("authToken");
+            Cookies.remove("authToken", { path: '/' });
             navigate("/login", { replace: true });
           }
         } catch (error) {
           console.error("Error handling logout event:", error);
         }
       }
+  
+      if (event.key === "usernameChange") {
+        try {
+          const updatedUserData = JSON.parse(event.newValue);
+          if (!updatedUserData || !updatedUserData.username) return;
+  
+          console.log("Updating username dynamically:", updatedUserData.username);
+  
+          // Check which auth store should be updated
+          if (isAdmin) {
+            adminAuth.setUserData(updatedUserData);
+          } else if (isUser) {
+            userAuth.setUserData(updatedUserData);
+          } else if (isGuest) {
+            guestAuth.setUserData(updatedUserData);
+          }
+  
+          message.success("Username updated successfully!");
+        } catch (error) {
+          console.error("Error updating username from storage event:", error);
+        }
+      }
     };
   
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, [adminAuth, userAuth, isAdmin, isUser, navigate]);
+  }, [adminAuth, userAuth, guestAuth, isAdmin, isUser, isGuest, navigate]);  
   
 
   if (loading) {

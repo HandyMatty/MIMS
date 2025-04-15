@@ -37,7 +37,7 @@ const StatisticsBoard = ({ searchText }) => {
 
   // Calculate counts from filtered data
   const inventoryCounts = {
-    totalEquipment: filteredData.length,
+    totalEquipment: filteredData.reduce((total, item) => total + Number(item.quantity), 0),
     BrandNew: filteredData.filter((item) => item.condition === 'Brand New').length,
     deployed: filteredData.filter((item) => item.status === 'Deployed').length,
     OnStock: filteredData.filter((item) => item.status === 'On Stock').length,

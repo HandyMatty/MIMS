@@ -251,6 +251,7 @@ input[type="password"]::-ms-reveal {
 /* Optional: Change active tab border */
 .ant-tabs-tab-active {
   border-bottom: 3px solid #5fe7a7 !important;
+  background-color: #eaf4e2  !important;
 }
 
 .ant-table-filter-trigger.active {

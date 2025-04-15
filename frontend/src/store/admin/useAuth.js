@@ -12,7 +12,7 @@ export const useAdminAuthStore = create(
       setToken: (token) => set({ token }),
       reset: () => {
         set({ userData: null, role: null, token: null });
-        localStorage.removeItem("adminAuth"); // Manually remove storage entry
+        localStorage.removeItem("adminAuth");
       },
     }),
     {

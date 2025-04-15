@@ -38,10 +38,9 @@ const clearAuthData = (role, username) => {
   localStorage.clear();   // Clear localStorage completely
 
   if (username) {
-    Cookies.remove(`authToken_${username}`); // Remove user-specific cookie
-    Cookies.remove(`cookieExpiration_${username}`); // Remove expiration cookie if used
+    Cookies.remove(`authToken_${username}`, { path: '/' }); // Remove user-specific cookie
   }
-  Cookies.remove("authToken"); // Remove global auth token cookie
+  Cookies.remove("authToken", { path: '/' }); // Remove global auth token cookie
 
   // Reset Zustand stores
   if (role === "admin") useAdminAuthStore.getState().reset();

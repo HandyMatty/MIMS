@@ -114,7 +114,7 @@ const QrCodeTable = ({ onItemSelect }) => {
         </div>
       </div>
 
-      <div style={{ height: '680px' }}>
+      <div style={{ height: '700px' }}>
         <Table
           rowKey="id"
           columns={columns(handleQrCodeClick)}  // Pass handleQrCodeClick to columns
