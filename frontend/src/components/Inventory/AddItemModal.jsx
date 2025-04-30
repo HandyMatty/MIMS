@@ -213,6 +213,8 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
               <Option value="GAD">GAD</Option>
               <Option value="HRD">HRD</Option>
               <Option value="AFD">AFD</Option>
+              <Option value="EOD">EOD</Option>
+              <Option value="BDO">BDO</Option>
             </Select>
           </Form.Item>
         )}
@@ -238,18 +240,17 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
             <Option value="For Repair">For Repair</Option>
           </Select>
         </Form.Item>
+
+        <Form.Item>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Button type="primary" htmlType="submit" icon={<PlusCircleOutlined />}>
+              Add Item
+            </Button>
+          </div>
+        </Form.Item>
+
         </div>
       </div>
-        <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            icon={<PlusCircleOutlined />}
-            style={{ width: '100%' }}
-          >
-            Add Item
-          </Button>
-        </Form.Item>
       </Form>
     </Modal>
   );

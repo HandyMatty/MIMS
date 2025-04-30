@@ -1,5 +1,4 @@
 import React from 'react'
-import HistoryBarGraph from '../components/History/HistoryBarGraph';
 import HistoryTable from '../components/History/HistoryTable';
 
 const History = () => {

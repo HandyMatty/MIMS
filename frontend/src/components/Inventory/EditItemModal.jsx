@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, Select, Button, DatePicker, message } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { getInventoryData } from '../../services/api/addItemToInventory';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
@@ -24,11 +24,11 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
         type: item.type,
         brand: item.brand,
         serialNumber: item.serialNumber,
-        issuedDate: item.issuedDate && moment(item.issuedDate, 'YYYY-MM-DD').isValid() 
-        ? moment(item.issuedDate, 'YYYY-MM-DD') 
+        issuedDate: item.issuedDate && dayjs(item.issuedDate, 'YYYY-MM-DD').isValid() 
+        ? dayjs(item.issuedDate, 'YYYY-MM-DD') 
         : null,
-      purchaseDate: item.purchaseDate && moment(item.purchaseDate, 'YYYY-MM-DD').isValid() 
-        ? moment(item.purchaseDate, 'YYYY-MM-DD') 
+      purchaseDate: item.purchaseDate && dayjs(item.purchaseDate, 'YYYY-MM-DD').isValid() 
+        ? dayjs(item.purchaseDate, 'YYYY-MM-DD') 
         : null,
         condition: item.condition,
         locationType: isHeadOfficeSelected ? 'Head Office' : 'Other',
@@ -44,7 +44,7 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
   const handleSubmit = async (values) => {
     try {
 
-        if (values.purchaseDate && values.purchaseDate.isAfter(moment())) {
+        if (values.purchaseDate && values.purchaseDate.isAfter(dayjs())) {
           message.error("Purchase date cannot be in the future.");
           return;
         }
@@ -236,6 +236,8 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
               <Option value="GAD">GAD</Option>
               <Option value="HRD">HRD</Option>
               <Option value="AFD">AFD</Option>
+              <Option value="EOD">EOD</Option>
+              <Option value="BDO">BDO</Option>
             </Select>
           </Form.Item>
         )}
