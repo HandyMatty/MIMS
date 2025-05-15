@@ -9,9 +9,10 @@ import { useState } from 'react';
 const { Option } = Select;
 
 const InventoryTable = () => {
-  // Use key to force table re-render when filters are reset
   const [tableKey, setTableKey] = useState(0);
   const [searchColumn, setSearchColumn] = useState('all');
+  const [localFilteredData, setLocalFilteredData] = useState([]);
+  const [filterActive, setFilterActive] = useState(false);
   
   const {
     searchText,
@@ -44,50 +45,44 @@ const InventoryTable = () => {
     dataSource,
   } = useInventoryTable();
   
-  // Enhanced reset function that also forces table re-render to clear filters
   const resetAll = () => {
-    handleReset(); // Call the existing reset function from the hook
-    setSearchColumn('all'); // Reset search column to 'all'
-    
-    // Force re-render of table to clear filters
+    handleReset();
+    setSearchColumn('all');
+    setFilterActive(false);
     setTableKey(prevKey => prevKey + 1);
   };
   
   // Handle search with column filtering
   const handleSearch = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.trim().toLowerCase();
     setSearchText(value);
     
     if (value === '') {
-      // If search is cleared, show all data
-      setFilteredData(dataSource);
+      setFilterActive(false);
       return;
     }
     
-    // Filter data based on the selected column
-    const filtered = Array.isArray(dataSource)
-      ? dataSource.filter(item => {
-          if (searchColumn === 'all') {
-            // Search all columns
-            return Object.values(item)
-              .join(' ')
-              .toLowerCase()
-              .includes(value.toLowerCase());
-          } else {
-            // Search only the selected column
-            const columnValue = item[searchColumn];
-            if (!columnValue) return false;
-            
-            // Convert to string and compare
-            return columnValue.toString().toLowerCase().includes(value.toLowerCase());
-          }
-        })
-      : [];
+    setFilterActive(true);
+    const filtered = dataSource.filter(item => {
+      if (!item) return false;
       
-    setFilteredData(filtered);
+      if (searchColumn === 'all') {
+        for (const key in item) {
+          const cellValue = item[key];
+          if (cellValue && String(cellValue).toLowerCase().includes(value)) {
+            return true;
+          }
+        }
+        return false;
+      } else {
+        const cellValue = item[searchColumn];
+        return cellValue && String(cellValue).toLowerCase().includes(value);
+      }
+    });
+    
+    setLocalFilteredData(filtered);
   };
   
-  // Get all searchable columns for the dropdown
   const searchableColumns = [
     { key: 'all', label: 'All Columns' },
     { key: 'id', label: 'ID' },
@@ -103,7 +98,6 @@ const InventoryTable = () => {
     { key: 'purchaseDate', label: 'Purchase Date' },
   ];
   
-  // Create the filter menu
   const menu = (
     <Menu
       selectedKeys={[searchColumn]}
@@ -118,7 +112,6 @@ const InventoryTable = () => {
   return (
     <Card title={<span className="text-5xl-6 font-bold flex justify-center">INVENTORY</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
       <div className="flex justify-between items-center mb-4 space-x-2 w-full">
-        {/* Search Input with Column Filter */}
         <div className="flex items-center space-x-2">
           <div className="flex bg-[#a7f3d0] border border-black rounded">
             <Dropdown menu={{ items: searchableColumns.map(column => ({
@@ -149,7 +142,7 @@ const InventoryTable = () => {
                     size="small" 
                     onClick={() => {
                       setSearchText('');
-                      setFilteredData(dataSource);
+                      setFilterActive(false);
                     }}
                   >
                     ×
@@ -216,7 +209,7 @@ const InventoryTable = () => {
                 key={`table-${tableKey}-default`}
                 rowSelection={rowSelection}
                 rowKey="id"
-                dataSource={paginatedData}
+                dataSource={filterActive ? localFilteredData : paginatedData}
                 columns={columns(handleEdit, sortOrder, userRole, activeTab)}
                 pagination={false}
                 bordered
