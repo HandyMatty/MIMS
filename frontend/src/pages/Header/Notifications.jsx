@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Typography, List, Card, Button, Tooltip, Pagination } from 'antd';
 import { CheckOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNotification } from '../../utils/NotificationContext';

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { logNotification } from '../services/api/logNotification';  // Import the logNotification function
 import { getNotifications, markNotificationAsRead, deleteNotification, markAllNotificationsAsRead, clearAllNotifications } from '../services/api/notificationService';
 import { useAdminAuthStore } from '../store/admin/useAuth';  // Admin auth store

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Typography, Upload, message, Image, Card, Descriptions, Modal } from 'antd';
 import ImgCrop from 'antd-img-crop';

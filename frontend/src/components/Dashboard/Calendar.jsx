@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import { Calendar, Col, Radio, Row, Select, Typography, Modal, Button, List, Avatar, Tooltip } from 'antd';
@@ -190,7 +190,7 @@ const AntCalendar = () => {
         className="bg-transparent"
         onSelect={onDateClick}
         cellRender={cellRender}
-        headerRender={({ value, type, onChange, onTypeChange }) => {
+        headerRender={({ value, onChange }) => {
           const year = value.year();
           const month = value.month();
           const localeData = value.localeData();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button, message, notification } from 'antd';
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -14,9 +14,6 @@ const Login = () => {
   const { mutate, isLoading, error } = useLoginAuth();
   const navigate = useNavigate();
 
-  
-  // On mount, check if any auth data is already saved.
-  // If so, immediately redirect to the corresponding dashboard.
   useEffect(() => {
     const storedAdminAuth = localStorage.getItem('adminAuth');
     const storedUserAuth = localStorage.getItem('userAuth');

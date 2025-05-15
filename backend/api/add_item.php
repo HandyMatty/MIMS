@@ -46,10 +46,10 @@ $stmt->close();
 
 // Generate new ID
 if ($lastId) {
-    $lastCounter = (int)substr($lastId, -2); // Extract last two digits
-    $newCounter = str_pad($lastCounter + 1, 2, "0", STR_PAD_LEFT);
+    $lastCounter = (int)substr($lastId, -4); // Extract last 4 digits
+    $newCounter = str_pad($lastCounter + 1, 4, "0", STR_PAD_LEFT);
 } else {
-    $newCounter = "01"; // Start with 01 if no previous item exists
+    $newCounter = "0001"; // Start with 0001 if no previous item exists
 }
 $newId = $purchaseDateFormatted . $newCounter;
 

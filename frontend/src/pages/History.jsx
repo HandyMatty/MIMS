@@ -1,4 +1,3 @@
-import React from 'react'
 import HistoryTable from '../components/History/HistoryTable';
 
 const History = () => {

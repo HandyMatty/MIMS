@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
   CartesianGrid, ResponsiveContainer, LabelList
@@ -33,9 +33,9 @@ const HistoryBarGraph = ({ searchText }) => {
           return acc;
         }, {});
 
-        const formattedData = Object.entries(typeCounts).map(([type, items]) => ({
+        const formattedData = Object.entries(typeCounts).map(([type, Types]) => ({
           name: type,
-          items,
+          Types,
         }));
 
         setBarData(formattedData);
@@ -58,16 +58,16 @@ const HistoryBarGraph = ({ searchText }) => {
       ) : (
         <ResponsiveContainer>
           <BarChart data={barData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
+            <CartesianGrid strokeDasharray="3 3 3" stroke='black' />
+            <XAxis dataKey="name" angle={-27} tickSize={12} stroke='black'/>
+            <YAxis stroke='black' />
             <Tooltip
               wrapperClassName="custom-tooltip"
               cursor={{ fill: 'rgba(56, 161, 105, 0.2)' }}
             />
-            <Legend formatter={(value) => `Type: ${value}`} />
-            <Bar dataKey="items" fill="#2f855a" barSize={50}>
-              <LabelList dataKey="items" position="middle" fill="black" fontSize={14} fontWeight="bold" />
+            <Legend formatter={(value) => `Item ${value}`} />
+            <Bar dataKey="Types" fill="#2f855a" barSize={50}>
+              <LabelList dataKey="Types" position="middle" fill="black" fontSize={14} fontWeight="bold" />
             </Bar>
           </BarChart>
         </ResponsiveContainer>

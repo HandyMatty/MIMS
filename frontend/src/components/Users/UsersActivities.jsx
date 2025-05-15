@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, Typography, Card, Input, Pagination } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { fetchActivitiesApi } from "../../services/api/fetchactivities";

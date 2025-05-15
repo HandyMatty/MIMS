@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Form, Input, Select, Button, DatePicker, message } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { getInventoryData } from '../../services/api/addItemToInventory';
@@ -41,51 +41,69 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
     }
   }, [item, form, visible]);
 
-  const handleSubmit = async (values) => {
-    try {
-
-        if (values.purchaseDate && values.purchaseDate.isAfter(dayjs())) {
-          message.error("Purchase date cannot be in the future.");
-          return;
-        }
-
-        const existingInventory = await getInventoryData();
-  
-        // Trim and uppercase serial number for consistency
-        const trimmedSerial = values.serialNumber ? values.serialNumber.trim().toUpperCase() : null;
-  
-        if (trimmedSerial) {
-          const serialExists = existingInventory.some(
-            (invItem) => 
-              invItem.serialNumber?.trim().toUpperCase() === trimmedSerial &&
-              invItem.id !== item?.id // Ensure it’s not the same item
-          );
-  
-          if (serialExists) {
-            message.error("Serial number already exists. Please use a unique serial number.");
-            return;
-          }
-        }
-
-      const formattedLocation = isHeadOffice
-        ? `Head Office - ${values.department}`
-        : values.location;
-
-      const updatedItem = {
-        id: item.id,
-        ...values,
-        location: formattedLocation,
-        issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : "NO DATE", // Format the date
-        purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, // Format the date
-        remarks: values.remarks, 
-        quantity: hasSerialNumber ? 1 : Math.max(1, values.quantity || 1),
-      };
-      await onEdit(updatedItem);
-      onClose(); 
-    } catch (error) {
-      console.error(error);
+const handleSubmit = async (values) => {
+  try {
+    if (values.purchaseDate && values.purchaseDate.isAfter(dayjs())) {
+      message.error("Purchase date cannot be in the future.");
+      return;
     }
-  };
+
+    const existingInventory = await getInventoryData();
+
+    const trimmedSerial = values.serialNumber ? values.serialNumber.trim().toUpperCase() : null;
+
+    if (trimmedSerial) {
+      const serialExists = existingInventory.some(
+        (invItem) =>
+          invItem.serialNumber?.trim().toUpperCase() === trimmedSerial &&
+          invItem.id !== item?.id &&
+          invItem.id.toString().startsWith("20") // enforce only on new-format
+      );
+      if (serialExists) {
+        message.error("Serial number already exists. Please use a unique serial number.");
+        return;
+      }
+    }
+
+    const formattedLocation = isHeadOffice
+      ? `Head Office - ${values.department}`
+      : values.location;
+
+    const formattedPurchaseDate = dayjs(values.purchaseDate).format("YYYY-MM-DD");
+    const formattedIssuedDate = values.issuedDate
+      ? dayjs(values.issuedDate).format("YYYY-MM-DD")
+      : null;
+
+    const updatedItem = {
+      id: item.id,
+      ...values,
+      location: formattedLocation,
+      purchaseDate: formattedPurchaseDate,
+      issuedDate: formattedIssuedDate,
+      serialNumber: trimmedSerial,
+      quantity: hasSerialNumber ? 1 : Math.max(1, values.quantity || 1),
+      remarks: values.remarks,
+    };
+
+    const oldPurchaseDate = dayjs(item.purchaseDate).format("YYYY-MM-DD");
+    if (oldPurchaseDate !== formattedPurchaseDate) {
+      Modal.confirm({
+        title: "Changing the purchase date will regenerate the item ID.",
+        content: "Are you sure you want to continue?",
+        onOk: async () => {
+          await onEdit(updatedItem);
+          onClose();
+        },
+      });
+    } else {
+      await onEdit(updatedItem);
+      onClose();
+    }
+  } catch (error) {
+    console.error(error);
+    message.error("Failed to submit form. Please try again.");
+  }
+};
   
   const handleClose = () => {
     form.resetFields(); 
@@ -97,9 +115,9 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
     const value = e.target.value.trim();
     setHasSerialNumber(value !== '');
     if (value !== '') {
-      form.setFieldsValue({ quantity: null }); // Reset quantity when Serial Number is entered
+      form.setFieldsValue({ quantity: null });
     } else {
-      form.setFieldsValue({ quantity: 1 }); // Set default to 1 if no Serial Number
+      form.setFieldsValue({ quantity: 1 }); 
     }
   };
 
@@ -128,36 +146,38 @@ const EditItemModal = ({ visible, onClose, onEdit, item, isLoading }) => {
       <div style={{ flex: 1 }}>
         <Form.Item label="Type" name="type" rules={[{ required: true, message: 'Please select the item type!' }]}>
           <Select>
-            <Option value="Radio">Radio</Option>
-            <Option value="Charger">Charger</Option>
-            <Option value="Battery">Battery</Option>
-            <Option value="Megaphone">Megaphone</Option>
-            <Option value="Searchlight">Searchlight</Option>
-            <Option value="Metal Detector">Metal Detector</Option>
-            <Option value="Search Stick">Search Stick</Option>
-            <Option value="Biometrics">Biometrics</Option>
-            <Option value="Smartphone">Smartphone</Option>
-            <Option value="Laptop">Laptop</Option>
-            <Option value="Monitor">Monitor</Option>
-            <Option value="System Unit">System Unit</Option>
-            <Option value="Keyboard">Keyboard</Option>
-            <Option value="Mouse">Mouse</Option>
             <Option value="AVR">AVR</Option>
-            <Option value="UPS">UPS</Option>
-            <Option value="Printer">Printer</Option>
-            <Option value="Headset">Headset</Option>
-            <Option value="Speaker">Speaker</Option>
-            <Option value="Router">Router</Option>
-            <Option value="Switch">Switch</Option>
-            <Option value="Modem">Modem</Option>
-            <Option value="Mesh">WIFI-Mesh</Option>
+            <Option value="Battery">Battery</Option>
+            <Option value="Biometrics">Biometrics</Option>
             <Option value="Camera">Camera</Option>
-            <Option value="Microphone">Microphone</Option>
             <Option value="CCTV">CCTV</Option>
-            <Option value="Podium">Podium</Option>
-            <Option value="Chassis">Under Chassis</Option>
-            <Option value="Pedestal">Mobile Pedestal</Option>
+            <Option value="Charger">Charger</Option>
+            <Option value="Guard Tour Chips">Guard Tour Chips</Option>
+            <Option value="Guard Tour System">Guard Tour System</Option>
+            <Option value="Headset">Headset</Option>
+            <Option value="Keyboard">Keyboard</Option>
+            <Option value="Laptop">Laptop</Option>
+            <Option value="Megaphone">Megaphone</Option>
+            <Option value="WIFI-Mesh">WIFI-Mesh</Option>
+            <Option value="Metal Detector">Metal Detector</Option>
+            <Option value="Microphone">Microphone</Option>
+            <Option value="Modem">Modem</Option>
+            <Option value="Monitor">Monitor</Option>
+            <Option value="Mouse">Mouse</Option>
             <Option value="Others">Others</Option>
+            <Option value="Pedestal">Pedestal</Option>
+            <Option value="Podium">Podium</Option>
+            <Option value="Printer">Printer</Option>
+            <Option value="Radio">Radio</Option>
+            <Option value="Router">Router</Option>
+            <Option value="Search Stick">Search Stick</Option>
+            <Option value="Searchlight">Searchlight</Option>
+            <Option value="Smartphone">Smartphone</Option>
+            <Option value="Speaker">Speaker</Option>
+            <Option value="Switch">Switch</Option>
+            <Option value="System Unit">System Unit</Option>
+            <Option value="Under Chassis">Under Chassis</Option>
+            <Option value="UPS">UPS</Option>
           </Select>
         </Form.Item>
 

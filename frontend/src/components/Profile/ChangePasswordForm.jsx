@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Input, message, Form, Typography } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import { updatePassword } from '../../services/api/changepassword';

@@ -6,7 +6,7 @@ include('database.php');
 $data = json_decode(file_get_contents("php://input"), true);
 
 // Assign and sanitize input
-$id = intval($data['id']);
+$id = $data['id'];
 $type = htmlspecialchars($data['type']);
 $brand = htmlspecialchars($data['brand']);
 $serialNumber = htmlspecialchars($data['serialNumber']);
@@ -18,26 +18,10 @@ $status = htmlspecialchars($data['status']);
 $remarks = htmlspecialchars($data['remarks']);
 $quantity = intval($data['quantity']);
 
-// Check for a unique serial number (exclude current record)
-if (!empty($serialNumber)) {
-    $checkSerialQuery = "SELECT id FROM inventory WHERE TRIM(UPPER(serial_number)) = ? AND id != ?";
-    $stmt = $conn->prepare($checkSerialQuery);
-    $stmt->bind_param("si", $serialNumber, $id);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows > 0) {
-        http_response_code(400);
-        echo json_encode(["message" => "Serial number already exists. Please use a unique serial number."]);
-        exit();
-    }
-    $stmt->close();
-}
-
 // Fetch the existing item details
 $query = "SELECT * FROM inventory WHERE id = ?";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id);
+$stmt->bind_param("s", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 $existingItem = $result->fetch_assoc();
@@ -54,14 +38,19 @@ $inputPurchaseDateFormatted = date("Ymd", strtotime($purchaseDate));
 $existingPurchaseDateFormatted = date("Ymd", strtotime($existingItem['purchase_date']));
 
 // Determine whether to update the item ID
-if ($inputPurchaseDateFormatted === $existingPurchaseDateFormatted) {
-    // If the purchase dates are the same, retain the existing item id.
+$existingIdStartsWithDate = str_starts_with((string)$existingItem['id'], $inputPurchaseDateFormatted);
+
+// Check if existing ID uses 4-digit counter after the date
+$needsIdFormatFix = !preg_match('/^' . $inputPurchaseDateFormatted . '\d{4}$/', $existingItem['id']);
+
+if ($inputPurchaseDateFormatted === $existingPurchaseDateFormatted && $existingIdStartsWithDate && !$needsIdFormatFix) {
+    // Keep current ID
     $newItemId = $existingItem['id'];
 } else {
-    // Purchase date has changed; generate a new item id.
+    // Regenerate ID
     $purchaseDateFormatted = $inputPurchaseDateFormatted;
 
-    // Fetch the last item with an id starting with the formatted purchase date
+    // Get the latest item with this date prefix
     $query = "SELECT id FROM inventory WHERE id LIKE ? ORDER BY id DESC LIMIT 1";
     $stmt = $conn->prepare($query);
     $likeParam = $purchaseDateFormatted . "%";
@@ -71,16 +60,37 @@ if ($inputPurchaseDateFormatted === $existingPurchaseDateFormatted) {
     $stmt->fetch();
     $stmt->close();
 
-    if ($lastItemId) {
-        // Extract last two digits (counter), increment, and format appropriately.
-        $lastCounter = (int)substr($lastItemId, -2);
-        $newCounter = str_pad($lastCounter + 1, 2, "0", STR_PAD_LEFT);
+    if ($lastItemId && preg_match('/^' . $purchaseDateFormatted . '(\d{1,4})$/', $lastItemId, $matches)) {
+        $lastCounter = (int)$matches[1];
+        $newCounter = str_pad($lastCounter + 1, 4, "0", STR_PAD_LEFT);
     } else {
-        $newCounter = "01";
+        $newCounter = "0001";
     }
+
     $newItemId = $purchaseDateFormatted . $newCounter;
 }
 
+
+$isNewFormat = str_starts_with((string)$newItemId, '20');
+if (!empty($serialNumber) && $isNewFormat) {
+    $checkSerialQuery = "
+        SELECT id FROM inventory 
+        WHERE TRIM(UPPER(serial_number)) = ? 
+        AND id != ?
+        AND id LIKE '20%'
+    ";
+    $stmt = $conn->prepare($checkSerialQuery);
+    $stmt->bind_param("si", $serialNumber, $id);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        http_response_code(400);
+        echo json_encode(["message" => "Serial number already exists for a different purchase date."]);
+        exit();
+    }
+    $stmt->close();
+}
 // Prepare to log changes if any field has been updated
 $changes = [];
 if ($existingItem['id'] !== $newItemId) $changes['Item ID'] = ["old" => $existingItem['id'], "new" => $newItemId];
@@ -95,20 +105,22 @@ if ($existingItem['status'] !== $status) $changes['Status'] = ["old" => $existin
 if ($existingItem['remarks'] !== $remarks) $changes['Remarks'] = ["old" => $existingItem['remarks'], "new" => $remarks];
 if ($existingItem['quantity'] !== $quantity) $changes['Quantity'] = ["old" => $existingItem['quantity'], "new" => $quantity];
 
-// Log changes in the history table if any exist
-if (!empty($changes)) {
-    $fieldChanged = json_encode(array_keys($changes)); // Changed field names
-    $oldValues = json_encode(array_column($changes, "old")); // Corresponding old values
-    $newValues = json_encode(array_column($changes, "new")); // Corresponding new values
-
-    $history_stmt = $conn->prepare("
-        INSERT INTO history (action, item_id, field_changed, old_value, new_value, action_date)
-        VALUES ('Updated', ?, ?, ?, ?, NOW())
-    ");
-    $history_stmt->bind_param("isss", $id, $fieldChanged, $oldValues, $newValues);
-    $history_stmt->execute();
-    $history_stmt->close();
+if (empty($changes)) {
+    echo json_encode(["message" => "No changes detected"]);
+    exit();
 }
+
+$fieldChanged = json_encode(array_keys($changes));
+$oldValues = json_encode(array_column($changes, "old"));
+$newValues = json_encode(array_column($changes, "new"));
+
+$history_stmt = $conn->prepare("
+    INSERT INTO history (action, item_id, field_changed, old_value, new_value, action_date)
+    VALUES ('Updated', ?, ?, ?, ?, NOW())
+");
+$history_stmt->bind_param("isss", $id, $fieldChanged, $oldValues, $newValues);
+$history_stmt->execute();
+$history_stmt->close();
 
 // Update the item in the inventory table using the determined item id
 $update_stmt = $conn->prepare("
@@ -116,7 +128,7 @@ $update_stmt = $conn->prepare("
     SET id = ?, type = ?, brand = ?, serial_number = ?, issued_date = ?, purchase_date = ?, `condition` = ?, location = ?, status = ?, remarks = ?, quantity = ?
     WHERE id = ?
 ");
-$update_stmt->bind_param("ssssssssssii", $newItemId, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks, $quantity, $id);
+$update_stmt->bind_param("ssssssssssis", $newItemId, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks, $quantity, $id);
 
 if ($update_stmt->execute()) {
     echo json_encode(["message" => "Item updated successfully", "item_id" => $newItemId]);

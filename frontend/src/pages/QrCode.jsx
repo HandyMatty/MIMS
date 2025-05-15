@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import QrCodeGenerator from '../components/QrCode/QrCodeGenerator';
 import QrCodeTable from '../components/QrCode/QrCodeTable';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Modal, QRCode } from 'antd';
 
 const QrCodeModal = ({ isVisible, onClose, qrDetails }) => {

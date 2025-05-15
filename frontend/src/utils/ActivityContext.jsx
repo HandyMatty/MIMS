@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import { createContext, useContext } from 'react';
 import { logActivity } from '../services/api/logActivity'; // Import the logActivity function
 
 // Create a context for activity

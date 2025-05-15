@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, Typography, Pagination, Card, message, Select } from 'antd';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import QrCodeModal from '../../components/QrCode/QrCodeModal';
@@ -73,7 +73,7 @@ const DashboardTable = ({ searchText }) => {
     setIsModalVisible(true);
   };
 
-  const handleTableChange = (pagination, filters, sorter) => {
+  const handleTableChange = (sorter) => {
     if (sorter.field) {
       setSorterConfig({ field: sorter.field, order: sorter.order });
     }

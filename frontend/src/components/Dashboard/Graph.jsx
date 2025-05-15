@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -80,20 +80,23 @@ const Graph = () => {
       <div className="w-full h-[350px] bg-[#A8E1C5] rounded-lg">
         {loading ? (
           <div className="loading-spinner">
-            <Spin size="large" /> {/* Show Ant Design spinner while loading */}
+            <Spin size="large" />
           </div>
         ) : (
           <ResponsiveContainer width="95%" height="95%">
-            <LineChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="monthYear" />
+            <LineChart data={monthlyData} className='top-10'>
+              <CartesianGrid strokeDasharray="4 4 4" stroke='black' />
+              <XAxis dataKey="monthYear" stroke='black' angle={-22} tickSize={10} />
               <YAxis
                 label={{
                   value: 'Quantity',
                   angle: -90,
-                  position: 'insideLeft',
+                  position: 'outsideLeft',
                   fill: '#00000',
+                  dx: -10,
+                  dy: 30
                 }}
+                stroke='black'
               />
               <Tooltip
                 contentStyle={{
@@ -105,16 +108,16 @@ const Graph = () => {
                 itemStyle={{
                   color: '#D4E09B',
                 }}
-                cursor={{ fill: 'rgba(56, 161, 105, 0.2)' }} // Hover effect for bars
+                cursor={{ stroke:'black' }}
               />
               <Legend
-                iconType="circle"
+                iconType="line"
                 layout="horizontal"
                 align="center"
                 verticalAlign="bottom"
               />
               <Line
-                type="monotone"
+                type="Monotone"
                 dataKey="purchase"
                 name="Purchased"
                 stroke="#2f855a"
@@ -122,7 +125,7 @@ const Graph = () => {
                 dot={{ fill: '#2f855a', stroke: 'white', strokeWidth: 2 }}
               />
               <Line
-                type="monotone"
+                type="Monotone"
                 dataKey="issued"
                 name="Issued"
                 stroke="#4299e1"

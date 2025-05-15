@@ -194,7 +194,7 @@ input[type="password"]::-ms-reveal {
 
 .ant-table-wrapper .ant-table-bordered .ant-table-container,
 .ant-table-wrapper .ant-table-bordered .ant-table-cell {
-  border-color: darkgreen !important; /* Makes all borders solid black */
+  border-color: darkgreen !important;
 }
 .ant-pagination-item, .ant-pagination-item-link {
   background-color: #a7f3d0!important;
@@ -219,7 +219,8 @@ input[type="password"]::-ms-reveal {
 .custom-input-table .ant-input::placeholder {
   color: black; 
   opacity: 1; 
-} 
+}
+ 
 .transparent-select .ant-select-selector {
   background-color: #a7f3d0 !important;
   border: 1px solid black !important;
@@ -244,8 +245,8 @@ input[type="password"]::-ms-reveal {
   border-bottom: 0.5px black !important;
   border-radius: 5px; /* Optional: Add rounded corners */
 }
-.ant-tabs-nav-wrap {
-  border-bottom: 1px solid black !important; 
+.ant-tabs-nav {
+  border-bottom: 3px solid black !important;
 }
 
 /* Optional: Change active tab border */
@@ -256,4 +257,12 @@ input[type="password"]::-ms-reveal {
 
 .ant-table-filter-trigger.active {
   color: #072c1c !important;
+}
+.custom-button {
+  background-color: #a7f3d0 !important;
+  border: 1px solid black !important;
+  color: black !important;
+  height: 32px;
+  width: auto;
+  border-radius: 7.5px;
 }

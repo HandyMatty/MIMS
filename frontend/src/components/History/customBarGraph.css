@@ -1,9 +1,6 @@
 .recharts-legend-item-text {
     color: black !important;
 }
-.recharts-cartesian-axis-ticks {
-    color: black !important;
-}
 /* Container styles */
 .history-bar-graph-container {
     width: 100%;
@@ -12,13 +9,13 @@
     border-radius: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
-    padding: 10px;
+    padding-bottom: 10px;
   }
   
   /* Tooltip styles */
   .custom-tooltip {
     background-color: #072C1C !important; /* Green background */
-    color: #D4E09B !important; /* White text */
+    color: #d4e09a !important; /* White text */
     border: none !important; /* Remove border */
     border-radius: 5px; /* Rounded corners */
     padding: 10px; /* Add some padding */

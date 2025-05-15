@@ -1,4 +1,3 @@
-import React from 'react'
 import UsersStatisticBoard from '../components/Users/UsersStatisticBoard';
 import UsersList from '../components/Users/UsersList';
 import UsersActivities from '../components/Users/UsersActivities';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Table, Input, Typography, Pagination, Card, Tabs } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { getHistory } from "../../services/api/getHistory";

@@ -9,6 +9,6 @@ export default defineConfig({
   plugins: [react()],
   base: './',
   server: {
-    historyApiFallback: true, // Ensure history fallback is enabled for React Router
+    historyApiFallback: true,
   },
 });

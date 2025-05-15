@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Row, Col, Statistic, Card } from 'antd';
 import { UserOutlined, CheckOutlined, LaptopOutlined } from '@ant-design/icons';
 import { fetchUsersStatistics } from '../../services/api/usersdata';  // Import the API function

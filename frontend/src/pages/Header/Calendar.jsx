@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar as AntdCalendar, Typography, Tag } from 'antd';
 import { fetchEvents } from '../../services/api/eventService';
 import EventList from '../../components/Calendar/EventList';

@@ -1,6 +1,3 @@
-// QrCodeTableColumns.js
-
-import React from 'react';
 import { QrcodeOutlined } from '@ant-design/icons';
 import { Tag } from 'antd';
 
@@ -49,7 +46,6 @@ const columns = (handleQrCodeClick) => [
     dataIndex: 'qrCode',
     key: 'qrCode',
     align: 'center',
-    ellipsis: true,
     fixed: 'left',
     width: 80,
     render: (_, item) => (

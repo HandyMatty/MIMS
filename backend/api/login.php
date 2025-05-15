@@ -37,8 +37,14 @@ if (isset($data['username']) && isset($data['password'])) {
                 $updateStmt->close();
 
                 // Set cookie with the same expiry
-                setcookie("authToken_$username", $token, $new_expiry_time, "/", "", false, false);
-
+                setcookie("authToken_$username", $token, [
+                    'expires' => $new_expiry_time,
+                    'path' => '/',
+                    'secure' => true,
+                    'httponly' => true,
+                    'samesite' => 'Lax' 
+                ]);
+                
                 $response = array(
                     'success' => true,
                     'token' => $token,

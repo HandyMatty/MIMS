@@ -1,6 +1,4 @@
-// QrCodeTable.js
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Input, Select, Table, Pagination, Typography, Card } from 'antd';
 import { SearchOutlined, DownOutlined } from '@ant-design/icons';
 import { getInventoryData } from '../../services/api/addItemToInventory';
@@ -17,7 +15,6 @@ const QrCodeTable = ({ onItemSelect }) => {
   const [data, setData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [qrDetails, setQrDetails] = useState(null);
-  const { Text } = Typography;
   const [loading, setLoading] = useState(true); // Loading state
 
   useEffect(() => {
@@ -91,7 +88,8 @@ const QrCodeTable = ({ onItemSelect }) => {
   };
 
   return (
-    <Card title={<span className="text-5xl-6 font-bold flex justify-center">ITEMS</span>} className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
+    <Card title={<span className="text-5xl-6 font-bold flex justify-center">ITEMS</span>}
+    className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
       <div className="flex items-center space-x-4 mb-4">
         <Input
           placeholder="Search"
@@ -124,7 +122,7 @@ const QrCodeTable = ({ onItemSelect }) => {
           onRow={(record) => ({
             onClick: () => handleRowClick(record),
           })}
-          scroll={{ x: 'max-content', y: 600 }} 
+          scroll={{ x: 1500, y: 600 }} 
           loading={loading}
         />
       </div>

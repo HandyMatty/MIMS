@@ -1,4 +1,3 @@
-import React from 'react';
 import { Row, Col, Typography } from 'antd';
 import ProfileEdit from '../../components/Profile/ProfileEdit';
 import ChangePasswordForm from '../../components/Profile/ChangePasswordForm';

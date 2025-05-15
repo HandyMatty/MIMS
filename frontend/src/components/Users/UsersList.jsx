@@ -1,5 +1,3 @@
-// UsersList.jsx
-import React from 'react';
 import {
   Table,
   Tag,
@@ -25,7 +23,6 @@ const { Text } = Typography;
 
 const UsersList = () => {
   const {
-    users,
     selectedRowKeys,
     searchText,
     filteredData,
@@ -35,7 +32,6 @@ const UsersList = () => {
     temporaryPassword,
     securityQuestions,
     currentUserSecurityQuestion,
-    currentUserId,
     currentPage,
     pageSize,
     loading,

@@ -1,4 +1,3 @@
-import React from 'react'
 import InventoryTable from '../components/Inventory/InventoryTable';
 
 const InventoryPage = () => {

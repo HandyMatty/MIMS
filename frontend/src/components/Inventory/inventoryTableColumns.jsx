@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tag, Tooltip, Button } from 'antd';
 import { EditFilled } from '@ant-design/icons';
 
@@ -46,7 +45,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       key: 'id',
       fixed: 'left',
       align: 'center',
-      width: 120,
+      width: 100,
       sorter: (a, b) => a.id.localeCompare(b.id),
     },
     {
@@ -56,7 +55,41 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       key: 'type',
       align: 'center',
       width: 120,
-      sorter: (a, b) => a.type.localeCompare(b.type),
+      filters: [
+        { text: 'AVR', value: 'AVR' },
+        { text: 'Battery', value: 'Battery' },
+        { text: 'Biometrics', value: 'Biometrics' },
+        { text: 'Camera', value: 'Camera' },
+        { text: 'CCTV', value: 'CCTV' },
+        { text: 'Charger', value: 'Charger' },
+        { text: 'Guard Tour Chips', value: 'Guard Tour Chips' },
+        { text: 'Guard Tour System', value: 'Guard Tour System' },
+        { text: 'Headset', value: 'Headset' },
+        { text: 'Keyboard', value: 'Keyboard' },
+        { text: 'Laptop', value: 'Laptop' },
+        { text: 'Megaphone', value: 'Megaphone' },
+        { text: 'WIFI-Mesh', value: 'WIFI-Mesh' },
+        { text: 'Metal Detector', value: 'Metal Detector' },
+        { text: 'Microphone', value: 'Microphone' },
+        { text: 'Modem', value: 'Modem' },
+        { text: 'Monitor', value: 'Monitor' },
+        { text: 'Mouse', value: 'Mouse' },
+        { text: 'Others', value: 'Others' },
+        { text: 'Pedestal', value: 'Pedestal' },
+        { text: 'Podium', value: 'Podium' },
+        { text: 'Printer', value: 'Printer' },
+        { text: 'Radio', value: 'Radio' },
+        { text: 'Router', value: 'Router' },
+        { text: 'Search Stick', value: 'Search Stick' },
+        { text: 'Searchlight', value: 'Searchlight' },
+        { text: 'Smartphone', value: 'Smartphone' },
+        { text: 'Speaker', value: 'Speaker' },
+        { text: 'Switch', value: 'Switch' },
+        { text: 'System Unit', value: 'System Unit' },
+        { text: 'Under Chassis', value: 'Under Chassis' },
+        { text: 'UPS', value: 'UPS' },
+      ],
+      onFilter: (value, record) => record.type.includes(value),
     },
     {
       title: 'Brand',
@@ -64,7 +97,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       fixed: 'left',
       key: 'brand',
       align: 'center',
-      width: 150,
+      width: 120,
       sorter: (a, b) => a.brand.localeCompare(b.brand),
     },
     {
@@ -74,14 +107,14 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       align: 'center',
       width: 100,
       sorter: (a, b) => a.quantity - b.quantity, 
-     },
+    },
     {
       title: 'Remarks',
       dataIndex: 'remarks',
       key: 'remarks',
       align: 'center',
       width: 200,
-      render: (text) => text && text.trim() !== "" ? text : "-"
+      render: (text) => text && text.trim() !== '' ? text : '-'
     },
     {
       title: 'Serial Number',
@@ -89,8 +122,8 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       key: 'serialNumber',
       align: 'center',
       width: 200,
-      sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
-      render: (text) => text && text.trim() !== "" ? text : "-"
+      sorter: (a, b) => a.serialNumber?.localeCompare(b.serialNumber || ''),
+      render: (text) => text && text.trim() !== '' ? text : '-'
     },
     ...(activeTab === 'default'
       ? [
@@ -105,7 +138,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
               const dateB = new Date(b.issuedDate);
               return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
             },
-            render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
+            render: (date) => (!date || date === '0000-00-00') ? 'NO DATE' : date,
           },
           {
             title: 'Purchased Date',
@@ -133,7 +166,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
               const dateB = new Date(b.issuedDate);
               return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
             },
-            render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
+            render: (date) => (!date || date === '0000-00-00') ? 'NO DATE' : date,
           },
         ]
       : [
@@ -155,7 +188,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       dataIndex: 'condition',
       key: 'condition',
       align: 'center',
-      width: 120,
+      width: 150,
       render: (condition) => getConditionTag(condition),
       filters: [
         { text: 'Brand New', value: 'Brand New' },
@@ -169,7 +202,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       dataIndex: 'location',
       key: 'location',
       align: 'center',
-      width: 120,
+      width: 150,
     },
     {
       title: 'Status',
@@ -187,7 +220,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
     },
   ];
 
-  // Only add the "Action" column if the user is **not a guest**
+  // Only add the "Action" column if user is not a guest
   if (userRole !== 'guest') {
     baseColumns.push({
       title: 'Action',

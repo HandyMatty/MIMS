@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Button, Select, Input, Form, message, Typography, Descriptions } from 'antd';
 import Cookies from 'js-cookie';
 import { fetchSecurityQuestion, updateSecurityQuestion } from '../../services/api/fetchSecurityQuestion';

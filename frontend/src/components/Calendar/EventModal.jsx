@@ -1,4 +1,3 @@
-import React from 'react';
 import { Modal, Form, Input, message, Select } from 'antd';
 import { addEvent } from '../../services/api/eventService';
 import { useActivity } from '../../utils/ActivityContext';

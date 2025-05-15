@@ -1,4 +1,3 @@
-import React from 'react';
 import { Badge, Button, Tooltip, Avatar, message } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { deleteEvent } from '../../services/api/eventService'; // Import the deleteEvent API function
