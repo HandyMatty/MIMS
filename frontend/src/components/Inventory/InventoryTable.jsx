@@ -4,7 +4,8 @@ import { SearchOutlined, DeleteOutlined, PlusCircleOutlined, ReloadOutlined, Dow
 import AddItemModal from './AddItemModal'; 
 import EditItemModal from './EditItemModal';
 import { columns } from './inventoryTableColumns';
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import debounce from 'lodash/debounce';
 
 const { Option } = Select;
 
@@ -44,46 +45,59 @@ const InventoryTable = () => {
     setFilteredData,
     dataSource,
   } = useInventoryTable();
+
+  // Memoize filtered data
+  const filteredData = useMemo(() => {
+    if (!filterActive) return paginatedData;
+    return localFilteredData;
+  }, [filterActive, localFilteredData, paginatedData]);
+
+  // Debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      if (value === '') {
+        setFilterActive(false);
+        return;
+      }
+      
+      setFilterActive(true);
+      const filtered = dataSource.filter(item => {
+        if (!item) return false;
+        
+        if (searchColumn === 'all') {
+          for (const key in item) {
+            const cellValue = item[key];
+            if (cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase())) {
+              return true;
+            }
+          }
+          return false;
+        } else {
+          const cellValue = item[searchColumn];
+          return cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase());
+        }
+      });
+      
+      setLocalFilteredData(filtered);
+    }, 300),
+    [dataSource, searchColumn]
+  );
   
-  const resetAll = () => {
+  // Handle search with debouncing
+  const handleSearch = useCallback((e) => {
+    const value = e.target.value;  // Remove trim() to allow spaces
+    setSearchText(value);
+    debouncedSearch(value);
+  }, [debouncedSearch, setSearchText]);
+
+  const resetAll = useCallback(() => {
     handleReset();
     setSearchColumn('all');
     setFilterActive(false);
     setTableKey(prevKey => prevKey + 1);
-  };
+  }, [handleReset]);
   
-  // Handle search with column filtering
-  const handleSearch = (e) => {
-    const value = e.target.value.trim().toLowerCase();
-    setSearchText(value);
-    
-    if (value === '') {
-      setFilterActive(false);
-      return;
-    }
-    
-    setFilterActive(true);
-    const filtered = dataSource.filter(item => {
-      if (!item) return false;
-      
-      if (searchColumn === 'all') {
-        for (const key in item) {
-          const cellValue = item[key];
-          if (cellValue && String(cellValue).toLowerCase().includes(value)) {
-            return true;
-          }
-        }
-        return false;
-      } else {
-        const cellValue = item[searchColumn];
-        return cellValue && String(cellValue).toLowerCase().includes(value);
-      }
-    });
-    
-    setLocalFilteredData(filtered);
-  };
-  
-  const searchableColumns = [
+  const searchableColumns = useMemo(() => [
     { key: 'all', label: 'All Columns' },
     { key: 'id', label: 'ID' },
     { key: 'type', label: 'Type' },
@@ -96,28 +110,25 @@ const InventoryTable = () => {
     { key: 'condition', label: 'Condition' },
     { key: 'issuedDate', label: 'Issued Date' },
     { key: 'purchaseDate', label: 'Purchase Date' },
-  ];
-  
-  const menu = (
-    <Menu
-      selectedKeys={[searchColumn]}
-      onClick={({ key }) => setSearchColumn(key)}
-      items={searchableColumns.map(column => ({
-        key: column.key,
-        label: column.label,
-      }))}
-    />
-  );
+  ], []);
+
+  // Memoize the menu items
+  const menuItems = useMemo(() => 
+    searchableColumns.map(column => ({
+      key: column.key,
+      label: column.label,
+    })), [searchableColumns]);
 
   return (
     <Card title={<span className="text-5xl-6 font-bold flex justify-center">INVENTORY</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
       <div className="flex justify-between items-center mb-4 space-x-2 w-full">
         <div className="flex items-center space-x-2">
           <div className="flex bg-[#a7f3d0] border border-black rounded">
-            <Dropdown menu={{ items: searchableColumns.map(column => ({
-              key: column.key,
-              label: column.label,
-            })), onClick: ({key}) => setSearchColumn(key), selectedKeys: [searchColumn] }} trigger={['click']}>
+            <Dropdown menu={{ 
+              items: menuItems,
+              onClick: ({key}) => setSearchColumn(key), 
+              selectedKeys: [searchColumn] 
+            }} trigger={['click']}>
               <Button 
                 type="text" 
                 className="border-black"
@@ -209,8 +220,8 @@ const InventoryTable = () => {
                 key={`table-${tableKey}-default`}
                 rowSelection={rowSelection}
                 rowKey="id"
-                dataSource={filterActive ? localFilteredData : paginatedData}
-                columns={columns(handleEdit, sortOrder, userRole, activeTab)}
+                dataSource={filteredData}
+                columns={columns(handleEdit, sortOrder, userRole, activeTab, searchText)}
                 pagination={false}
                 bordered
                 onChange={handleTableChange}
@@ -231,8 +242,8 @@ const InventoryTable = () => {
                 key={`table-${tableKey}-issued`}
                 rowSelection={rowSelection}
                 rowKey="id"
-                dataSource={paginatedData}
-                columns={columns(handleEdit, sortOrder, userRole, activeTab)}
+                dataSource={filteredData}
+                columns={columns(handleEdit, sortOrder, userRole, activeTab, searchText)}
                 pagination={false}
                 bordered
                 onChange={handleTableChange}
@@ -251,8 +262,8 @@ const InventoryTable = () => {
                 key={`table-${tableKey}-purchased`}
                 rowSelection={rowSelection}
                 rowKey="id"
-                dataSource={paginatedData}
-                columns={columns(handleEdit, sortOrder, userRole, activeTab)}
+                dataSource={filteredData}
+                columns={columns(handleEdit, sortOrder, userRole, activeTab, searchText)}
                 pagination={false}
                 bordered
                 onChange={handleTableChange}

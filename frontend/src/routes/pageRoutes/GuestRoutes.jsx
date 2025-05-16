@@ -1,10 +1,11 @@
-import {lazy, Suspense} from 'react';
+import {lazy, Suspense, useEffect} from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { Auth } from '../ValidAuth';
 import MainLayout from '../../layout/Mainlayout';
 import { useGuestAuthStore } from '../../store/guest/useAuth';
 import { Spin } from 'antd';
 import SINSSILogo from "../../../assets/SINSSI_LOGO-removebg-preview.png";
+import { LazyImage, preloadImages } from '../../utils/imageHelpers.jsx';
 
 
 const Dashboard = lazy (() => import('../../pages/Dashboard'));
@@ -18,15 +19,25 @@ const Notifications = lazy (() => import('../../pages/Header/Notifications'));
 const GuestRoutes = () => {
   const isGuestAuthenticated = useGuestAuthStore(state => state.isAuthenticated);
 
+  // Preload the logo image
+  useEffect(() => {
+    preloadImages([SINSSILogo]);
+  }, []);
+
   return (
-  <Suspense fallback={<div className="flex flex-col items-center justify-center h-screen bg-honeydew">
-    <img
-      className="h-[183px] w-[171px] object-cover mb-4 logo-bounce"
-      src={SINSSILogo} alt="SINSSI Logo"
-    />
-    <Spin size="large" />
-    <p className="mt-4 text-darkslategray-200">Loading...</p>
-  </div>}>
+  <Suspense fallback={
+    <div className="flex flex-col items-center justify-center h-screen bg-honeydew">
+      <LazyImage
+        className="h-[183px] w-[171px] object-cover mb-4 logo-bounce"
+        src={SINSSILogo}
+        alt="SINSSI Logo"
+        width={171}
+        height={183}
+      />
+      <Spin size="large" />
+      <p className="mt-4 text-darkslategray-200">Loading...</p>
+    </div>
+  }>
     <Routes>
       {/* Protected Routes */}
       <Route element={<Auth store={useGuestAuthStore} redirect="/login" />}>

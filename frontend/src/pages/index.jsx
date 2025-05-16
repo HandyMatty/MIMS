@@ -5,8 +5,6 @@ import InventoryPage from "./InventoryPage";
 import History from "./History";
 import QrCode from "./QrCode";
 import Users from "./Users";
-import Profile from "./Header/Profile"
-import Calendar from "./Header/Calendar";
 import Notifications from "./Header/Notifications";
 
-export {Login, ForgotPassword, Dashboard, InventoryPage, History, QrCode, Users, Profile, Calendar, Notifications};
+export {Login, ForgotPassword, Dashboard, InventoryPage, History, QrCode, Users, Notifications};

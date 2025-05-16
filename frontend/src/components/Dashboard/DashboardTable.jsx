@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Table, Typography, Pagination, Card, message, Select } from 'antd';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import QrCodeModal from '../../components/QrCode/QrCodeModal';
-import { getDashboardTableColumns } from './DashboardTableColumns'; // Adjust the path as needed
+import { getDashboardTableColumns } from './DashboardTableColumns';
 
 const { Option } = Select;
 
@@ -79,9 +79,6 @@ const DashboardTable = ({ searchText }) => {
     }
   };
 
-  // Get columns from the separate file and pass in the QR code click handler
-  const columns = getDashboardTableColumns(handleQrCodeClick);
-
   return (
     <Card className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow p-6 border-none">
       <div className="flex items-center space-x-4 mb-4">
@@ -97,7 +94,7 @@ const DashboardTable = ({ searchText }) => {
 
       <div style={{ height: '680px' }}>
         <Table
-          columns={columns}
+          columns={getDashboardTableColumns(handleQrCodeClick, searchText)}
           dataSource={sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
           pagination={false}
           bordered

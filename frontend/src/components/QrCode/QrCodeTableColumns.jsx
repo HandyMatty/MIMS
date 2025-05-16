@@ -1,5 +1,6 @@
 import { QrcodeOutlined } from '@ant-design/icons';
 import { Tag } from 'antd';
+import HighlightText from '../common/HighlightText';
 
 // Helper function to generate status tag
 const getStatusTag = (status) => {
@@ -39,8 +40,8 @@ const getConditionTag = (condition) => {
   return <Tag color={color}>{condition}</Tag>;
 };
 
-// Columns definition
-const columns = (handleQrCodeClick) => [
+// Export the columns function
+export const getColumns = (handleQrCodeClick, searchTerm = '') => [
   {
     title: 'QR Code',
     dataIndex: 'qrCode',
@@ -64,6 +65,7 @@ const columns = (handleQrCodeClick) => [
     fixed: 'left',
     width: 130,
     sorter: (a, b) => a.id.localeCompare(b.id),
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
     title: 'Type',
@@ -73,6 +75,7 @@ const columns = (handleQrCodeClick) => [
     fixed: 'left',
     width: 120,
     sorter: (a, b) => a.type.localeCompare(b.type),
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
     title: 'Brand',
@@ -80,6 +83,7 @@ const columns = (handleQrCodeClick) => [
     key: 'brand',
     align: 'center',
     sorter: (a, b) => a.brand.localeCompare(b.brand),
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
     title: 'Qty', 
@@ -87,15 +91,16 @@ const columns = (handleQrCodeClick) => [
     key: 'quantity',
     align: 'center',
     width: 100,
-    sorter: (a, b) => a.quantity - b.quantity, 
-   },
+    sorter: (a, b) => a.quantity - b.quantity,
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+  },
   {
-    title: 'Remarks', // New column for Remarks
-    dataIndex: 'remarks', // Assuming 'remarks' will be a key in your data
+    title: 'Remarks',
+    dataIndex: 'remarks',
     key: 'remarks',
     align: 'center',
-    width: 200, // Set width for Remarks column
-    render: (text) => text && text.trim() !== "" ? text : "-"
+    width: 200,
+    render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
   },
   {
     title: 'Serial Number',
@@ -103,7 +108,7 @@ const columns = (handleQrCodeClick) => [
     key: 'serialNumber',
     align: 'center',
     sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
-    render: (text) => text && text.trim() !== "" ? text : "-"
+    render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
   },
   {
     title: 'Issued Date',
@@ -111,7 +116,12 @@ const columns = (handleQrCodeClick) => [
     key: 'issuedDate',
     align: 'center',
     sorter: (a, b) => a.issuedDate.localeCompare(b.issuedDate),
-    render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
+    render: (date) => {
+      if (!date || date === "0000-00-00" || date === "") {
+        return <HighlightText text="NO DATE" searchTerm={searchTerm} />;
+      }
+      return <HighlightText text={date} searchTerm={searchTerm} />;
+    }
   },
   {
     title: 'Purchased Date',
@@ -119,6 +129,12 @@ const columns = (handleQrCodeClick) => [
     key: 'purchaseDate',
     align: 'center',
     sorter: (a, b) => a.purchaseDate.localeCompare(b.purchaseDate),
+    render: (date) => {
+      if (!date || date === "0000-00-00" || date === "") {
+        return <HighlightText text="NO DATE" searchTerm={searchTerm} />;
+      }
+      return <HighlightText text={date} searchTerm={searchTerm} />;
+    }
   },
   {
     title: 'Condition',
@@ -138,6 +154,7 @@ const columns = (handleQrCodeClick) => [
     dataIndex: 'location',
     key: 'location',
     align: 'center',
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
     title: 'Status',
@@ -153,5 +170,3 @@ const columns = (handleQrCodeClick) => [
     onFilter: (value, record) => record.status.includes(value),
   },
 ];
-
-export default columns;

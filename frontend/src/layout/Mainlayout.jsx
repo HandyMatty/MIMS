@@ -18,6 +18,8 @@ import { useGuestAuthStore } from '../store/guest/useAuth';
 import { logoutUser } from '../services/api/logout';
 import { useActivity } from '../utils/ActivityContext';
 import SINSSILogo from "../../assets/SINSSI_LOGO-removebg-preview.png";
+import NoticeModal from '../components/Notice/NoticeModal';
+import { LazyImage, preloadImages } from '../utils/imageHelpers.jsx';
 
 
 const { Sider } = Layout;
@@ -235,13 +237,20 @@ const MainLayout = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [adminAuth, userAuth, guestAuth, isAdmin, isUser, isGuest, navigate]);  
   
+  useEffect(() => {
+    // Preload critical images
+    preloadImages([SINSSILogo]);
+  }, []);
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-honeydew">
-        <img
+        <LazyImage
           className="h-[183px] w-[171px] object-cover mb-4 logo-bounce"
-          src={SINSSILogo} alt="SINSSI Logo"
+          src={SINSSILogo}
+          alt="SINSSI Logo"
+          width={171}
+          height={183}
         />
         <Spin size="large" />
         <p className="mt-4 text-darkslategray-200">Loading...</p>
@@ -267,9 +276,12 @@ const MainLayout = () => {
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <img
+              <LazyImage
                 style={{ height: '40px', objectFit: 'cover', filter: 'brightness(50%)' }}
-                src={SINSSILogo} alt="SINSSI Logo"
+                src={SINSSILogo}
+                alt="SINSSI Logo"
+                width={40}
+                height={40}
               />
               {!collapsed && (
                 <span
@@ -325,6 +337,7 @@ const MainLayout = () => {
         >
           <Outlet />
         </Layout.Content>
+        <NoticeModal/>
       </Layout>
 
       <Modal

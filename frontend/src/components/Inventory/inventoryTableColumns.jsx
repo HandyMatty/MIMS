@@ -1,5 +1,6 @@
 import { Tag, Tooltip, Button } from 'antd';
 import { EditFilled } from '@ant-design/icons';
+import HighlightText from '../common/HighlightText';
 
 export const getConditionTag = (condition) => {
   let color;
@@ -37,7 +38,7 @@ export const getStatusTag = (status) => {
   return <Tag color={color}>{status}</Tag>;
 };
 
-export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
+export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm = '') => {
   const baseColumns = [
     {
       title: 'ID',
@@ -47,6 +48,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       align: 'center',
       width: 100,
       sorter: (a, b) => a.id.localeCompare(b.id),
+      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
       title: 'Type',
@@ -55,6 +57,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       key: 'type',
       align: 'center',
       width: 120,
+      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />,
       filters: [
         { text: 'AVR', value: 'AVR' },
         { text: 'Battery', value: 'Battery' },
@@ -99,6 +102,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       align: 'center',
       width: 120,
       sorter: (a, b) => a.brand.localeCompare(b.brand),
+      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
       title: 'Qty', 
@@ -106,7 +110,8 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       key: 'quantity',
       align: 'center',
       width: 100,
-      sorter: (a, b) => a.quantity - b.quantity, 
+      sorter: (a, b) => a.quantity - b.quantity,
+      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
       title: 'Remarks',
@@ -114,7 +119,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       key: 'remarks',
       align: 'center',
       width: 200,
-      render: (text) => text && text.trim() !== '' ? text : '-'
+      render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} searchTerm={searchTerm} />
     },
     {
       title: 'Serial Number',
@@ -123,7 +128,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       align: 'center',
       width: 200,
       sorter: (a, b) => a.serialNumber?.localeCompare(b.serialNumber || ''),
-      render: (text) => text && text.trim() !== '' ? text : '-'
+      render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} searchTerm={searchTerm} />
     },
     ...(activeTab === 'default'
       ? [
@@ -138,7 +143,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
               const dateB = new Date(b.issuedDate);
               return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
             },
-            render: (date) => (!date || date === '0000-00-00') ? 'NO DATE' : date,
+            render: (date) => <HighlightText text={(!date || date === '0000-00-00') ? 'NO DATE' : date} searchTerm={searchTerm} />,
           },
           {
             title: 'Purchased Date',
@@ -151,6 +156,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
               const dateB = new Date(b.purchaseDate);
               return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
             },
+            render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
           },
         ]
       : activeTab === 'issuedDate'
@@ -166,7 +172,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
               const dateB = new Date(b.issuedDate);
               return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
             },
-            render: (date) => (!date || date === '0000-00-00') ? 'NO DATE' : date,
+            render: (date) => <HighlightText text={(!date || date === '0000-00-00') ? 'NO DATE' : date} searchTerm={searchTerm} />,
           },
         ]
       : [
@@ -181,6 +187,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
               const dateB = new Date(b.purchaseDate);
               return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
             },
+            render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
           },
         ]),
     {
@@ -203,6 +210,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab) => {
       key: 'location',
       align: 'center',
       width: 150,
+      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
       title: 'Status',

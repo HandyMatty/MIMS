@@ -1,5 +1,6 @@
 import { Tag } from 'antd';
 import { QrcodeOutlined } from '@ant-design/icons';
+import HighlightText from '../common/HighlightText';
 
 // Helper to render the status tag
 export const getStatusTag = (status) => {
@@ -41,7 +42,7 @@ export const getConditionTag = (condition) => {
 
 // Export a function that returns the columns array.
 // We pass in handleQrCodeClick so that the QR Code column can call it.
-export const getDashboardTableColumns = (handleQrCodeClick) => [
+export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => [
   {
     title: 'QR Code',
     dataIndex: 'qrCode',
@@ -64,7 +65,8 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     sorter: true,
     width: 120,
-    fixed: 'left'
+    fixed: 'left',
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
     title: 'Type',
@@ -73,7 +75,8 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     sorter: true,
     width: 130,
-    fixed: 'left'
+    fixed: 'left',
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
     title: 'Brand',
@@ -82,6 +85,7 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     sorter: true,
     width: 150,
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
     title: 'Qty', 
@@ -89,15 +93,16 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     key: 'quantity',
     align: 'center',
     width: 100,
-    sorter: (a, b) => a.quantity - b.quantity, 
+    sorter: (a, b) => a.quantity - b.quantity,
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
-    title: 'Remarks', // New column for Remarks
-    dataIndex: 'remarks', // Assuming 'remarks' will be a key in your data
+    title: 'Remarks',
+    dataIndex: 'remarks',
     key: 'remarks',
     align: 'center',
-    width: 200, // Set width for Remarks column
-    render: (text) => text && text.trim() !== "" ? text : "-"
+    width: 200,
+    render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
   },
   {
     title: 'Serial Number',
@@ -106,7 +111,7 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     sorter: true,
     width: 200,
-    render: (text) => text && text.trim() !== "" ? text : "-"
+    render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
   },
   {
     title: 'Issued Date',
@@ -115,7 +120,12 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     sorter: true,
     width: 150,
-    render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
+    render: (date) => {
+      if (!date || date === "0000-00-00" || date === "") {
+        return <HighlightText text="NO DATE" searchTerm={searchTerm} />;
+      }
+      return <HighlightText text={date} searchTerm={searchTerm} />;
+    }
   },
   {
     title: 'Purchased Date',
@@ -124,6 +134,12 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     align: 'center',
     sorter: true,
     width: 150,
+    render: (date) => {
+      if (!date || date === "0000-00-00" || date === "") {
+        return <HighlightText text="NO DATE" searchTerm={searchTerm} />;
+      }
+      return <HighlightText text={date} searchTerm={searchTerm} />;
+    }
   },
   {
     title: 'Condition',
@@ -145,6 +161,7 @@ export const getDashboardTableColumns = (handleQrCodeClick) => [
     key: 'location',
     align: 'center',
     width: 150,
+    render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
     title: 'Status',

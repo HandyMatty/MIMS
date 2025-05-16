@@ -86,7 +86,7 @@ const Graph = () => {
           <ResponsiveContainer width="95%" height="95%">
             <LineChart data={monthlyData} className='top-10'>
               <CartesianGrid strokeDasharray="4 4 4" stroke='black' />
-              <XAxis dataKey="monthYear" stroke='black' angle={-22} tickSize={10} />
+              <XAxis dataKey="monthYear" stroke='black' angle={-22} tickSize={15} />
               <YAxis
                 label={{
                   value: 'Quantity',
@@ -115,6 +115,7 @@ const Graph = () => {
                 layout="horizontal"
                 align="center"
                 verticalAlign="bottom"
+                wrapperStyle={{paddingTop: 20}}
               />
               <Line
                 type="Monotone"

@@ -220,6 +220,9 @@ input[type="password"]::-ms-reveal {
   color: black; 
   opacity: 1; 
 }
+.custom-input-history {
+  background-color: #a7f3d0 !important;
+}
  
 .transparent-select .ant-select-selector {
   background-color: #a7f3d0 !important;

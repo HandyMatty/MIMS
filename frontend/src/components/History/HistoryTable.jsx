@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Table, Input, Typography, Pagination, Card, Tabs, Button, Dropdown, Space } from "antd";
 import { SearchOutlined, FilterOutlined, DownOutlined, ReloadOutlined } from "@ant-design/icons";
 import { getHistory } from "../../services/api/getHistory";
 import { getColumns } from "./HistoryTableConfig";
 import HistoryModal from "./HistoryModal";
-
-const { TabPane } = Tabs;
+import debounce from 'lodash/debounce';
 
 const HistoryTable = () => {
   const [historyData, setHistoryData] = useState([]);
@@ -116,54 +115,87 @@ const HistoryTable = () => {
     );
   }, [historyData, searchTerms.deleted, sorterConfigs.deleted]);
 
-  // Handle search with column filtering
-  const handleSearch = (tab, e) => {
-    const value = e.target.value.trim().toLowerCase();
-    
-    // Update search term
-    setSearchTerms(prev => ({ ...prev, [tab]: value }));
-    
-    if (value === '') {
-      // Reset filtering for this tab
-      setFilterActive(prev => ({ ...prev, [tab]: false }));
-      return;
+  // Memoize the filtered data
+  const filteredData = useMemo(() => {
+    if (!filterActive.added && !filterActive.updated && !filterActive.deleted) {
+      return {
+        added: addedData,
+        updated: updatedData,
+        deleted: deletedData
+      };
     }
-    
-    // Set filtering as active for this tab
-    setFilterActive(prev => ({ ...prev, [tab]: true }));
-    
-    // Get the correct data based on tab
-    const tabData = historyData.filter(item => {
-      if (tab === 'added') return item.action === 'Added';
-      if (tab === 'updated') return item.action === 'Updated' || item.action === 'QRCode Update';
-      if (tab === 'deleted') return item.action === 'Deleted';
-      return false;
-    });
-    
-    // Filter data based on selected column
-    const filtered = tabData.filter(item => {
-      if (!item) return false;
-      
-      const searchColumn = searchColumns[tab];
-      
-      if (searchColumn === 'all') {
-        // Search all columns
-        for (const key in item) {
-          const cellValue = item[key];
-          if (cellValue && String(cellValue).toLowerCase().includes(value)) {
-            return true;
-          }
-        }
-        return false;
-      } else {
-        // Search specific column
-        const cellValue = item[searchColumn];
-        return cellValue && String(cellValue).toLowerCase().includes(value);
+
+    return {
+      added: localFilteredData.added,
+      updated: localFilteredData.updated,
+      deleted: localFilteredData.deleted
+    };
+  }, [filterActive, localFilteredData, addedData, updatedData, deletedData]);
+
+  // Debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((tab, value) => {
+      if (value === '') {
+        setFilterActive(prev => ({ ...prev, [tab]: false }));
+        return;
       }
-    });
-    
-    // Update filtered data for this tab
-    setLocalFilteredData(prev => ({ ...prev, [tab]: filtered }));
+      
+      setFilterActive(prev => ({ ...prev, [tab]: true }));
+      
+      const tabData = historyData.filter(item => {
+        if (tab === 'added') return item.action === 'Added';
+        if (tab === 'updated') return item.action === 'Updated' || item.action === 'QRCode Update';
+        if (tab === 'deleted') return item.action === 'Deleted';
+        return false;
+      });
+      
+      const filtered = tabData.filter(item => {
+        if (!item) return false;
+        
+        const searchColumn = searchColumns[tab];
+        
+        if (searchColumn === 'all') {
+          for (const key in item) {
+            const cellValue = item[key];
+            // Handle date fields specially
+            if (key === 'action_date') {
+              if (cellValue) {
+                const date = new Date(cellValue);
+                const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+                if (formattedDate.includes(value) || cellValue.includes(value)) {
+                  return true;
+                }
+              }
+            } else if (cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase())) {
+              return true;
+            }
+          }
+          return false;
+        } else {
+          const cellValue = item[searchColumn];
+          // Handle date fields specially
+          if (searchColumn === 'action_date') {
+            if (cellValue) {
+              const date = new Date(cellValue);
+              const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+              return formattedDate.includes(value) || cellValue.includes(value);
+            }
+            return false;
+          }
+          return cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase());
+        }
+      });
+      
+      setLocalFilteredData(prev => ({ ...prev, [tab]: filtered }));
+    }, 300),
+    [historyData, searchColumns]
+  );
+
+  // Handle search with debouncing
+  const handleSearch = (tab, e) => {
+    const value = e.target.value;  // Remove trim() to allow spaces
+    setSearchTerms(prev => ({ ...prev, [tab]: value }));
+    debouncedSearch(tab, value);
   };
 
   // Handle column selection change
@@ -233,12 +265,11 @@ const HistoryTable = () => {
             label: "Added",
             children: (
               <>
-                <div className="flex justify-between mb-4">
-                  <div className="flex bg-[#a7f3d0] border border-black rounded">
+                <div className="flex mb-4">
                     <Dropdown menu={getColumnMenu('added')} trigger={['click']}>
                       <Button 
                         type="text" 
-                        className="border-black"
+                        className="border-black bg-[#a7f3d0]"
                         icon={<FilterOutlined />}
                       >
                         <Space>
@@ -249,10 +280,10 @@ const HistoryTable = () => {
                     </Dropdown>
                     <Input
                       placeholder={`Search in ${searchColumns.added === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumns.added)?.label}`}
-                      prefix={<SearchOutlined />}
+                      prefix={<SearchOutlined style={{color: "black"}} />}
                       value={searchTerms.added}
                       onChange={(e) => handleSearch('added', e)}
-                      className="bg-transparent custom-input-table w-64 border-r-black border-b-black border-t-black"
+                      className="bg-transparent custom-input-history custom-input-table w-64 border-r-black border-b-black border-t-black"
                       suffix={
                         searchTerms.added ? (
                           <Button 
@@ -265,8 +296,8 @@ const HistoryTable = () => {
                         ) : null
                       }
                     />
-                  </div>
-                  <Button 
+                    <div className="ml-2">
+                     <Button 
                     onClick={() => resetAllFilters('added')}
                     className="custom-button"
                     type="default"
@@ -275,17 +306,16 @@ const HistoryTable = () => {
                   >
                     Reset
                   </Button>
+                    </div>
                 </div>
                 <div style={{ height: '680px' }}>
                   <Table
                     rowKey="id"
-                    dataSource={filterActive.added ? localFilteredData.added : 
-                      addedData.slice(
-                        (currentPages.added - 1) * pageSizes.added,
-                        currentPages.added * pageSizes.added
-                      )
-                    }
-                    columns={getColumns(showModal, "Added")}
+                    dataSource={filteredData.added.slice(
+                      (currentPages.added - 1) * pageSizes.added,
+                      currentPages.added * pageSizes.added
+                    )}
+                    columns={getColumns(showModal, "Added", searchTerms.added)}
                     bordered
                     pagination={false}
                     onChange={(pagination, filters, sorter) => handleTableChange("added", pagination, filters, sorter)}
@@ -318,12 +348,11 @@ const HistoryTable = () => {
             label: "Updated / QRCode Update",
             children: (
               <>
-                <div className="flex justify-between mb-4">
-                  <div className="flex bg-[#a7f3d0] border border-black rounded">
+                <div className="flex mb-4">
                     <Dropdown menu={getColumnMenu('updated')} trigger={['click']}>
                       <Button 
                         type="text" 
-                        className="border-black"
+                        className="border-black bg-[#a7f3d0]"
                         icon={<FilterOutlined />}
                       >
                         <Space>
@@ -334,10 +363,10 @@ const HistoryTable = () => {
                     </Dropdown>
                     <Input
                       placeholder={`Search in ${searchColumns.updated === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumns.updated)?.label}`}
-                      prefix={<SearchOutlined />}
+                      prefix={<SearchOutlined style={{color: "black"}} />}
                       value={searchTerms.updated}
                       onChange={(e) => handleSearch('updated', e)}
-                      className="bg-transparent custom-input-table w-64 border-r-black border-b-black border-t-black"
+                      className="bg-transparent custom-input-history custom-input-table w-64 border-r-black border-b-black border-t-black"
                       suffix={
                         searchTerms.updated ? (
                           <Button 
@@ -350,8 +379,8 @@ const HistoryTable = () => {
                         ) : null
                       }
                     />
-                  </div>
-                  <Button 
+                    <div className="ml-2">
+                    <Button 
                     onClick={() => resetAllFilters('updated')}
                     className="custom-button"
                     type="default"
@@ -360,17 +389,16 @@ const HistoryTable = () => {
                   >
                     Reset
                   </Button>
+                  </div>
                 </div>
                 <div style={{ height: '680px' }}>
                   <Table
                     rowKey="id"
-                    dataSource={filterActive.updated ? localFilteredData.updated : 
-                      updatedData.slice(
-                        (currentPages.updated - 1) * pageSizes.updated,
-                        currentPages.updated * pageSizes.updated
-                      )
-                    }
-                    columns={getColumns(showModal, "Updated")}
+                    dataSource={filteredData.updated.slice(
+                      (currentPages.updated - 1) * pageSizes.updated,
+                      currentPages.updated * pageSizes.updated
+                    )}
+                    columns={getColumns(showModal, "Updated", searchTerms.updated)}
                     bordered
                     pagination={false}
                     onChange={(pagination, filters, sorter) => handleTableChange("updated", pagination, filters, sorter)}
@@ -403,12 +431,11 @@ const HistoryTable = () => {
             label: "Deleted",
             children: (
               <>
-                <div className="flex justify-between mb-4">
-                  <div className="flex bg-[#a7f3d0] border border-black rounded">
+                <div className="flex mb-4">
                     <Dropdown menu={getColumnMenu('deleted')} trigger={['click']}>
                       <Button 
                         type="text" 
-                        className="border-black"
+                        className="bg-[#a7f3d0] border-black"
                         icon={<FilterOutlined />}
                       >
                         <Space>
@@ -419,10 +446,10 @@ const HistoryTable = () => {
                     </Dropdown>
                     <Input
                       placeholder={`Search in ${searchColumns.deleted === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumns.deleted)?.label}`}
-                      prefix={<SearchOutlined />}
+                      prefix={<SearchOutlined style={{color: "black"}} />}
                       value={searchTerms.deleted}
                       onChange={(e) => handleSearch('deleted', e)}
-                      className="bg-transparent custom-input-table w-64 border-r-black border-b-black border-t-black"
+                      className="bg-transparent custom-input-history custom-input-table w-64 border-r-black border-b-black border-t-black"
                       suffix={
                         searchTerms.deleted ? (
                           <Button 
@@ -435,7 +462,7 @@ const HistoryTable = () => {
                         ) : null
                       }
                     />
-                  </div>
+                  <div className="ml-2">                  
                   <Button 
                     onClick={() => resetAllFilters('deleted')}
                     className="custom-button"
@@ -445,17 +472,16 @@ const HistoryTable = () => {
                   >
                     Reset
                   </Button>
+                  </div>
                 </div>
                 <div style={{ height: '680px' }}>
                   <Table
                     rowKey="id"
-                    dataSource={filterActive.deleted ? localFilteredData.deleted : 
-                      deletedData.slice(
-                        (currentPages.deleted - 1) * pageSizes.deleted,
-                        currentPages.deleted * pageSizes.deleted
-                      )
-                    }
-                    columns={getColumns(showModal, "Deleted")}
+                    dataSource={filteredData.deleted.slice(
+                      (currentPages.deleted - 1) * pageSizes.deleted,
+                      currentPages.deleted * pageSizes.deleted
+                    )}
+                    columns={getColumns(showModal, "Deleted", searchTerms.deleted)}
                     bordered
                     pagination={false}
                     onChange={(pagination, filters, sorter) => handleTableChange("deleted", pagination, filters, sorter)}

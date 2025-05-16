@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Table, Typography, Card, Input, Pagination } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { useState, useEffect, useCallback } from 'react';
+import { Table, Typography, Card, Input, Pagination, Button, Dropdown, Space } from 'antd';
+import { SearchOutlined, ReloadOutlined, FilterOutlined, DownOutlined } from '@ant-design/icons';
 import { fetchActivitiesApi } from "../../services/api/fetchactivities";
+import HighlightText from '../common/HighlightText';
+import { debounce } from 'lodash';
 
 const { Text } = Typography;
 
@@ -12,6 +14,9 @@ const UsersActivities = () => {
   const [searchText, setSearchText] = useState(''); // Search text state
   const [currentPage, setCurrentPage] = useState(1); // Current page state
   const [pageSize, setPageSize] = useState(5); // Page size state
+  const [searchColumn, setSearchColumn] = useState('all');
+  const [localFilteredData, setLocalFilteredData] = useState([]);
+  const [filterActive, setFilterActive] = useState(false);
 
   // Fetch activities on component mount
   useEffect(() => {
@@ -29,17 +34,65 @@ const UsersActivities = () => {
     fetchActivities();
   }, []);
 
-  // Handle search input
-  const onSearch = (e) => {
-    setSearchText(e.target.value.toLowerCase());
+  const searchableColumns = [
+    { key: 'all', label: 'All Columns' },
+    { key: 'id', label: 'ID' },
+    { key: 'username', label: 'Username' },
+    { key: 'activity', label: 'Activity' },
+    { key: 'details', label: 'Details' },
+    { key: 'date', label: 'Date' },
+  ];
+
+  // Debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      if (value === '') {
+        setFilterActive(false);
+        return;
+      }
+      
+      setFilterActive(true);
+      const filtered = activities.filter(item => {
+        if (!item) return false;
+        
+        if (searchColumn === 'all') {
+          for (const key in item) {
+            const cellValue = item[key];
+            if (cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase())) {
+              return true;
+            }
+          }
+          return false;
+        } else {
+          const cellValue = item[searchColumn];
+          return cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase());
+        }
+      });
+      
+      setLocalFilteredData(filtered);
+    }, 300),
+    [activities, searchColumn]
+  );
+
+  const handleSearch = useCallback((e) => {
+    const value = e.target.value;  // Remove trim() to allow spaces
+    setSearchText(value);
+    debouncedSearch(value);
+  }, [debouncedSearch]);
+
+  const handleColumnChange = (column) => {
+    setSearchColumn(column);
   };
 
-  // Filter activities based on search text
-  const filteredData = activities.filter((item) =>
-    Object.values(item).some((value) =>
-      String(value).toLowerCase().includes(searchText)
-    )
-  );
+  // Reset all filters and pagination
+  const resetAll = () => {
+    setSearchText('');
+    setCurrentPage(1);
+    setSearchColumn('all');
+    setFilterActive(false);
+  };
+
+  const filteredData = filterActive ? localFilteredData : activities;
 
   // Paginate filtered data
   const paginatedData = filteredData.slice(
@@ -56,7 +109,7 @@ const UsersActivities = () => {
       ellipsis: true,
       width: 5,
       sorter: (a, b) => String(a.id).localeCompare(String(b.id)),
-      render: (id) => id || 'N/A', // Fallback if id is missing
+      render: (id) => <HighlightText text={id || 'N/A'} searchTerm={searchText} />
     },
     {
       title: 'Username',
@@ -65,18 +118,21 @@ const UsersActivities = () => {
       ellipsis: true,
       width: 10,
       sorter: (a, b) => a.username.localeCompare(b.username),
+      render: (text) => <HighlightText text={text} searchTerm={searchText} />
     },
     {
       title: 'Activity',
       dataIndex: 'activity',
       key: 'activity',
       width: 10,
+      render: (text) => <HighlightText text={text} searchTerm={searchText} />
     },
     {
       title: 'Details',
       dataIndex: 'details',
       key: 'details',
       width: 30,
+      render: (text) => <HighlightText text={text} searchTerm={searchText} />
     },
     {
       title: 'Date',
@@ -84,8 +140,8 @@ const UsersActivities = () => {
       key: 'date',
       width: 10,
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: (date) =>
-        new Date(date).toLocaleString('en-US', {
+      render: (date) => {
+        const formattedDate = new Date(date).toLocaleString('en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
@@ -93,7 +149,9 @@ const UsersActivities = () => {
           minute: 'numeric',
           second: 'numeric',
           hour12: true,
-        }),
+        });
+        return <HighlightText text={formattedDate} searchTerm={searchText} />
+      }
     },
   ];
 
@@ -102,13 +160,43 @@ const UsersActivities = () => {
 
       {/* Search Input */}
       <div className="flex justify-start items-center mb-4 space-x-2">
-        <Input
-          placeholder="Search activities..."
-          prefix={<SearchOutlined />}
-          value={searchText}
-          onChange={onSearch}
-          className="w-64 bg-[#a7f3d0] border border-black custom-input-table"
-        />
+        <div className="flex bg-[#a7f3d0] border border-black rounded">
+          <Dropdown menu={{ 
+            items: searchableColumns.map(column => ({
+              key: column.key,
+              label: column.label,
+            })), 
+            onClick: ({key}) => handleColumnChange(key),
+            selectedKeys: [searchColumn]
+          }} trigger={['click']}>
+            <Button 
+              type="text" 
+              className="border-black"
+              icon={<FilterOutlined />}
+            >
+              <Space>
+                {searchableColumns.find(col => col.key === searchColumn)?.label || 'All Columns'}
+                <DownOutlined />
+              </Space>
+            </Button>
+          </Dropdown>
+          <Input
+            placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumn)?.label}`}
+            prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={handleSearch}
+            className="w-64 bg-transparent border-r-black border-b-black border-t-black custom-input-table"
+          />
+        </div>
+        <Button 
+          onClick={resetAll}
+          className="custom-button"
+          type="default"
+          size="small"
+          icon={<ReloadOutlined />}
+        >
+          Reset
+        </Button>
       </div>
 
       {/* Activities Table */}

@@ -1,4 +1,5 @@
 import { Tag, Button } from "antd";
+import HighlightText from "../common/HighlightText";
 
 // Helper function to generate status tag
 export const getStatusTag = (status) => {
@@ -20,7 +21,7 @@ export const getConditionTag = (condition) => {
   return <Tag color={colors[condition] || "gray"}>{condition}</Tag>;
 };
 
-export const getColumns = (showModal, tabType) => {
+export const getColumns = (showModal, tabType, searchTerm = '') => {
   let columns = [
     {
       title: "ID",
@@ -30,6 +31,7 @@ export const getColumns = (showModal, tabType) => {
       sorter: true,
       width: 100,
       fixed: "left",
+      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
       title: "Action",
@@ -38,6 +40,7 @@ export const getColumns = (showModal, tabType) => {
       align: "center",
       width: 150,
       fixed: "left",
+      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
       title: "Action Date",
@@ -46,7 +49,14 @@ export const getColumns = (showModal, tabType) => {
       align: "center",
       sorter: true,
       width: 180,
-      render: (text) => new Date(text).toLocaleDateString(),
+      render: (text) => {
+        if (!text || text === "0000-00-00" || text === "") {
+          return <HighlightText text="NO DATE" searchTerm={searchTerm} />;
+        }
+        const date = new Date(text);
+        const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+        return <HighlightText text={formattedDate} searchTerm={searchTerm} />;
+      },
       fixed: "left",
     },
     {
@@ -57,6 +67,7 @@ export const getColumns = (showModal, tabType) => {
       sorter: true,
       width: 120,
       fixed: "left",
+      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
   ];
 
@@ -69,6 +80,7 @@ export const getColumns = (showModal, tabType) => {
         key: "type",
         align: "center",
         width: 120,
+        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
       {
         title: "Brand",
@@ -76,14 +88,16 @@ export const getColumns = (showModal, tabType) => {
         key: "brand",
         align: "center",
         width: 120,
+        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
       {
-        title: 'Qty',  // <-- NEW COLUMN
+        title: 'Qty',
         dataIndex: 'quantity',
         key: 'quantity',
         align: 'center',
         width: 100,
         sorter: (a, b) => a.quantity - b.quantity,
+        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
       {
         title: "Remarks",
@@ -91,7 +105,7 @@ export const getColumns = (showModal, tabType) => {
         key: "remarks",
         align: "center",
         width: 200,
-        render: (text) => text && text.trim() !== "" ? text : "-"
+        render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
       },
       {
         title: "Serial No.",
@@ -99,7 +113,7 @@ export const getColumns = (showModal, tabType) => {
         key: "serial_number",
         align: "center",
         width: 200,
-        render: (text) => text && text.trim() !== "" ? text : "-"
+        render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
       },
       {
         title: "Issued Date",
@@ -108,7 +122,7 @@ export const getColumns = (showModal, tabType) => {
         align: "center",
         sorter: true,
         width: 150,
-        render: (date) => (!date || date === "0000-00-00") ? "NO DATE" : date,
+        render: (date) => <HighlightText text={(!date || date === "0000-00-00") ? "NO DATE" : date} searchTerm={searchTerm} />,
       },
       {
         title: "Purchased Date",
@@ -117,6 +131,7 @@ export const getColumns = (showModal, tabType) => {
         align: "center",
         sorter: true,
         width: 150,
+        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
       {
         title: "Condition",
@@ -138,6 +153,7 @@ export const getColumns = (showModal, tabType) => {
         key: "location",
         align: "center",
         width: 150,
+        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
       {
         title: "Status",
@@ -165,7 +181,7 @@ export const getColumns = (showModal, tabType) => {
         key: "field_changed",
         align: "center",
         width: 200,
-        render: (fields) => (fields ? fields.join(", ") : "N/A"),
+        render: (fields) => <HighlightText text={fields ? fields.join(", ") : "N/A"} searchTerm={searchTerm} />,
       },
       {
         title: "Changed Details",

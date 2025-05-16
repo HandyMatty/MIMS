@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import useLoginAuth from '../../services/request/useLoginAuth';
 import SINSSILogo from '../../../assets/SINSSI_LOGO-removebg-preview.png';
 import vectors from '../../../assets/vectors.svg';
+import { LazyImage, preloadImages } from '../../utils/imageHelpers.jsx';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -27,6 +28,11 @@ const Login = () => {
       navigate('/guest/dashboard', { replace: true });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    // Preload critical images
+    preloadImages([SINSSILogo, vectors]);
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -66,11 +72,13 @@ const Login = () => {
   return (
     <div className="relative w-full h-screen bg-honeydew">
       {/* Background Vector Image */}
-      <img
+      <LazyImage
         className="absolute bottom-0 left-0 w-full h-auto object-cover z-0"
         style={{ maxHeight: '100vh' }}
         src={vectors}
         alt="vector bg"
+        width={1920}
+        height={1080}
       />
 
       {/* Login Container */}
@@ -80,11 +88,13 @@ const Login = () => {
             <section className="w-full max-w-md bg-honeydew p-6 rounded-lg shadow-lg">
               <form onSubmit={handleLogin}>
                 <div className="flex flex-col items-center mb-10">
-                  <img
-                    className="w-54 h-52 object-cover"
-                    loading="lazy"
+                  <LazyImage
+                    className="w-[150px] h-[150px ] object-contain"
                     src={SINSSILogo}
                     alt="SINSSI Logo"
+                    width={150}
+                    height={150}
+                    style={{ maxWidth: '150px', maxHeight: '150px' }}
                   />
                   <h1 className="text-45xl font-lexend-deca text-darkslategray-100 text-center">
                     Sign in
