@@ -4,7 +4,7 @@ import { useAdminAuthStore } from "../store/admin/useAuth";
 import { useUserAuthStore } from "../store/user/useAuth";
 
 export const axiosAuth = axios.create({
-  baseURL: "http://localhost/Sentinel-MIMS/backend/api", // Set the correct base URL
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
