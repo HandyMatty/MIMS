@@ -2,6 +2,17 @@ import { useState } from 'react';
 import { Modal, Form, Input, Select, Button, Typography } from 'antd';
 
 const { Text } = Typography;
+const { Option } = Select;
+
+const DEPARTMENT_OPTIONS = [
+  'SOD',
+  'CID',
+  'GAD',
+  'HRD',
+  'AFD',
+  'EOD',
+  'BDO'
+];
 
 const ModalForms = ({
   isAddModalVisible,
@@ -145,9 +156,13 @@ const ModalForms = ({
           <Form.Item
             name="department"
             label="Department"
-            rules={[{ required: true, message: 'Please input the department!' }]}
+            rules={[{ required: true, message: 'Please select a department!' }]}
           >
-              <Input placeholder="Enter the department" />
+            <Select placeholder="Select Department">
+              {DEPARTMENT_OPTIONS.map(dept => (
+                <Option key={dept} value={dept}>{dept}</Option>
+              ))}
+            </Select>
           </Form.Item>
             <Form.Item
               name="role"

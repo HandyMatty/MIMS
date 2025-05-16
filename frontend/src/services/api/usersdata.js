@@ -84,6 +84,34 @@ export const updateRole = async (userId, role) => {
   }
 };
 
+// Update user department
+export const updateDepartment = async (userId, department) => {
+  try {
+    console.log('Sending update request:', { userId, department });
+    const response = await axiosAuth.post("/update_department.php", 
+      { userId, department },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: false
+      }
+    );
+    console.log('Update response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Update department API Error:", error);
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+      console.error("Error response status:", error.response.status);
+      console.error("Error response headers:", error.response.headers);
+    } else if (error.request) {
+      console.error("Error request:", error.request);
+    }
+    throw error;
+  }
+};
+
 
 
 

@@ -7,6 +7,7 @@ import {
   Pagination,
   Tooltip,
   Typography,
+  Select,
 } from 'antd';
 import {
   UserAddOutlined,
@@ -20,6 +21,17 @@ import ModalForms from '../ModalForms';
 import useUsersList from '../../hooks/useUsersList'; // Adjust the path if needed
 
 const { Text } = Typography;
+const { Option } = Select;
+
+const DEPARTMENT_OPTIONS = [
+  'SOD',
+  'CID',
+  'GAD',
+  'HRD',
+  'AFD',
+  'EOD',
+  'BDO'
+];
 
 const UsersList = () => {
   const {
@@ -52,6 +64,7 @@ const UsersList = () => {
     showEditRoleModal,
     handleRoleUpdate,
     handleChangeSecurityQuestion,
+    handleDepartmentUpdate,
   } = useUsersList();
 
   const columns = [
@@ -74,6 +87,19 @@ const UsersList = () => {
       key: 'department',
       ellipsis: true,
       sorter: (a, b) => a.department.localeCompare(b.department),
+      render: (department, record) => (
+        <Select
+          value={department}
+          style={{ width: '100%' }}
+          onChange={(value) => handleDepartmentUpdate(record.id, value)}
+          disabled={record.role === 'guest'}
+          className='transparent-select'
+        >
+          {DEPARTMENT_OPTIONS.map(dept => (
+            <Option key={dept} value={dept}>{dept}</Option>
+          ))}
+        </Select>
+      ),
     },
     {
       title: 'Role',

@@ -7,6 +7,7 @@ import {
   updateSecurityQuestion,
   getSecurityQuestion,
   updateRole,
+  updateDepartment,
 } from '../services/api/usersdata';
 import { resetPasswordApi } from '../services/api/resetpassword';
 import { generateTempPassword } from '../utils/password';
@@ -75,6 +76,41 @@ const useUsersList = () => {
       message.error('An error occurred while updating the role');
     } finally {
       setLoadingRoleUpdate(false);
+    }
+  };
+
+  // Update user department
+  const handleDepartmentUpdate = async (userId, newDepartment) => {
+    try {
+      const response = await updateDepartment(userId, newDepartment);
+      if (response.success) {
+        message.success('Department updated successfully');
+        // Update user in state immediately to reflect change in UI
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === userId ? { ...user, department: newDepartment } : user
+          )
+        );
+        setFilteredData((prevFilteredData) =>
+          prevFilteredData.map((user) =>
+            user.id === userId ? { ...user, department: newDepartment } : user
+          )
+        );
+        logUserActivity(
+          'Admin',
+          'User Management',
+          `Updated the department of user with ID: "${userId}" to "${newDepartment}"`
+        );
+        logUserNotification(
+          'User Management',
+          `You have updated the department of user with ID: "${userId}" to "${newDepartment}"`
+        );
+      } else {
+        message.error(response.message || 'Failed to update department');
+      }
+    } catch (error) {
+      console.error('Error updating department:', error);
+      message.error('Failed to update department');
     }
   };
 
@@ -301,6 +337,7 @@ const useUsersList = () => {
     handleResetPassword,
     handleSecurityQuestion,
     handleChangeSecurityQuestion,
+    handleDepartmentUpdate,
   };
 };
 

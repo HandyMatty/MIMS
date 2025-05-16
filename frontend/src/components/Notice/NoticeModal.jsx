@@ -28,15 +28,7 @@ const ContactInfo = memo(() => (
 ContactInfo.displayName = 'ContactInfo';
 
 const NoticeModal = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Delay showing the modal to improve initial page load
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const [isVisible, setIsVisible] = useState(true); // Set to true by default
 
   const handleOk = useCallback(() => {
     setIsVisible(false);

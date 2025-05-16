@@ -260,6 +260,7 @@ const MainLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+      <NoticeModal />
       <Sider
         collapsible
         collapsed={collapsed}
@@ -337,7 +338,6 @@ const MainLayout = () => {
         >
           <Outlet />
         </Layout.Content>
-        <NoticeModal/>
       </Layout>
 
       <Modal
