@@ -5,7 +5,7 @@ import ImgCrop from 'antd-img-crop';
 import Cookies from 'js-cookie';
 
 import { fetchProfileData, updateProfileData } from '../../services/api/getUserDetails';
-import { beforeUpload, LazyImage, preloadImages } from '../../utils/imageHelpers.jsx';
+import { beforeUpload } from '../../utils/imageHelpers';
 import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
 
@@ -83,9 +83,6 @@ const ProfileEdit = () => {
           setDepartment(department);
           setOriginalData({ username, department });
           setImageUrl(avatar || '');
-          if (avatar) {
-            preloadImages([avatar]);
-          }
         })
         .catch(() => message.error('Failed to fetch profile data'));
     }
@@ -152,13 +149,7 @@ const ProfileEdit = () => {
       {/* Avatar Section */}
       <div className="flex items-center gap-6 mt-4">
         {imageUrl && (
-          <LazyImage
-            src={imageUrl}
-            alt="avatar"
-            width={100}
-            height={100}
-            style={{ borderRadius: '50%', objectFit: 'cover' }}
-          />
+          <Image src={imageUrl} alt="avatar" width={100} height={100} style={{ borderRadius: '50%', objectFit: 'cover' }} />
         )}
         <div>
           <Text className="text-green-600">Active</Text>
@@ -169,14 +160,14 @@ const ProfileEdit = () => {
       <ImgCrop rotationSlider>
         <Upload
           name="avatar"
-          action="https://sentinelphils.com/Sentinel-MIMS/backend/api/upload.php"
+          action="http://localhost/Sentinel-MIMS/backend/api/upload.php"
           showUploadList={false}
           beforeUpload={beforeUpload}
           onChange={handleChange}
           fileList={fileList}
           accept="image/*"
           headers={{ Authorization: `Bearer ${Cookies.get(`authToken_${authUsername}`)}` }}
-        >
+          >
           <Button type="primary" icon={loading ? <LoadingOutlined /> : <PlusOutlined />} className="w-full mt-4 bg-lime-200 text-green-950">
             {loading ? 'Uploading...' : 'Change Avatar'}
           </Button>
