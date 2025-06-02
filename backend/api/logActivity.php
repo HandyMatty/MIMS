@@ -21,12 +21,13 @@ if (!$username || !$activity || !$details) {
     exit;
 }
 
-// Insert new activity (always log a new entry)
+$activityDate = date('Y-m-d H:i:s');
+
 $sql = "INSERT INTO activities (users_id, activity, details, activity_date) 
-        VALUES ((SELECT id FROM users WHERE username = ?), ?, ?, NOW())";
+        VALUES ((SELECT id FROM users WHERE username = ?), ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sss", $username, $activity, $details);
+$stmt->bind_param("ssss", $username, $activity, $details, $activityDate);
 
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Activity logged successfully."]);

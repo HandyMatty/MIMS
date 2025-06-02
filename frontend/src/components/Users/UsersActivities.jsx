@@ -4,6 +4,7 @@ import { SearchOutlined, ReloadOutlined, FilterOutlined, DownOutlined } from '@a
 import { fetchActivitiesApi } from "../../services/api/fetchactivities";
 import HighlightText from '../common/HighlightText';
 import { debounce } from 'lodash';
+import { useMediaQuery } from 'react-responsive';
 
 const { Text } = Typography;
 
@@ -17,6 +18,7 @@ const UsersActivities = () => {
   const [searchColumn, setSearchColumn] = useState('all');
   const [localFilteredData, setLocalFilteredData] = useState([]);
   const [filterActive, setFilterActive] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 639 });
 
   // Fetch activities on component mount
   useEffect(() => {
@@ -106,8 +108,8 @@ const UsersActivities = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      ellipsis: true,
-      width: 5,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
       sorter: (a, b) => String(a.id).localeCompare(String(b.id)),
       render: (id) => <HighlightText text={id || 'N/A'} searchTerm={searchText} />
     },
@@ -115,8 +117,8 @@ const UsersActivities = () => {
       title: 'Username',
       dataIndex: 'username',
       key: 'username',
-      ellipsis: true,
-      width: 10,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
       sorter: (a, b) => a.username.localeCompare(b.username),
       render: (text) => <HighlightText text={text} searchTerm={searchText} />
     },
@@ -124,24 +126,30 @@ const UsersActivities = () => {
       title: 'Activity',
       dataIndex: 'activity',
       key: 'activity',
-      width: 10,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       render: (text) => <HighlightText text={text} searchTerm={searchText} />
     },
     {
       title: 'Details',
       dataIndex: 'details',
       key: 'details',
-      width: 30,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       render: (text) => <HighlightText text={text} searchTerm={searchText} />
     },
     {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
-      width: 10,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
       render: (date) => {
-        const formattedDate = new Date(date).toLocaleString('en-US', {
+        const formattedDate = new Date(date).toLocaleString('en-PH', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
@@ -156,12 +164,13 @@ const UsersActivities = () => {
   ];
 
   return (
-    <Card title={<span className="text-3xl font-bold flex justify-center">ACTIVITIES</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
-
-      {/* Search Input */}
-      <div className="flex justify-start items-center mb-4 space-x-2">
-        <div className="flex bg-[#a7f3d0] border border-black rounded">
-          <Dropdown menu={{ 
+    <Card title={<span className="text-lgi sm:text-sm md:text-md lg:text-lgi xl:text-xl font-bold flex justify-center">ACTIVITIES</span>}  
+        className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 sm:mb-0">
+          <Dropdown 
+          className='w-auto hidden sm:block'
+          menu={{ 
             items: searchableColumns.map(column => ({
               key: column.key,
               label: column.label,
@@ -171,8 +180,8 @@ const UsersActivities = () => {
           }} trigger={['click']}>
             <Button 
               type="text" 
-              className="border-black"
-              icon={<FilterOutlined />}
+              className="border-black bg-[#a7f3d0] text-xs"
+              icon={<FilterOutlined  className='text-xs'/>}
             >
               <Space>
                 {searchableColumns.find(col => col.key === searchColumn)?.label || 'All Columns'}
@@ -185,22 +194,24 @@ const UsersActivities = () => {
             prefix={<SearchOutlined />}
             value={searchText}
             onChange={handleSearch}
-            className="w-64 bg-transparent border-r-black border-b-black border-t-black custom-input-table"
+            className="w-auto text-xs border-black ml-2"
           />
         </div>
+       <div className="flex gap-2 w-auto justify-center">
         <Button 
           onClick={resetAll}
-          className="custom-button"
+          className="custom-button w-auto text-xs"
           type="default"
           size="small"
           icon={<ReloadOutlined />}
         >
           Reset
         </Button>
+        </div>
       </div>
 
       {/* Activities Table */}
-      <div style={{ height: '350px' }}>
+      <div className='w-auto overflow-x-auto'>
         <Table
           columns={columns}
           dataSource={paginatedData}
@@ -208,27 +219,56 @@ const UsersActivities = () => {
           bordered
           rowKey="id" 
           loading={loading} 
-          scroll={{ x: 'max-content', y: 280 }} 
+          scroll={{ x: 'max-content', y: 280 }}
+          className='w-auto text-xs overflow-auto'
+          responsive={['xs', 'sm', 'md', 'lg', 'xl']}
+          expandable={
+            isMobile
+              ? {
+                  expandedRowRender: (record) => (
+                    <div className="text-xs space-y-1">
+                      <div><b>ID:</b> {record.id}</div>
+                      <div><b>Username:</b> {record.username}</div>
+                      <div><b>Activity:</b> {record.activity}</div>
+                      <div><b>Details:</b> {record.details}</div>
+                      <div><b>Date:</b> {new Date(record.date).toLocaleString('en-PH', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        second: 'numeric',
+                        hour12: true,
+                      })}</div>
+                    </div>
+                  ),
+                  rowExpandable: () => true,
+                }
+              : undefined } 
         />
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4">
-        <Text style={{ color: '#072C1C' }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-5 space-y-2 sm:space-y-0">
+        <Text style={{ color: '#072C1C' }} className="w-full text-xs text-wrap text-center sm:text-left">
           Showing {Math.min((currentPage - 1) * pageSize + 1, filteredData.length)} to{' '}
           {Math.min(currentPage * pageSize, filteredData.length)} of {filteredData.length} entries
         </Text>
+        <div className="w-full flex justify-center sm:justify-end">
         <Pagination
           current={currentPage}
           pageSize={pageSize}
           total={filteredData.length}
           showSizeChanger
+          className='text-xs'
+          responsive
           pageSizeOptions={['5', '10', '15']}
           onChange={(page, size) => {
             setCurrentPage(page);
             setPageSize(size);
           }}
         />
+        </div>
       </div>
     </Card>
   );

@@ -5,6 +5,7 @@ import { getInventoryData } from '../../services/api/addItemToInventory';
 import QrCodeModal from './QrCodeModal';
 import { getColumns } from './QrCodeTableColumns';
 import debounce from 'lodash/debounce';
+import { useMediaQuery } from 'react-responsive';
 
 const { Option } = Select;
 
@@ -20,6 +21,7 @@ const QrCodeTable = ({ onItemSelect }) => {
   const [searchColumn, setSearchColumn] = useState('all');
   const [localFilteredData, setLocalFilteredData] = useState([]);
   const [filterActive, setFilterActive] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 639 });
 
   useEffect(() => {
     const fetchInventoryData = async () => {
@@ -158,58 +160,59 @@ const QrCodeTable = ({ onItemSelect }) => {
     })), [searchableColumns]);
 
   return (
-    <Card title={<span className="text-5xl-6 font-bold flex justify-center">ITEMS</span>}
+    <Card title={<span className="text-lgi sm:text-sm md:text-base lg:text-lgi xl:text-xl font-bold flex justify-center">ITEMS</span>}
     className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
-      <div className="flex items-center space-x-4 mb-4">
-        <div className="flex bg-[#a7f3d0] border border-black rounded">
-          <Dropdown menu={{ 
-            items: menuItems,
-            onClick: ({key}) => handleColumnChange(key),
-            selectedKeys: [searchColumn]
-          }} trigger={['click']}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 sm:mb-0">
+          <Dropdown 
+            className='bg-[#a7f3d0] border border-black sm:block hidden'
+            menu={{ 
+              items: menuItems,
+              onClick: ({key}) => handleColumnChange(key),
+              selectedKeys: [searchColumn]
+            }} trigger={['click']}>
             <Button 
               type="text" 
-              className="border-black"
-              icon={<FilterOutlined />}
+              icon={<FilterOutlined className='text-xs' />}
             >
-              <Space>
+              <Space className="text-xs w-auto align-middle">
                 {searchableColumns.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                <DownOutlined />
+                <DownOutlined size='small' />
               </Space>
             </Button>
           </Dropdown>
           <Input
             placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumn)?.label}`}
             prefix={<SearchOutlined />}
-            className="w-[268px] h-[33.63px] bg-transparent border-r-black border-b-black border-t-black custom-input-table"
+            className="border border-black w-auto ml-1 text-xs"
             value={searchText}
             onChange={handleSearch}
           />
         </div>
-        <div className="flex items-center text-[#072C1C] text-sm font-medium">
-          Sort by:
+          <div className="flex gap-2 w-auto justify-center">
           <Select
             defaultValue="Newest"
             suffixIcon={<DownOutlined />}
-            className="ml-2 w-[132.94px] transparent-select"
+            className="w-auto text-xs transparent-select mt-1"
+            size="small"
             onChange={handleSortOrderChange}
           >
-            <Option value="newest">Newest</Option>
-            <Option value="oldest">Oldest</Option>
+            <Option value="newest"><span className="text-xs">Newest</span></Option>
+            <Option value="oldest"><span className="text-xs">Oldest</span></Option>
           </Select>
-        </div>
         <Button 
           onClick={resetAll}
-          className="custom-button"
+          className="custom-button mt-1"
           type="default"
           size="small"
           icon={<ReloadOutlined />}
         >
-          Reset
+          <span className="text-xs">Reset</span>
         </Button>
+        </div>
       </div>
 
-      <div style={{ height: '700px' }}>
+      <div className="w-auto overflow-x-auto">
         <Table
           rowKey="id"
           columns={getColumns(handleQrCodeClick, searchText)}
@@ -219,23 +222,46 @@ const QrCodeTable = ({ onItemSelect }) => {
           onRow={(record) => ({
             onClick: () => handleRowClick(record),
           })}
-          scroll={{ x: 1500, y: 600 }} 
+          scroll={{ x: 'max-content', y: 600 }} 
           loading={loading}
+          responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
+          expandable={ isMobile ? {
+            expandedRowRender: (record) => (
+              <div className="text-xs space-y-1">
+                <div><b>ID:</b> {record.id}</div>
+                <div><b>Type:</b> {record.type}</div>
+                <div><b>Brand:</b> {record.brand}</div>
+                <div><b>Quantity:</b> {record.quantity}</div>
+                <div><b>Remarks:</b> {record.remarks}</div>
+                <div><b>Serial Number:</b> {record.serialNumber}</div>
+                <div><b>Issued Date:</b> {record.issuedDate}</div>
+                <div><b>Purchased Date:</b> {record.purchaseDate}</div>
+                <div><b>Condition:</b> {record.condition}</div>
+                <div><b>Location:</b> {record.location}</div>
+                <div><b>Status:</b> {record.status}</div>
+              </div>
+            ),
+            rowExpandable: () => true,
+          } : undefined}
         />
       </div>
-      <div className="flex items-center justify-between mt-5">
-        <Typography.Text style={{ color: '#072C1C', fontSize: 14 }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-5 space-y-2 sm:space-y-0">
+        <Typography.Text style={{ color: '#072C1C' }} className="w-full text-xs text-wrap text-center sm:text-left">
           Showing data of {totalEntries > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}
           {Math.min(currentPage * pageSize, totalEntries)} of {totalEntries} entries
         </Typography.Text>
-        <Pagination
-          current={currentPage}
-          pageSize={pageSize}
-          total={totalEntries}
-          showSizeChanger
-          pageSizeOptions={['10', '20', '30']}
-          onChange={handlePageChange}
-        />
+        <div className="w-full flex justify-center sm:justify-end">
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={totalEntries}
+            showSizeChanger
+            pageSizeOptions={['10', '20', '30', '50', '100', '200', '500', '1000', '2000']}
+            onChange={handlePageChange}
+            className="text-xs"
+            responsive
+          />
+        </div>
       </div>
 
       <QrCodeModal

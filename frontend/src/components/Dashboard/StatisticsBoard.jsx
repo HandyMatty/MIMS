@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import './customStatisticBoard.css';
 import { getInventoryData } from '../../services/api/addItemToInventory';
+import CountUp from 'react-countup';
 
 const StatisticsBoard = ({ searchText }) => {
   const [inventoryData, setInventoryData] = useState([]);
@@ -51,49 +52,105 @@ const StatisticsBoard = ({ searchText }) => {
       <Row gutter={[12, 24]} justify="space-around" className="mb-5">
         <Col xs={12} sm={8} md={6}>
           <Card
-            title={<span className="text-lg font-semibold"><LaptopOutlined className="text-black text-5xl" /> Total Equipment</span>}
+            title={
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+                <LaptopOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Total Equipment
+              </span>
+            }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
-            style={{ textAlign: 'center' }}
+            style={{ textAlign: 'center'}}
             loading={loading}
           >
-            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.totalEquipment} />
+            <Statistic
+              value={inventoryCounts.totalEquipment}
+              formatter={value => (
+                <CountUp
+                  end={Number(value)}
+                  duration={2}
+                  separator=","
+                  className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                />
+              )}
+            />
           </Card>
         </Col>
 
         <Col xs={12} sm={8} md={6}>
           <Card
-            title={<span className="text-lg font-semibold"><TagsOutlined className="text-black text-5xl" /> Brand New</span>}
+            title={
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+                <TagsOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Brand New
+              </span>
+            }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.BrandNew} />
+            <Statistic
+              value={inventoryCounts.BrandNew}
+              formatter={value => (
+                <CountUp
+                  end={Number(value)}
+                  duration={2}
+                  separator=","
+                  className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                />
+              )}
+            />
           </Card>
         </Col>
 
         <Col xs={12} sm={8} md={6}>
           <Card
-            title={<span className="text-lg font-semibold"><LikeOutlined className="text-black text-5xl" /> Good Condition</span>}
+            title={
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+                <LikeOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Good Condition
+              </span>
+            }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.goodCondition} />
+            <Statistic
+                value={inventoryCounts.goodCondition}
+                formatter={value => (
+                  <CountUp
+                    end={Number(value)}
+                    duration={1.2}
+                    separator=","
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                  />
+                )}
+              />
           </Card>
         </Col>
 
         <Col xs={12} sm={8} md={6}>
           <Card
-            title={<span className="text-lg font-semibold"><WarningOutlined className="text-black text-5xl" /> Defective</span>}
+            title={
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+                <WarningOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Defective
+              </span>
+            }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.defective} />
+              <Statistic
+                value={inventoryCounts.defective}
+                formatter={value => (
+                  <CountUp
+                    end={Number(value)}
+                    duration={1.2}
+                    separator=","
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                  />
+                )}
+              />
           </Card>
         </Col>
       </Row>
@@ -101,42 +158,84 @@ const StatisticsBoard = ({ searchText }) => {
       <Row gutter={[12, 24]} justify="space-around">
         <Col xs={12} sm={8} md={8}>
           <Card
-            title={<span className="text-lg font-semibold"><CheckCircleOutlined className="text-black text-5xl" /> On Stock</span>}
+            title={
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+                <CheckCircleOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> On Stock
+              </span>
+            }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.OnStock} />
+             <Statistic
+                value={inventoryCounts.OnStock}
+                formatter={value => (
+                  <CountUp
+                    end={Number(value)}
+                    duration={2}
+                    separator=","
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                  />
+                )}
+              />
           </Card>
         </Col>
 
         <Col xs={12} sm={8} md={8}>
           <Card
-            title={<span className="text-lg font-semibold"><TruckOutlined className="text-black text-5xl" /> Deployed</span>}
+            title={
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+                <TruckOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Deployed
+              </span>
+            }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.deployed} />
+              <Statistic
+                value={inventoryCounts.deployed}
+                formatter={value => (
+                  <CountUp
+                    end={Number(value)}
+                    duration={2}
+                    separator=","
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                  />
+                )}
+              />
           </Card>
         </Col>
 
         <Col xs={12} sm={8} md={8}>
           <Card
-            title={<span className="text-lg font-semibold"><ToolOutlined className="text-black text-5xl" /> For Repair</span>}
+            title={
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+                <ToolOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> For Repair
+              </span>
+            }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
             style={{ textAlign: 'center' }}
             loading={loading}
           >
-            <Statistic valueStyle={{ color: 'black', fontSize: '1.9rem', fontWeight: 'bold' }}value={inventoryCounts.forrepair} />
+               < Statistic
+                value={inventoryCounts.forrepair}
+                formatter={value => (
+                  <CountUp
+                    end={Number(value)}
+                    duration={2}
+                    separator=","
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                  />
+                )}
+              />
           </Card>
         </Col>
       </Row>
     </div>
   );
-};
-
-export default StatisticsBoard;
+    }
+    
+    export default StatisticsBoard;

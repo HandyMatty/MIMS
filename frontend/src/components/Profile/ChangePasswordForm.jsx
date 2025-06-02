@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Input, message, Form, Typography } from 'antd';
+import { Button, Input, message, Form, Typography, Card, Divider } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import { updatePassword } from '../../services/api/changepassword';
 import Cookies from 'js-cookie';
@@ -71,16 +71,17 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full bg-[#A8E1C5] rounded-xl">
-      <div className="bg-lime-200 p-3 rounded-full">
-        <LockOutlined style={{ fontSize: '70px', color: '#072C1C' }} />
-      </div>
-      <Title level={3} className="mt-5">Change Password</Title>
-
+    <Card  className="flex flex-col justify-center items-center w-auto bg-[#A8E1C5] rounded-xl shadow border-none">
+      <div className="flex flex-col items-center justify-center min-h-[515px]">
+        <div className='flex flex-col justify-center items-center
+         bg-[#EAF4E2] rounded-xl shadow p-6'>
+        <LockOutlined style={{ fontSize: '60px', color: '#072C1C'}}/>
+     <Divider style={{borderColor: '#072C1C'}}> <Title level={3} className="w-40 text-wrap text-center text-lgi sm:text-sm font-bold">Change Password</Title></Divider>
       {!isVisible ? (
         <Button 
           type="primary" 
-          className="bg-lime-200 text-green-950 mb-4" 
+          className="bg-lime-200 text-green-950 w-auto text-wrap mt-10"
+          icon={<LockOutlined />} 
           onClick={() => setIsVisible(true)}
         >
           Change Password
@@ -88,9 +89,9 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
       ) : (
         <Form
           form={form}
-          layout="vertical"
+          layout="horizontal"
           onFinish={handleSave}
-          className="w-96"
+          className="w-auto mt-10"
         >
           <Form.Item
             name="currentPassword"
@@ -100,7 +101,7 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
             <Input.Password 
               placeholder="Enter current password" 
               autoComplete="current-password"
-              className="w-full bg-white" 
+              className="w-full bg-white text-xs sm:text-sm" 
             />
           </Form.Item>
           <Form.Item
@@ -111,7 +112,7 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
             <Input.Password 
               placeholder="Enter new password" 
               autoComplete="new-password"
-              className="w-full bg-white" 
+              className="w-full bg-white text-xs sm:text-sm" 
             />
           </Form.Item>
           <Form.Item
@@ -132,29 +133,33 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
             <Input.Password 
               placeholder="Confirm new password" 
               autoComplete="new-password"
-              className="w-full bg-white" 
+              className="w-full bg-white text-xs sm:text-sm" 
             />
           </Form.Item>
           <Form.Item style={{ textAlign: 'center' }}>
+          <div className='flex justify-center sm:flex-row mt-5'>
           <Button 
-              className="mr-2 bg-red-500 text-white w-1/5" 
+              className="mr-2 bg-red-500 text-white w-auto" 
               type="default" 
               onClick={handleCancel}
             >
               Cancel
             </Button>
             <Button 
-              className="bg-lime-200 text-green-950" 
+              className="bg-lime-200 text-green-950 w-auto" 
               type="primary" 
               htmlType="submit" 
               loading={loading}
             >
               Save
             </Button>
+            </div>
           </Form.Item>
         </Form>
       )}
-    </div>
+        </div>
+      </div>
+    </Card>
   );
 };
 

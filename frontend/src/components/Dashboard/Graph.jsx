@@ -9,12 +9,12 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { getInventoryData } from '../../services/api/addItemToInventory'; // Adjust to your data service
-import { Spin } from 'antd'; // Import Ant Design's Spin component for loading indicator
+import { getInventoryData } from '../../services/api/addItemToInventory';
+import { Spin } from 'antd';
 
 const Graph = () => {
   const [monthlyData, setMonthlyData] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const fetchInventoryData = async () => {
@@ -22,37 +22,34 @@ const Graph = () => {
         const data = await getInventoryData();
         setLoading(false);
 
-        // Aggregate the quantity per month for 'purchaseDate'
         const purchaseCounts = data.reduce((acc, item) => {
           const purchaseDate = item.purchaseDate;
-          const quantity = item.quantity || 0; // Get quantity, default to 0 if undefined
+          const quantity = item.quantity || 0; 
           if (purchaseDate) {
             const date = new Date(purchaseDate);
-            const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`; // Format: "Year-Month"
+            const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`;
             if (!acc[monthYear]) {
               acc[monthYear] = 0;
             }
-            acc[monthYear] += parseInt(quantity); // Sum quantity
+            acc[monthYear] += parseInt(quantity); 
           }
           return acc;
         }, {});
 
-        // Aggregate the quantity per month for 'issuedDate'
         const issuedCounts = data.reduce((acc, item) => {
           const issuedDate = item.issuedDate;
           const quantity = item.quantity || 0;
           if (issuedDate) {
             const date = new Date(issuedDate);
-            const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`; // Format: "Year-Month"
+            const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`;
             if (!acc[monthYear]) {
               acc[monthYear] = 0;
             }
-            acc[monthYear] += parseInt(quantity); // Sum quantity
+            acc[monthYear] += parseInt(quantity); 
           }
           return acc;
         }, {});
 
-        // Combine purchase and issued data into a unified format
         const allMonths = new Set([...Object.keys(purchaseCounts), ...Object.keys(issuedCounts)]);
         const formattedData = Array.from(allMonths).map((monthYear) => ({
           monthYear,
@@ -60,7 +57,6 @@ const Graph = () => {
           issued: issuedCounts[monthYear] || 0,
         }));
 
-        // Sort the data chronologically by year and month
         formattedData.sort(
           (a, b) => new Date(`${a.monthYear}-01`) - new Date(`${b.monthYear}-01`)
         );
@@ -68,7 +64,7 @@ const Graph = () => {
         setMonthlyData(formattedData);
       } catch (error) {
         console.error('Error fetching inventory data', error);
-        setLoading(false); // Stop loading even if there's an error
+        setLoading(false); 
       }
     };
 
@@ -76,7 +72,8 @@ const Graph = () => {
   }, []);
 
   return (
-    <div className="max-w-full h-full rounded-xl bg-[#A8E1C5] shadow-md transition-transform transform hover:scale-105">
+    <div className="max-w-full h-full rounded-xl bg-[#A8E1C5] shadow-md 
+    hidden sm:block transition-transform transform hover:scale-105 text-xs">
       <div className="w-full h-[350px] bg-[#A8E1C5] rounded-lg">
         {loading ? (
           <div className="loading-spinner">
@@ -84,16 +81,16 @@ const Graph = () => {
           </div>
         ) : (
           <ResponsiveContainer width="95%" height="95%">
-            <LineChart data={monthlyData} className='top-10'>
+            <LineChart data={monthlyData}>
               <CartesianGrid strokeDasharray="4 4 4" stroke='black' />
-              <XAxis dataKey="monthYear" stroke='black' angle={-22} tickSize={15} />
+              <XAxis dataKey="monthYear" stroke='black' angle={-22} tickSize={18} height={30} />
               <YAxis
-                label={{
+                label={{ 
                   value: 'Quantity',
                   angle: -90,
                   position: 'outsideLeft',
                   fill: '#00000',
-                  dx: -10,
+                  dx: -20,
                   dy: 30
                 }}
                 stroke='black'
@@ -114,8 +111,8 @@ const Graph = () => {
                 iconType="line"
                 layout="horizontal"
                 align="center"
-                verticalAlign="bottom"
-                wrapperStyle={{paddingTop: 20}}
+                verticalAlign="top"
+                wrapperStyle={{paddingBottom: 10}}
               />
               <Line
                 type="Monotone"

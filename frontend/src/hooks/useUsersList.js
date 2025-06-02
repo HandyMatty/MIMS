@@ -15,7 +15,6 @@ import { useActivity } from '../utils/ActivityContext';
 import { useNotification } from '../utils/NotificationContext';
 
 const useUsersList = () => {
-  // States
   const [users, setUsers] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -35,13 +34,10 @@ const useUsersList = () => {
   const [currentUserIdForRole, setCurrentUserIdForRole] = useState(null);
   const [loadingRoleUpdate, setLoadingRoleUpdate] = useState(false);
 
-  // Context hooks
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
 
-  // FUNCTIONS
 
-  // Update user role
   const handleRoleUpdate = async (values) => {
     setLoadingRoleUpdate(true);
     try {
@@ -49,7 +45,6 @@ const useUsersList = () => {
       if (response.success) {
         message.success(response.message || 'Role updated successfully');
         setIsRoleModalVisible(false);
-        // Update user in state immediately to reflect change in UI
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
             user.id === currentUserIdForRole ? { ...user, role: values.role } : user
@@ -79,13 +74,11 @@ const useUsersList = () => {
     }
   };
 
-  // Update user department
   const handleDepartmentUpdate = async (userId, newDepartment) => {
     try {
       const response = await updateDepartment(userId, newDepartment);
       if (response.success) {
         message.success('Department updated successfully');
-        // Update user in state immediately to reflect change in UI
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
             user.id === userId ? { ...user, department: newDepartment } : user
@@ -114,14 +107,12 @@ const useUsersList = () => {
     }
   };
 
-  // Open the Edit Role modal
   const showEditRoleModal = (record) => {
     setCurrentUserRole(record.role);
     setCurrentUserIdForRole(record.id);
     setIsRoleModalVisible(true);
   };
 
-  // Populate security questions on mount
   useEffect(() => {
     setSecurityQuestions([
       "What is your mother's maiden name?",
@@ -137,7 +128,6 @@ const useUsersList = () => {
     ]);
   }, []);
 
-  // Fetch users data on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -153,29 +143,29 @@ const useUsersList = () => {
     fetchData();
   }, []);
 
-  // Search function
   const onSearch = (e) => {
-    const value = e.target.value.toLowerCase();
+    const value = e.target.value;
     setSearchText(value);
     const filtered = users.filter((item) =>
-      Object.values(item).some((field) => String(field).toLowerCase().includes(value))
+      Object.values(item).some((field) =>
+        String(field).toLowerCase().includes(value.toLowerCase())
+      )
     );
     setFilteredData(filtered);
   };
 
-  // Pagination handler
   const handlePageChange = (page, pageSize) => {
     setCurrentPage(page);
     setPageSize(pageSize);
   };
 
-  // Batch delete users
   const handleBatchDelete = () => {
     Modal.confirm({
       title: 'Confirm Deletion',
       content: `Are you sure you want to delete ${selectedRowKeys.length} user(s)? This action cannot be undone.`,
       okText: 'Yes, Delete',
       cancelText: 'Cancel',
+      centered: true,
       onOk: async () => {
         try {
           const response = await deleteUsers(selectedRowKeys);
@@ -198,9 +188,7 @@ const useUsersList = () => {
     });
   };
 
-  // Add a new user
   const handleAddUser = async (values) => {
-    // Check if the username already exists (case-insensitive)
     const usernameExists = users.some(
       (user) => user.username.toLowerCase() === values.username.toLowerCase()
     );
@@ -228,13 +216,13 @@ const useUsersList = () => {
   };
   
 
-  // Reset a user's password
   const handleResetPassword = (userId) => {
     Modal.confirm({
       title: 'Are you sure you want to reset the password?',
       content: "This action will reset the user's password to a temporary one.",
       okText: 'Yes',
       cancelText: 'No',
+      centered: true,
       onOk: async () => {
         const tempPassword = generateTempPassword();
         try {
@@ -252,7 +240,6 @@ const useUsersList = () => {
     });
   };
 
-  // Fetch security question for a user and open the modal
   const handleSecurityQuestion = async (userId) => {
     try {
       const response = await getSecurityQuestion(userId);
@@ -269,7 +256,6 @@ const useUsersList = () => {
     }
   };
 
-  // Change/update the security question
   const handleChangeSecurityQuestion = async (values) => {
     try {
       const response = await updateSecurityQuestion(
@@ -298,7 +284,6 @@ const useUsersList = () => {
     }
   };
 
-  // Return all states and functions needed by the component
   return {
     users,
     setUsers,

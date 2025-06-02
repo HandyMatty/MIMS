@@ -66,70 +66,69 @@ const QrCodeGenerator = ({ itemDetails }) => {
   };
 
   return (
-    <Card title={<span className="text-5xl-6 font-bold flex justify-center">DETAILS</span>}  className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
-
-      <div className="flex flex-row justify-between gap-8">
-        <div
-          className="w-1/2 space-y-4"
-          style={{
-            maxWidth: '50%',
-          }}
-        >
+    <Card title={<span className="text-lgi sm:text-sm md:text-base lg:text-lgi xl:text-xl font-bold flex justify-center">QR CODE</span>} className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
+        {/* Details at the top on mobile, left on desktop */}
+        <div className="w-full md:w-1/2">
           <div
             className="p-4 rounded-lg bg-[#A8E1C5] shadow"
             style={{ border: '1px solid #072C1C', borderRadius: '8px' }}
           >
-                <Descriptions
-                  title={
-                    <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '18px' }}>
-                      Latest Item Info
-                    </div>
-                  }
-                  bordered
-                  column={1}
-                  size="small"
-                  labelStyle={{
-                    fontWeight: 'bold',
-                    color: '#072C1C',
-                    width: '120px',
-                  }}
-                  contentStyle={{ color: '#072C1C' }}
-                >
-                  {Object.entries(itemData)
-                    .filter(([label]) => !(label === "quantity" && itemData["Serial Number"] !== "N/A"))
-                    .map(([label, value]) => (
-                      <Descriptions.Item key={label} label={label}>
-                        {value}
-                      </Descriptions.Item>
-                    ))}
-                </Descriptions>
+            <Descriptions
+              title={
+                <div className="text-center font-bold md:text-lgi overflow-auto text-lgi">
+                  Item Details
+                </div>
+              }
+              className='text-xs'
+              bordered
+              column={1}
+              size="small"
+              labelStyle={{
+                fontWeight: 'bold',
+                color: '#072C1C',
+                width: 'auto',
+              }}
+              contentStyle={{ color: '#072C1C' }}
+            >
+              {Object.entries(itemData)
+                .filter(([label]) => !(label === "quantity" && itemData["Serial Number"] !== "N/A"))
+                .map(([label, value]) => (
+                  <Descriptions.Item key={label} label={label}>
+                    <span className='text-xs overflow-auto wrap-text w-auto'>{value}</span>
+                  </Descriptions.Item>
+                ))}
+            </Descriptions>
           </div>
         </div>
 
-        <div className="w-1/2 flex flex-col items-center space-y-4">
+        {/* QR code and buttons at the bottom on mobile, right on desktop */}
+        <div className="w-full md:w-1/2 flex flex-col items-center space-y-4 mt-6 md:mt-0">
           <div
             ref={qrCodeRef}
             style={{
-              display: 'inline-block', 
-              border: '1px solid #072C1C', 
-              borderRadius: '8px', 
-              padding: '0', 
-              width: '250px', 
-              height: '250px', 
+              display: 'inline-block',
+              border: '1px solid #072C1C',
+              borderRadius: '8px',
+              padding: '0',
+              width: '250px',
+              height: '250px',
+              maxWidth: '100%',
             }}
           >
             <QRCode
-                value={JSON.stringify(
-                  Object.fromEntries(
-                    Object.entries(itemDetails || {}).filter(([key]) => !
-                    (key === "quantity" && itemDetails?.serialNumber))
-                  )
-                )}              
-              type="svg" 
+              value={JSON.stringify(
+                Object.fromEntries(
+                  Object.entries(itemDetails || {}).filter(([key]) => !(
+                    key === "quantity" && itemDetails?.serialNumber
+                  ))
+                )
+              )}
+              type="svg"
               style={{
-                width: '100%', 
+                width: '100%',
                 height: '100%',
-                border: 'none', 
+                border: 'none',
               }}
             />
           </div>
@@ -141,9 +140,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
               <Button
                 type="primary"
                 onClick={() => setSelectedFormat('PNG')}
-                className={`text-black ${
-                  selectedFormat === 'PNG' ? 'bg-lime-200' : 'bg-[#EAF4E2]'
-                }`}
+                className={`text-black ${selectedFormat === 'PNG' ? 'bg-lime-200' : 'bg-[#EAF4E2]'}`}
                 disabled={!isAuthenticated}
               >
                 PNG
@@ -151,9 +148,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
               <Button
                 type="primary"
                 onClick={() => setSelectedFormat('SVG')}
-                className={`text-black ${
-                  selectedFormat === 'SVG' ? 'bg-lime-200' : 'bg-[#EAF4E2]'
-                }`}
+                className={`text-black ${selectedFormat === 'SVG' ? 'bg-lime-200' : 'bg-[#EAF4E2]'}`}
                 disabled={!isAuthenticated}
               >
                 SVG
@@ -164,7 +159,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
           {/* Download Button */}
           <Button
             onClick={() => handleDownload(selectedFormat)}
-            className="bg-lime-200 shadow-md text-[#072C1C] text-lg"
+            className="bg-lime-200 shadow-md text-[#072C1C] text-base sm:text-lg"
             type="primary"
             style={{ width: '100%', maxWidth: '177px', height: '31px' }}
             disabled={!isAuthenticated}
@@ -175,7 +170,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
           {/* Print Button */}
           <Button
             onClick={handlePrint}
-            className="bg-lime-200 shadow-md text-[#072C1C] text-lg"
+            className="bg-lime-200 shadow-md text-[#072C1C] text-base sm:text-lg"
             type="primary"
             style={{ width: '100%', maxWidth: '177px', height: '31px' }}
             disabled={!isAuthenticated}

@@ -1,9 +1,14 @@
 <?php
-// CORS headers to allow cross-origin requests
+date_default_timezone_set('Asia/Manila');
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, x-requested-with");
 header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+header("Referrer-Policy: no-referrer");
+header("X-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; object-src 'none';");
 header("Content-Security-Policy: frame-ancestors 'none';");
 
 header("Cache-Control: no-store, no-cache, must-revalidate");

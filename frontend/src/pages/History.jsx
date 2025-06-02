@@ -2,7 +2,7 @@ import HistoryTable from '../components/History/HistoryTable';
 
 const History = () => {
   return (
-    <div className="flex flex-col w-full h-auto p-8">
+    <div className="container max-w-full">
         <div className='mt-5'>
           <HistoryTable /> 
         </div>

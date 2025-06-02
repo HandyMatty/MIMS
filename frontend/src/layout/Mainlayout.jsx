@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Layout, Menu, Spin, Modal, message } from 'antd';
+import { Layout, Menu, Spin, Modal, message, Drawer } from 'antd';
 import {
   DashboardOutlined,
   AppstoreOutlined,
@@ -38,6 +38,7 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logUserActivity } = useActivity();
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
 
   const isAdmin = adminAuth.token && adminAuth.userData;
@@ -100,7 +101,6 @@ const MainLayout = () => {
         // Clear all storages and cookies
         sessionStorage.clear();
         localStorage.clear();
-        Cookies.remove(`authToken_${username}`, { path: '/' });
         Cookies.remove("authToken", { path: '/' });
         
         localStorage.setItem("logout", JSON.stringify({ token: adminAuth.token || userAuth.token || guestAuth.token, time: Date.now() }));
@@ -159,7 +159,6 @@ const MainLayout = () => {
           guestAuth.reset();
           sessionStorage.clear();
           localStorage.clear();
-          Cookies.remove(`authToken_${username}`, { path: '/' });
           Cookies.remove("authToken", { path: '/' });
     
           navigate("/login", { replace: true }); // ✅ Delayed so loading screen is seen
@@ -261,6 +260,34 @@ const MainLayout = () => {
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
       <NoticeModal />
+       <Drawer
+            placement="top"
+            open={showMobileMenu}
+            onClose={() => setShowMobileMenu(false)}
+            style={{
+              backgroundColor: '#0C9B4B',
+              width: 'auto'
+            }}
+          >
+            <Menu
+              className='bg-inherit w-auto text-black justify-self-center'
+              mode="vertical"
+              selectedKeys={[current]}
+              onClick={(e) => {
+                setShowMobileMenu(false);
+                onClick(e);
+              }}
+              items={[
+                ...items,
+                {
+                  key: 'logout',
+                  label: 'Logout',
+                  icon: <LogoutOutlined style={{ fontSize: '20px', paddingTop: 15 }} />,
+                },
+              ]}
+            />
+          </Drawer>
+
       <Sider
         collapsible
         collapsed={collapsed}
@@ -273,6 +300,7 @@ const MainLayout = () => {
           height: '100vh',
         }}
         trigger={null}
+        className='hidden sm:block'
       >
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '16px' }}>
@@ -305,7 +333,7 @@ const MainLayout = () => {
               />
             </div>
           </div>
-
+         
           <Menu
             theme="light"
             mode="inline"
@@ -327,12 +355,12 @@ const MainLayout = () => {
       </Sider>
 
       <Layout>
-        <HeaderBar />
+      <HeaderBar onMobileMenuClick={() => setShowMobileMenu(true)} />
         <Layout.Content
           style={{
             padding: '10px',
             overflowY: 'auto',
-            height: 'calc(100vh - 64px)',
+            overflowX: 'auto',
             backgroundColor: '#EAF4E2',
           }}
         >
@@ -347,6 +375,7 @@ const MainLayout = () => {
         onCancel={handleModalCancel}
         okText="Yes, Logout"
         cancelText="Cancel"
+        centered
       >
         <p>Are you sure you want to log out?</p>
       </Modal>

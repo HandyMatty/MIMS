@@ -18,7 +18,7 @@ const getStatusTag = (status) => {
     default:
       color = 'gray';
   }
-  return <Tag color={color}>{status}</Tag>;
+  return <Tag color={color} className='text-wrap text-center'>{status}</Tag>;
 };
 
 // Helper function to generate condition tag
@@ -37,7 +37,7 @@ const getConditionTag = (condition) => {
     default:
       color = 'gray';
   }
-  return <Tag color={color}>{condition}</Tag>;
+  return <Tag color={color} className='text-wrap text-center'>{condition}</Tag>;
 };
 
 // Export the columns function
@@ -47,8 +47,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'qrCode',
     key: 'qrCode',
     align: 'center',
-    fixed: 'left',
-    width: 80,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
     render: (_, item) => (
       <QrcodeOutlined
         style={{ fontSize: '24px', cursor: 'pointer' }}
@@ -62,8 +62,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'id',
     key: 'id',
     align: 'center',
-    fixed: 'left',
-    width: 130,
+    className: 'text-xs overflow-auto',
+    width: 'auto',
     sorter: (a, b) => a.id.localeCompare(b.id),
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
@@ -72,8 +72,9 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'type',
     key: 'type',
     align: 'center',
-    fixed: 'left',
-    width: 120,
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
+    width: 'auto',
     sorter: (a, b) => a.type.localeCompare(b.type),
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
@@ -82,6 +83,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'brand',
     key: 'brand',
     align: 'center',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
     sorter: (a, b) => a.brand.localeCompare(b.brand),
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
@@ -90,7 +93,9 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'quantity',
     key: 'quantity',
     align: 'center',
-    width: 100,
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
+    width: 'auto',
     sorter: (a, b) => a.quantity - b.quantity,
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
@@ -99,7 +104,9 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'remarks',
     key: 'remarks',
     align: 'center',
-    width: 200,
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
+    width: 'auto',
     render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
   },
   {
@@ -107,6 +114,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'serialNumber',
     key: 'serialNumber',
     align: 'center',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
     sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
     render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
   },
@@ -115,6 +124,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'issuedDate',
     key: 'issuedDate',
     align: 'center',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
     sorter: (a, b) => a.issuedDate.localeCompare(b.issuedDate),
     render: (date) => {
       if (!date || date === "0000-00-00" || date === "") {
@@ -128,6 +139,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'purchaseDate',
     key: 'purchaseDate',
     align: 'center',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
     sorter: (a, b) => a.purchaseDate.localeCompare(b.purchaseDate),
     render: (date) => {
       if (!date || date === "0000-00-00" || date === "") {
@@ -141,6 +154,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'condition',
     key: 'condition',
     align: 'center',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
     render: (condition) => getConditionTag(condition),
     filters: [
       { text: 'Brand New', value: 'Brand New' },
@@ -154,6 +169,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'location',
     key: 'location',
     align: 'center',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
@@ -161,6 +178,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'status',
     key: 'status',
     align: 'center',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
     render: (status) => getStatusTag(status),
     filters: [
       { text: 'On Stock', value: 'On Stock' },

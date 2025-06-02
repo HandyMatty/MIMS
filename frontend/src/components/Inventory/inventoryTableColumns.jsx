@@ -17,7 +17,7 @@ export const getConditionTag = (condition) => {
     default:
       color = 'gray';
   }
-  return <Tag color={color}>{condition}</Tag>;
+  return <Tag color={color} className='text-wrap text-center'>{condition}</Tag>;
 };
 
 export const getStatusTag = (status) => {
@@ -35,7 +35,7 @@ export const getStatusTag = (status) => {
     default:
       color = 'gray';
   }
-  return <Tag color={color}>{status}</Tag>;
+  return <Tag color={color} className='text-wrap text-center'>{status}</Tag>;
 };
 
 export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm = '') => {
@@ -44,19 +44,20 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      fixed: 'left',
       align: 'center',
-      width: 100,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
       sorter: (a, b) => a.id.localeCompare(b.id),
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
       title: 'Type',
       dataIndex: 'type',
-      fixed: 'left',
       key: 'type',
       align: 'center',
-      width: 120,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />,
       filters: [
         { text: 'AVR', value: 'AVR' },
@@ -97,10 +98,11 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
     {
       title: 'Brand',
       dataIndex: 'brand',
-      fixed: 'left',
       key: 'brand',
       align: 'center',
-      width: 120,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       sorter: (a, b) => a.brand.localeCompare(b.brand),
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
@@ -109,7 +111,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       dataIndex: 'quantity',
       key: 'quantity',
       align: 'center',
-      width: 100,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       sorter: (a, b) => a.quantity - b.quantity,
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
@@ -118,7 +122,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       dataIndex: 'remarks',
       key: 'remarks',
       align: 'center',
-      width: 200,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} searchTerm={searchTerm} />
     },
     {
@@ -126,7 +132,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       dataIndex: 'serialNumber',
       key: 'serialNumber',
       align: 'center',
-      width: 200,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       sorter: (a, b) => a.serialNumber?.localeCompare(b.serialNumber || ''),
       render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} searchTerm={searchTerm} />
     },
@@ -137,7 +145,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
             dataIndex: 'issuedDate',
             key: 'issuedDate',
             align: 'center',
-            width: 150,
+            width: 'auto',
+            className: 'text-xs overflow-auto',
+            responsive: ['sm'],
             sorter: (a, b) => {
               const dateA = new Date(a.issuedDate);
               const dateB = new Date(b.issuedDate);
@@ -150,7 +160,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
             dataIndex: 'purchaseDate',
             key: 'purchaseDate',
             align: 'center',
-            width: 150,
+            width: 'auto',
+            className: 'text-xs overflow-auto',
+            responsive: ['sm'],
             sorter: (a, b) => {
               const dateA = new Date(a.purchaseDate);
               const dateB = new Date(b.purchaseDate);
@@ -166,7 +178,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
             dataIndex: 'issuedDate',
             key: 'issuedDate',
             align: 'center',
-            width: 150,
+            width: 'auto',
+            className: 'text-xs overflow-auto',
+            responsive: ['sm'],
             sorter: (a, b) => {
               const dateA = new Date(a.issuedDate);
               const dateB = new Date(b.issuedDate);
@@ -181,7 +195,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
             dataIndex: 'purchaseDate',
             key: 'purchaseDate',
             align: 'center',
-            width: 150,
+            width: 'auto',
+            className: 'text-xs overflow-auto',
+            responsive: ['sm'],
             sorter: (a, b) => {
               const dateA = new Date(a.purchaseDate);
               const dateB = new Date(b.purchaseDate);
@@ -195,7 +211,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       dataIndex: 'condition',
       key: 'condition',
       align: 'center',
-      width: 150,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       render: (condition) => getConditionTag(condition),
       filters: [
         { text: 'Brand New', value: 'Brand New' },
@@ -209,7 +227,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       dataIndex: 'location',
       key: 'location',
       align: 'center',
-      width: 150,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
@@ -217,7 +237,9 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      width: 120,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
       render: (status) => getStatusTag(status),
       filters: [
         { text: 'On Stock', value: 'On Stock' },
@@ -234,10 +256,11 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       title: 'Action',
       key: 'action',
       align: 'center',
-      width: 80,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
       render: (record) => (
         <Tooltip title="Edit">
-          <Button type="text" icon={<EditFilled />} onClick={() => handleEdit(record)} />
+          <Button type="text" icon={<EditFilled />} onClick={() => handleEdit(record)} size='small' />
         </Tooltip>
       ),
     });

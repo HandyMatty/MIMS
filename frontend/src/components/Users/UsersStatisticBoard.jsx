@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Row, Col, Statistic, Card } from 'antd';
 import { UserOutlined, CheckOutlined, LaptopOutlined } from '@ant-design/icons';
-import { fetchUsersStatistics } from '../../services/api/usersdata';  // Import the API function
+import { fetchUsersStatistics } from '../../services/api/usersdata';
+import CountUp from 'react-countup';
 
 
 const UsersStatisticBoard = () => {
@@ -39,11 +40,12 @@ const UsersStatisticBoard = () => {
 
 
   return (
-    <Row gutter={16} justify="center" className="status-dashboard">
+    <Row gutter={[12, 24]} justify="center" className="status-dashboard">
       {/* Total Users */}
-      <Col span={8}>
+      <Col xs={12} sm={8} >
         <Card
-          title={<span className="text-lg font-semibold"><UserOutlined className="text-black text-5xl" /> Total Users</span>}
+          title={<span className="text-black text-xs sm:text-sm md:text-base lg:text-lgi ">
+          <UserOutlined className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi " /> Total Users</span>}
           bordered={false}
           className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
           style={{ textAlign: 'center' }}
@@ -51,15 +53,24 @@ const UsersStatisticBoard = () => {
         >
           <Statistic
             value={stats.totalUsers}
-            valueStyle={{ color: 'black', fontSize: '2rem', fontWeight: 'bold' }}
+            formatter={value => (
+              <CountUp
+                start={0}
+                end={value}
+                duration={2}
+                separator=","
+                className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                />
+            )}
           />
         </Card>
       </Col>
 
       {/* Active Users */}
-      <Col span={8}>
+      <Col xs={12} sm={8} >
         <Card
-          title={<span className="text-lg font-semibold "><CheckOutlined className="text-black text-5xl" /> Active Users</span>}
+          title={<span className="text-black text-xs sm:text-sm md:text-base lg:text-lgi ">
+            <CheckOutlined className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi " /> Active Users</span>}
           bordered={false}
           className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
           style={{ textAlign: 'center' }}
@@ -67,15 +78,24 @@ const UsersStatisticBoard = () => {
         >
           <Statistic
             value={stats.activeUsers}
-            valueStyle={{ color: 'black', fontSize: '2rem', fontWeight: 'bold' }}
+            formatter={value => (
+              <CountUp
+                start={0}
+                end={value}
+                duration={2}
+                separator=","
+                className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+              />
+            )}
           />
         </Card>
       </Col>
 
       {/* Activities */}
-      <Col span={8}>
+      <Col xs={12} sm={8} >
         <Card
-          title={<span className="text-lg font-semibold"><LaptopOutlined className="text-black text-5xl" /> Activities</span>}
+          title={<span className="text-black text-xs sm:text-sm md:text-base lg:text-lgi ">
+            <LaptopOutlined className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi " /> Activities</span>}
           bordered={false}
           className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
           style={{ textAlign: 'center' }}
@@ -83,7 +103,15 @@ const UsersStatisticBoard = () => {
         >
           <Statistic
             value={stats.activities}
-            valueStyle={{ color: 'black', fontSize: '2rem', fontWeight: 'bold' }}
+            formatter={value => (
+              <CountUp
+                start={0}
+                end={value}
+                duration={2}
+                separator=","
+                className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+              />
+            )}
           />
         </Card>
       </Col>

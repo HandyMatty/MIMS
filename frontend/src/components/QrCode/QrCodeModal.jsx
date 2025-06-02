@@ -7,6 +7,7 @@ const QrCodeModal = ({ isVisible, onClose, qrDetails }) => {
       open={isVisible}
       onCancel={onClose}
       footer={null}
+      centered
     >
       {qrDetails && (
         <QRCode

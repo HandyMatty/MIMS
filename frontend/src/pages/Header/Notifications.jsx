@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Typography, List, Card, Button, Tooltip, Pagination } from 'antd';
+import { Typography, List, Card, Button, Tooltip, Pagination, Divider } from 'antd';
 import { CheckOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNotification } from '../../utils/NotificationContext';
 import { useAdminAuthStore } from '../../store/admin/useAuth';
@@ -45,13 +45,13 @@ const Notifications = () => {
   );
 
   return (
-    <div className="flex flex-col w-full p-8">
-      <div className="mb-5 flex justify-between items-center">
-        <Title level={3}>Notifications</Title>
-        <div>
+    <div className="container max-w-full">
+  <Divider style={{borderColor: '#072C1C'}}><Title 
+  level={3}>Notifications</Title></Divider>
+        <div className='flex justify-center sm:justify-end mb-2 w-auto'>
           <Button
             onClick={handleMarkAllAsRead}
-            className="mr-4 bg-green-400"
+            className="mr-4 bg-green-400 w-auto text-xxs sm:text-xs"
             type="default"
             disabled={!isAuthenticated}
           >
@@ -60,13 +60,12 @@ const Notifications = () => {
           <Button
             onClick={handleClearAllNotifications}
             type="default"
-            className="bg-red-400"
+            className="bg-red-400 text-xxs sm:text-xs w-auto"
             disabled={!isAuthenticated}
           >
             Empty Notifications
           </Button>
         </div>
-      </div>
 
       <div className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-xl shadow p-6">
         {isGuest ? (
@@ -79,9 +78,14 @@ const Notifications = () => {
               renderItem={(item) => (
                 <List.Item key={item.id}>
                   <Card
-                    title="Notification"
+                    className='text-xxs sm:text-xs w-auto'
+                    title={
+                      <span className="text-xs sm:text-base font-semibold">
+                        Notification
+                      </span>
+                    }
                     extra={item.notification_date ? (
-                      <small>{new Date(item.notification_date).toLocaleString()}</small>
+                      <small className='text-xxs sm:text-xs break-words max-w-[60px] sm:max-w-36 block'>{new Date(item.notification_date).toLocaleString()}</small>
                     ) : (
                       <small>Invalid date</small>
                     )}
@@ -90,12 +94,12 @@ const Notifications = () => {
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col">
                         <div>
-                          <strong className='font-medium text-black'>Message: </strong>
-                          <span className="text-black text-lg">{item.message}</span>
+                          <strong className='font-medium text-black text-xxs sm:text-xs'>Message: </strong>
+                          <span className="text-black text-xxs sm:text-xs">{item.message}</span>
                         </div>
                         <div>
-                          <strong className='font-medium text-black'>Details: </strong>
-                          <span className="text-black text-sm">{item.details}</span>
+                          <strong className='font-medium text-black text-xxs sm:text-xs'>Details: </strong>
+                          <span className="text-black text-xxs sm:text-xs">{item.details}</span>
                         </div>
                       </div>
 
@@ -105,6 +109,7 @@ const Notifications = () => {
                             <Button
                               onClick={() => handleMarkAsRead(item.id)}
                               type="text"
+                              size='small'
                               className='bg-green-400'
                               icon={<CheckOutlined />}
                               disabled={!isAuthenticated}
@@ -116,6 +121,7 @@ const Notifications = () => {
                           <Button
                             onClick={() => handleDelete(item.id)}
                             type="text"
+                            size='small'
                             className='bg-red-400'
                             icon={<DeleteOutlined />}
                             disabled={!isAuthenticated}
@@ -128,25 +134,28 @@ const Notifications = () => {
               )}
             />
 
-            <div className="flex justify-between items-center mt-4">
-              <div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-5 space-y-2 sm:space-y-0">
+              <div className="w-full text-xxs sm:text-xs text-wrap text-center sm:text-left">
                 {`${(currentPage - 1) * pageSize + 1}-${Math.min(
                   currentPage * pageSize,
                   notifications.length
                 )} of ${notifications.length} notifications`}
               </div>
-
+            <div className="w-full flex justify-center sm:justify-end">
               <Pagination
                 current={currentPage}
                 pageSize={pageSize}
                 total={notifications.length}
                 showSizeChanger
-                pageSizeOptions={['5', '10', '20', '50']}
+                pageSizeOptions={['10', '20', '30', '50', '100', '200', '500', '1000', '2000']}
                 onChange={(page, size) => {
                   setCurrentPage(page);
                   setPageSize(size);
                 }}
+                responsive
+                className='text-xxs sm:text-xs'
               />
+            </div>
             </div>
           </>
         )}

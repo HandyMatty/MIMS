@@ -19,6 +19,7 @@ import {
 } from '@ant-design/icons';
 import ModalForms from '../ModalForms';
 import useUsersList from '../../hooks/useUsersList'; // Adjust the path if needed
+import { useMediaQuery } from 'react-responsive';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -34,6 +35,8 @@ const DEPARTMENT_OPTIONS = [
 ];
 
 const UsersList = () => {
+  const isMobile = useMediaQuery({ maxWidth: 639 });
+
   const {
     selectedRowKeys,
     searchText,
@@ -48,7 +51,7 @@ const UsersList = () => {
     pageSize,
     loading,
     isRoleModalVisible,
-    setIsRoleModalVisible, // Ensure this is included!
+    setIsRoleModalVisible,
     currentUserRole,
     loadingRoleUpdate,
     setSelectedRowKeys,
@@ -72,20 +75,26 @@ const UsersList = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
+      width: 'auto',
+      responsive: ['sm'],
       sorter: (a, b) => a.id - b.id,
+      className: 'text-xs overflow-auto',
     },
     {
       title: 'Username',
       dataIndex: 'username',
       key: 'username',
-      ellipsis: true,
+      width: 'auto',
+      className: 'text-xs overflow-auto',
       sorter: (a, b) => a.username.localeCompare(b.username),
     },
     {
       title: 'Department',
       dataIndex: 'department',
       key: 'department',
-      ellipsis: true,
+      responsive: ['sm'],
+      width: 'auto',
+      className: 'text-xs overflow-auto',
       sorter: (a, b) => a.department.localeCompare(b.department),
       render: (department, record) => (
         <Select
@@ -105,6 +114,9 @@ const UsersList = () => {
       title: 'Role',
       dataIndex: 'role',
       key: 'role',
+      className: 'text-xs overflow-auto',
+      responsive: ['sm'],
+      width: 'auto',
       render: (role) => (
         <Tag color={role === 'admin' ? 'blue' : role === 'user' ? 'green' : 'orange'}>
           {role}
@@ -115,11 +127,16 @@ const UsersList = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      responsive: ['sm'],
+      width: 'auto',
+      className: 'text-xs overflow-auto',
       render: (status) => <Tag color={status === 'Active' ? 'green' : 'red'}>{status}</Tag>,
     },
     {
       title: 'Actions',
       key: 'actions',
+      className: 'text-xs overflow-auto',
+      width: 'auto',
       render: (_, record) => (
         <div>
           <Tooltip title="Reset Password">
@@ -158,7 +175,7 @@ const UsersList = () => {
 
   return (
     <Card
-      title={<span className="text-5xl-6 font-bold flex justify-center">ALL USERS</span>}
+      title={<span className="text-lgi sm:text-sm md:text-md lg:text-lgi xl:text-xl font-bold flex justify-center">ALL USERS</span>}
       className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none"
     >
       <div className="flex justify-start items-center mb-4 space-x-2">
@@ -167,7 +184,23 @@ const UsersList = () => {
           prefix={<SearchOutlined />}
           value={searchText}
           onChange={onSearch}
-          className="w-64 bg-[#a7f3d0] border border-black custom-input-table"
+          className="w-auto text-xs border border-black"
+          suffix={
+            searchText ? (
+              <Button
+                type="text"
+                onClick={() => {
+                  onSearch({ target: { value: '' } });
+                }}
+                className="text-xs"
+                size="small"
+                tabIndex={-1}
+                style={{ padding: 0, height: 'auto', lineHeight: 1 }}
+              >
+                ×
+              </Button>
+            ) : null
+          }
         />
         <Tooltip title="Add User">
           <Button
@@ -185,7 +218,7 @@ const UsersList = () => {
           />
         </Tooltip>
       </div>
-      <div style={{ height: '380px' }}>
+      <div className="w-auto overflow-x-auto" >
         <Table
           columns={columns}
           dataSource={filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
@@ -193,15 +226,34 @@ const UsersList = () => {
           bordered
           rowKey="id"
           rowSelection={rowSelection}
+          className='w-auto'
           loading={loading}
+          responsive= {['xs', 'sm', 'md', 'lg', 'xl']}
           scroll={{ x: 'max-content', y: 300 }}
+          expandable={
+            isMobile
+              ? {
+                  expandedRowRender: (record) => (
+                    <div className="text-xs space-y-1">
+                      <div><b>ID:</b> {record.id}</div>
+                      <div><b>Username:</b> {record.username}</div>
+                      <div><b>Department:</b> {record.department}</div>
+                      <div><b>Role:</b> {record.role}</div>
+                      <div><b>Status:</b> {record.status}</div>
+                    </div>
+                  ),
+                  rowExpandable: () => true,
+                }
+              : undefined
+          }
         />
       </div>
-      <div className="flex justify-between items-center mt-4">
-        <Text style={{ color: '#072C1C' }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-5 space-y-2 sm:space-y-0">
+        <Text style={{ color: '#072C1C' }} className="w-full text-xs text-wrap text-center sm:text-left">
           Showing {Math.min((currentPage - 1) * pageSize + 1, filteredData.length)} to{' '}
           {Math.min(currentPage * pageSize, filteredData.length)} of {filteredData.length} entries
         </Text>
+        <div className="w-full flex justify-center sm:justify-end">
         <Pagination
           current={currentPage}
           pageSize={pageSize}
@@ -209,8 +261,10 @@ const UsersList = () => {
           showSizeChanger
           pageSizeOptions={['5', '10', '15']}
           onChange={handlePageChange}
-          className="text-green-950"
+          className="text-xs"
+          responsive
         />
+        </div>
       </div>
 
       <ModalForms

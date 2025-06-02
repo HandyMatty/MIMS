@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Button, Select, Input, Form, message, Typography, Descriptions } from 'antd';
+import { Card, Button, Select, Input, Form, message, Typography, Descriptions, Divider } from 'antd';
 import Cookies from 'js-cookie';
 import { fetchSecurityQuestion, updateSecurityQuestion } from '../../services/api/fetchSecurityQuestion';
 import { useActivity } from '../../utils/ActivityContext';
@@ -98,7 +98,7 @@ const SecurityQuestion = () => {
   return (
     <Card className="flex flex-col w-full bg-[#A8E1C5] rounded-3xl shadow p-6 border-none">
       <div className="flex justify-center mb-4">
-        <Text className="text-xl font-semibold">Security Question</Text>
+        <Divider style={{borderColor: '#072C1C'}} className="text-xl font-semibold">Security Question</Divider>
       </div>
       {isEditing ? (
         <Form form={form} onFinish={handleSubmit} initialValues={securityData}>
@@ -132,7 +132,7 @@ const SecurityQuestion = () => {
           </div>
         </Form>
       ) : (
-        <Descriptions column={1} layout="horizontal" bordered>
+        <Descriptions column={1} layout="horizontal" bordered className='text-nowrap overflow-auto w-auto'>
           <Descriptions.Item label="Current Security Question">
             {securityData.question || 'Not set'}
           </Descriptions.Item>

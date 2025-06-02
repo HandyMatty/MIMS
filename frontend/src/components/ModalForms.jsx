@@ -45,6 +45,7 @@ const ModalForms = ({
       <Modal
   title="Security Question"
   open={isSecurityQuestionModalVisible}
+  centered
   onCancel={() => {
     setIsSecurityQuestionModalVisible(false); // Close the modal
     setIsEditingSecurityQuestion(false); // Reset to the first view
@@ -62,7 +63,7 @@ const ModalForms = ({
           <Button
             type="primary"
             onClick={() => setIsEditingSecurityQuestion(true)}
-            style={{ marginTop: 10, marginRight: 10 }}
+            className='w-auto flex justify-self-end mt-5'
           >
             Change Security Question
           </Button>
@@ -73,7 +74,7 @@ const ModalForms = ({
           <Button
             type="primary"
             onClick={() => setIsEditingSecurityQuestion(true)}
-            style={{ marginTop: 10 }}
+            className='w-auto flex justify-self-end mt-5'
           >
             Add Security Question
           </Button>
@@ -130,6 +131,7 @@ const ModalForms = ({
       <Modal
         title="Add User"
         open={isAddModalVisible}
+        centered
         onCancel={() => {
           setIsAddModalVisible(false);
           addUserForm.resetFields(); 
@@ -214,6 +216,7 @@ const ModalForms = ({
       <Modal
         title="Temporary Password"
         open={isPasswordModalVisible}
+        centered
         onCancel={() => setIsPasswordModalVisible(false)}
         footer={null}
       >
@@ -224,6 +227,7 @@ const ModalForms = ({
         <Modal
           title="Edit Role"
           open={isRoleModalVisible}
+          centered
           onCancel={() => {
             setIsRoleModalVisible(false);
             roleForm.resetFields(); // Reset form fields when modal closes
@@ -254,7 +258,7 @@ const ModalForms = ({
                 <Select.Option value="guest">Guest</Select.Option>
               </Select>
             </Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" className='flex justify-self-end'>
               Update Role
             </Button>
           </Form>

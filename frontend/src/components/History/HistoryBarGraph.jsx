@@ -52,22 +52,22 @@ const HistoryBarGraph = ({ searchText }) => {
   }, [searchText]);
 
   return (
-    <div className="history-bar-graph-container" style={{ height: '500px', width: '100%' }}>
+    <div className="history-bar-graph-container hidden sm:block text-xs" style={{ height: '500px', width: '100%' }}>
       {loading ? (
         <div className="loading-spinner">
           <Spin size="large" />
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="95%">
           <BarChart data={barData} className='top-2' margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3 3" stroke='black' />
             <XAxis 
               dataKey="name" 
               angle={-45} 
               textAnchor="end"
-              height={80}
-              tick={{ fontSize: 13 }}
-              tickSize={12}
+              height={90}
+              tick={{ fontSize: 12 }}
+              tickSize={10}
               interval={0}
               stroke='black'
             />
@@ -78,13 +78,13 @@ const HistoryBarGraph = ({ searchText }) => {
             />
             <Legend 
               formatter={(value) => `Item ${value}`} 
-              wrapperStyle={{ paddingTop: '50px' }}
+              verticalAlign='top'
             />
             <Bar dataKey="Types" barSize={50}>
               {barData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
-              <LabelList dataKey="Types" position="middle" fill="#eaf4e2" fontSize={14} fontWeight="bold" />
+              <LabelList dataKey="Types" position="middle" fill="#eaf4e2" fontSize={12} fontWeight="bold" />
             </Bar>
           </BarChart>
         </ResponsiveContainer>

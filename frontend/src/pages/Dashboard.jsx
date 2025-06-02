@@ -12,14 +12,14 @@ const Dashboard = () => {
   const [searchText, setSearchText] = useState('');
 
   return (
-    <div className="flex flex-col w-full h-auto p-8">
+    <div className="container max-w-full">
       {/* Search Input - Positioned Top Right */}
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-center sm:justify-end mb-4 mt-2">
         <Input
           placeholder="Search..."
           prefix={<SearchOutlined />}
           onChange={(e) => setSearchText(e.target.value)}
-          className="w-80 bg-[#a7f3d0] border border-black"
+          className="w-auto border border-black"
         />
       </div>
 

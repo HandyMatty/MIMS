@@ -8,7 +8,7 @@ export const getStatusTag = (status) => {
     "For Repair": "volcano",
     Deployed: "blue",
   };
-  return <Tag color={colors[status] || "gray"}>{status}</Tag>;
+  return <Tag color={colors[status] || "gray"} className='text-wrap text-center'>{status}</Tag>;
 };
 
 // Helper function to generate condition tag
@@ -18,7 +18,7 @@ export const getConditionTag = (condition) => {
     "Good Condition": "green",
     Defective: "red",
   };
-  return <Tag color={colors[condition] || "gray"}>{condition}</Tag>;
+  return <Tag color={colors[condition] || "gray"} className='text-wrap text-center' >{condition}</Tag>;
 };
 
 export const getColumns = (showModal, tabType, searchTerm = '') => {
@@ -29,8 +29,8 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
       key: "id",
       align: "center",
       sorter: true,
-      width: 100,
-      fixed: "left",
+      width: 'auto',
+      className: "text-xs overflow-auto text-wrap",
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
@@ -38,8 +38,8 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
       dataIndex: "action",
       key: "action",
       align: "center",
-      width: 150,
-      fixed: "left",
+      width: 'auto',
+      className: "text-xs overflow-auto text-wrap",
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
     {
@@ -48,7 +48,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
       key: "action_date",
       align: "center",
       sorter: true,
-      width: 180,
+      width: 'auto',
+      responsive: ['sm'],
+      className: "text-xs overflow-auto text-wrap",
       render: (text) => {
         if (!text || text === "0000-00-00" || text === "") {
           return <HighlightText text="NO DATE" searchTerm={searchTerm} />;
@@ -57,7 +59,6 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
         return <HighlightText text={formattedDate} searchTerm={searchTerm} />;
       },
-      fixed: "left",
     },
     {
       title: "Item ID",
@@ -65,8 +66,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
       key: "item_id",
       align: "center",
       sorter: true,
-      width: 120,
-      fixed: "left",
+      width: 'auto',
+      responsive: ['sm'],
+      className: "text-xs overflow-auto text-wrap",
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
   ];
@@ -79,7 +81,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "type",
         key: "type",
         align: "center",
-        width: 120,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
       {
@@ -87,7 +91,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "brand",
         key: "brand",
         align: "center",
-        width: 120,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
       {
@@ -95,7 +101,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: 'quantity',
         key: 'quantity',
         align: 'center',
-        width: 100,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         sorter: (a, b) => a.quantity - b.quantity,
         render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
@@ -104,7 +112,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "remarks",
         key: "remarks",
         align: "center",
-        width: 200,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
       },
       {
@@ -112,7 +122,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "serial_number",
         key: "serial_number",
         align: "center",
-        width: 200,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
       },
       {
@@ -121,7 +133,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         key: "issued_date",
         align: "center",
         sorter: true,
-        width: 150,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (date) => <HighlightText text={(!date || date === "0000-00-00") ? "NO DATE" : date} searchTerm={searchTerm} />,
       },
       {
@@ -130,7 +144,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         key: "purchase_date",
         align: "center",
         sorter: true,
-        width: 150,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
       {
@@ -138,7 +154,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "condition",
         key: "condition",
         align: "center",
-        width: 150,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (condition) => getConditionTag(condition),
         filters: [
           { text: "Brand New", value: "Brand New" },
@@ -152,7 +170,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "location",
         key: "location",
         align: "center",
-        width: 150,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
       },
       {
@@ -160,7 +180,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "status",
         key: "status",
         align: "center",
-        width: 120,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (status) => getStatusTag(status),
         filters: [
           { text: "On Stock", value: "On Stock" },
@@ -180,16 +202,19 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "field_changed",
         key: "field_changed",
         align: "center",
-        width: 200,
+        width: 'auto',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
         render: (fields) => <HighlightText text={fields ? fields.join(", ") : "N/A"} searchTerm={searchTerm} />,
       },
       {
         title: "Changed Details",
         key: "changed_details",
         align: "center",
-        width: 250,
+        width: 'auto',
+        className: "text-xs overflow-auto text-wrap",
         render: (_, record) => (
-          <Button type="link" onClick={() => showModal(record)}>View Changes</Button>
+          <Button type="link" onClick={() => showModal(record)} className="text-xs">View Changes</Button>
         ),
       }
     );

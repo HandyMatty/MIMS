@@ -26,9 +26,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             fontFamily: "Poppins, sans-serif",
             colorBgBase: "#fff",
           },
+          components: {
+            Calendar: {
+              monthControlWidth: 5,
+              yearControlWidth: 5,
+            }
+          }
         }}
       >
-        {/* Wrap the App component with ActivityProvider */}
         <ActivityProvider>
           <NotificationProvider>
           <App />

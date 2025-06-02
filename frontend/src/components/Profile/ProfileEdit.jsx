@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Typography, Upload, message, Image, Card, Descriptions, Modal } from 'antd';
+import { Button, Input, Typography, Upload, message, Image, Card, Descriptions, Modal, Divider, Select } from 'antd';
 import ImgCrop from 'antd-img-crop';
 import Cookies from 'js-cookie';
 
@@ -12,6 +12,7 @@ import { useNotification } from '../../utils/NotificationContext';
 const { Title, Text } = Typography;
 
 const STORAGE_KEYS = ['userAuth', 'adminAuth', 'guestAuth'];
+const DEPARTMENT_OPTIONS = ['GAD','CID', 'SOD', 'HRD', 'AFD', 'EDO', 'BDO'];
 
 const ProfileEdit = () => {
   const [isEditable, setIsEditable] = useState(false);
@@ -104,8 +105,13 @@ const ProfileEdit = () => {
           message.success('Profile updated successfully!');
           updateLocalStorageAndCookies(newUsername, token);
 
-          logUserActivity(newUsername, 'Profile Update', `Updated username to: ${newUsername}`);
-          logUserNotification('Profile Update', 'Your profile was updated successfully.');
+    if (newUsername !== originalData.username) {
+      logUserActivity(newUsername, 'Profile Update', `Updated username to: ${newUsername}`);
+    }
+    if (department !== originalData.department) {
+      logUserActivity(newUsername, 'Profile Update', `Updated department to: ${department}`);
+    }
+    logUserNotification('Profile Update', 'Your profile was updated successfully.');
 
           window.location.reload();
         } catch (error) {
@@ -145,18 +151,17 @@ const ProfileEdit = () => {
   };
 
   return (
-    <Card className="flex flex-col w-full h-full bg-[#A8E1C5] rounded-3xl shadow p-6 border-none">
+    <Card className="flex flex-col w-auto bg-[#A8E1C5] rounded-3xl shadow p-6 border-none">
       {/* Avatar Section */}
-      <div className="flex items-center gap-6 mt-4">
+      <div className="flex flex-col justify-center items-center mt-4">
         {imageUrl && (
           <Image src={imageUrl} alt="avatar" width={100} height={100} style={{ borderRadius: '50%', objectFit: 'cover' }} />
         )}
-        <div>
-          <Text className="text-green-600">Active</Text>
-          <Title level={4} className="text-neutral-700 mb-0">{username}</Title>
-        </div>
+          <Text className="text-green-600 mt-2 ">Active</Text>
+          <Divider style={{borderColor: '#072C1C'}}><Title level={4} 
+          className="text-neutral-700">{username}</Title></Divider>
       </div>
-
+      <div className='flex justify-center'>
       <ImgCrop rotationSlider>
         <Upload
           name="avatar"
@@ -173,31 +178,44 @@ const ProfileEdit = () => {
           </Button>
         </Upload>
       </ImgCrop>
+      </div>
 
       {/* Profile Info */}
       <div className="flex flex-col gap-5 mt-8">
         {['Username', 'Department'].map((label) => (
-          <div key={label} className="flex flex-col gap-1">
-            <Text>{label}</Text>
+          <div key={label} className="flex flex-col justify-center items-center gap-1">
+            <Text className='font-bold' >{label}:</Text>
             {isEditable ? (
+              label === 'Department' ? (
+              <Select
+                className='w-auto bg-emerald-200 transparent-select'
+                value={department}
+                onChange={setDepartment}
+                options={DEPARTMENT_OPTIONS.map(opt => ({ value: opt, label: opt }))}
+                placeholder="Select department"
+                />
+                ) : (
               <Input
-                className="w-full bg-emerald-200"
+                className="w-auto flex justify-center items-center bg-emerald-200 border-black"
                 value={label === 'Username' ? newUsername : department}
                 onChange={(e) => label === 'Username' ? setNewUsername(e.target.value) : setDepartment(e.target.value)}
                 placeholder={`Enter your ${label.toLowerCase()}`}
               />
+                )
             ) : (
-              <Descriptions><Descriptions.Item>{label === 'Username' ? username : department}</Descriptions.Item></Descriptions>
+              <Descriptions><Descriptions.Item 
+              className='flex justify-center items-center'>{label === 'Username' ? username : department}
+              </Descriptions.Item></Descriptions>
             )}
           </div>
         ))}
       </div>
 
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center w-auto wrap mt-8">
         {isEditable && (
-          <Button type="default" className="bg-red-500 text-white w-1/5 mr-4" onClick={handleCancel}>Cancel</Button>
+          <Button type="default" className="bg-red-500 text-white mr-4 w-auto" onClick={handleCancel}>Cancel</Button>
         )}
-        <Button type="primary" className="bg-lime-200 text-green-950 w-1/5" onClick={handleEdit} disabled={isSaving}>
+        <Button type="primary" className="bg-lime-200 text-green-950 w-auto" onClick={handleEdit} disabled={isSaving}>
           {isEditable ? (isSaving ? 'Saving...' : 'Save') : 'Edit'}
         </Button>
       </div>

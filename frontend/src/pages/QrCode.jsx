@@ -10,8 +10,8 @@ const QrCode = () => {
   };
 
   return (
-    <div className="flex flex-col w-full p-8">
-      <div>
+    <div className="container max-w-full">
+      <div className='mt-5'>
         <QrCodeGenerator itemDetails={selectedItem} />
       </div>
       <div className='mt-5'>

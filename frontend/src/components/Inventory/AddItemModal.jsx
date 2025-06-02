@@ -19,7 +19,7 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
       }
       
       const existingInventory = await getInventoryData();
-    
+      
       // Check if serial number already exists
       if (values.serialNumber) {
         const serialExists = existingInventory.some(item => item.serialNumber === values.serialNumber);
@@ -81,6 +81,7 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
       onCancel={handleClose}
       footer={null}
       width={900}
+      centered
     >
       <Form
         form={form}
@@ -101,38 +102,38 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
           name="type"
           rules={[{ required: true, message: 'Please select the item type!' }]} >
           <Select>
-            <Option value="AVR">AVR</Option>
-            <Option value="Battery">Battery</Option>
-            <Option value="Biometrics">Biometrics</Option>
-            <Option value="Camera">Camera</Option>
-            <Option value="CCTV">CCTV</Option>
-            <Option value="Charger">Charger</Option>
-            <Option value="Guard Tour Chips">Guard Tour Chips</Option>
-            <Option value="Guard Tour System">Guard Tour System</Option>
-            <Option value="Headset">Headset</Option>
-            <Option value="Keyboard">Keyboard</Option>
-            <Option value="Laptop">Laptop</Option>
-            <Option value="Megaphone">Megaphone</Option>
-            <Option value="WIFI-Mesh">WIFI-Mesh</Option>
-            <Option value="Metal Detector">Metal Detector</Option>
-            <Option value="Microphone">Microphone</Option>
-            <Option value="Modem">Modem</Option>
-            <Option value="Monitor">Monitor</Option>
-            <Option value="Mouse">Mouse</Option>
-            <Option value="Others">Others</Option>
-            <Option value="Pedestal">Pedestal</Option>
-            <Option value="Podium">Podium</Option>
-            <Option value="Printer">Printer</Option>
-            <Option value="Radio">Radio</Option>
-            <Option value="Router">Router</Option>
-            <Option value="Search Stick">Search Stick</Option>
-            <Option value="Searchlight">Searchlight</Option>
-            <Option value="Smartphone">Smartphone</Option>
-            <Option value="Speaker">Speaker</Option>
-            <Option value="Switch">Switch</Option>
-            <Option value="System Unit">System Unit</Option>
-            <Option value="Under Chassis">Under Chassis</Option>
-            <Option value="UPS">UPS</Option>
+          <Option value="AVR">AVR</Option>
+          <Option value="Battery">Battery</Option>
+          <Option value="Biometrics">Biometrics</Option>
+          <Option value="Camera">Camera</Option>
+          <Option value="CCTV">CCTV</Option>
+          <Option value="Charger">Charger</Option>
+          <Option value="Guard Tour Chips">Guard Tour Chips</Option>
+          <Option value="Guard Tour System">Guard Tour System</Option>
+          <Option value="Headset">Headset</Option>
+          <Option value="Keyboard">Keyboard</Option>
+          <Option value="Laptop">Laptop</Option>
+          <Option value="Megaphone">Megaphone</Option>
+          <Option value="Metal Detector">Metal Detector</Option>
+          <Option value="Microphone">Microphone</Option>
+          <Option value="Modem">Modem</Option>
+          <Option value="Monitor">Monitor</Option>
+          <Option value="Mouse">Mouse</Option>
+          <Option value="Others">Others</Option>
+          <Option value="Pedestal">Pedestal</Option>
+          <Option value="Podium">Podium</Option>
+          <Option value="Printer">Printer</Option>
+          <Option value="Radio">Radio</Option>
+          <Option value="Router">Router</Option>
+          <Option value="Search Stick">Search Stick</Option>
+          <Option value="Searchlight">Searchlight</Option>
+          <Option value="Smartphone">Smartphone</Option>
+          <Option value="Speaker">Speaker</Option>
+          <Option value="Switch">Switch</Option>
+          <Option value="System Unit">System Unit</Option>
+          <Option value="Under Chassis">Under Chassis</Option>
+          <Option value="UPS">UPS</Option>
+          <Option value="WIFI-Mesh">WIFI-Mesh</Option>
           </Select>
         </Form.Item>
 

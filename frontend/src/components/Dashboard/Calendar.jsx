@@ -131,7 +131,7 @@ const AntCalendar = () => {
       const eventTitles = dateEvents.map((event) => event.content).join(', ');
       return (
         <Tooltip title={eventTitles} placement="top">
-          <div className="w-1.5 h-1.5 bg-green-700 rounded-full mx-auto my-1" />
+          <div className="w-1.5 h-1.5 bg-green-700 rounded-full mx-auto my-1 xs:text-xs" />
         </Tooltip>
       );
     }
@@ -159,7 +159,7 @@ const AntCalendar = () => {
   const renderYearViewModalContent = () => {
     return Object.keys(groupedEvents).map((month) => (
       <div key={month}>
-        <Typography.Title level={5}>
+        <Typography.Title level={5} className='xs:text-xs'>
           {dayjs().month(month).format('MMMM')}
         </Typography.Title>
         <List
@@ -168,10 +168,11 @@ const AntCalendar = () => {
           renderItem={(event) => (
             <List.Item key={event.id}>
               <List.Item.Meta
+              className='xs:text-xs'
                 avatar={<Avatar src={event.avatar} />}
                 title={event.username}
                 description={
-                  <span style={{ color: event.event_type }}>
+                  <span style={{ color: event.event_type }} className='xs:text-xs'>
                     {event.content}
                   </span>
                 }
@@ -187,7 +188,7 @@ const AntCalendar = () => {
     <div className="max-w-full h-full rounded-xl bg-[#A8E1C5] shadow-md transition-transform transform hover:scale-105">
       <Calendar
         fullscreen={false}
-        className="bg-transparent"
+        className="bg-transparent xs:text-xs"
         onSelect={onDateClick}
         cellRender={cellRender}
         headerRender={({ value, onChange }) => {
@@ -275,6 +276,7 @@ const AntCalendar = () => {
         }
         open={isModalOpen}
         onCancel={handleModalClose}
+        centered
         footer={[
           <Button key="close" onClick={handleModalClose}>
             Close

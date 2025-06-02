@@ -12,7 +12,8 @@
 html, body {
   height: 100%;
   margin: 0;
-  overflow: hidden; /* Prevent horizontal and vertical scrollbars */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body {
@@ -91,7 +92,7 @@ body {
 }
 
 /* Ensure that input text color persists */
-.custom-input input {
+.custom-input .input {
   color: #d4e09b !important;
 }
 
@@ -150,15 +151,13 @@ body {
 .events {
   margin: 0;
   padding: 0;
-  list-style: none;
 }
 
 .events .ant-badge-status {
   width: 100%;
-  overflow: hidden;
+  overflow: auto;
   font-size: 12px;
   white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .notes-month {
@@ -216,9 +215,15 @@ input[type="password"]::-ms-reveal {
 .ant-pagination-item a {
   color: black !important; /* Make sure the text (numbers) are black */
 }
+.ant-pagination-item:hover {
+  background-color: #d9f99d !important;
+  color: black !important;
+  border-color: black !important;
+}
 .custom-input-table .ant-input::placeholder {
   color: black; 
   opacity: 1; 
+  background-color: #a7f3d0 !important;
 }
 .custom-input-history {
   background-color: #a7f3d0 !important;
@@ -227,7 +232,6 @@ input[type="password"]::-ms-reveal {
 .transparent-select .ant-select-selector {
   background-color: #a7f3d0 !important;
   border: 1px solid black !important;
-  color: black !important;
 } 
  
 /* Ant Card CSS */
@@ -248,8 +252,8 @@ input[type="password"]::-ms-reveal {
   border-bottom: 0.5px black !important;
   border-radius: 5px; /* Optional: Add rounded corners */
 }
-.ant-tabs-nav {
-  border-bottom: 3px solid black !important;
+.ant-tabs-nav-wrap {
+  border-bottom: 1px solid black !important;
 }
 
 /* Optional: Change active tab border */
@@ -265,7 +269,18 @@ input[type="password"]::-ms-reveal {
   background-color: #a7f3d0 !important;
   border: 1px solid black !important;
   color: black !important;
-  height: 32px;
   width: auto;
-  border-radius: 7.5px;
+  border-radius: 4px;
+}
+/* CalendarCustom.css */
+.ant-picker-cell-inner {
+  min-height: 40px;
+  padding: 2px 0;
+}
+
+@media (max-width: 640px) {
+  .ant-picker-calendar .ant-picker-cell-inner {
+    min-height: 28px;
+    padding: 1px 0;
+  }
 }

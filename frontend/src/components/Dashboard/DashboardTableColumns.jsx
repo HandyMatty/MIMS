@@ -18,7 +18,7 @@ export const getStatusTag = (status) => {
     default:
       color = 'gray';
   }
-  return <Tag color={color}>{status}</Tag>;
+  return <Tag color={color} className='text-wrap text-center'>{status}</Tag>;
 };
 
 // Helper to render the condition tag
@@ -37,19 +37,18 @@ export const getConditionTag = (condition) => {
     default:
       color = 'gray';
   }
-  return <Tag color={color}>{condition}</Tag>;
+  return <Tag color={color} className='text-wrap text-center'>{condition}</Tag>;
 };
 
-// Export a function that returns the columns array.
-// We pass in handleQrCodeClick so that the QR Code column can call it.
 export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => [
   {
     title: 'QR Code',
     dataIndex: 'qrCode',
     key: 'qrCode',
     align: 'center',
-    width: 100,
-    fixed: 'left',
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm'],
     render: (_, item) => (
       <QrcodeOutlined
         style={{ fontSize: '24px', cursor: 'pointer' }}
@@ -64,8 +63,9 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'id',
     align: 'center',
     sorter: true,
-    width: 120,
-    fixed: 'left',
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
@@ -74,9 +74,11 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'type',
     align: 'center',
     sorter: true,
-    width: 130,
-    fixed: 'left',
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm', 'md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+
   },
   {
     title: 'Brand',
@@ -84,16 +86,20 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'brand',
     align: 'center',
     sorter: true,
-    width: 150,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
-    title: 'Qty', 
+    title: 'Qty',
     dataIndex: 'quantity',
     key: 'quantity',
     align: 'center',
-    width: 100,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
     sorter: (a, b) => a.quantity - b.quantity,
+    responsive: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
@@ -101,7 +107,9 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'remarks',
     key: 'remarks',
     align: 'center',
-    width: 200,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
   },
   {
@@ -110,7 +118,9 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'serialNumber',
     align: 'center',
     sorter: true,
-    width: 200,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
   },
   {
@@ -119,7 +129,9 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'issuedDate',
     align: 'center',
     sorter: true,
-    width: 150,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['md', 'lg', 'xl', 'xxl'],
     render: (date) => {
       if (!date || date === "0000-00-00" || date === "") {
         return <HighlightText text="NO DATE" searchTerm={searchTerm} />;
@@ -133,7 +145,9 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'purchaseDate',
     align: 'center',
     sorter: true,
-    width: 150,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['md', 'lg', 'xl', 'xxl'],
     render: (date) => {
       if (!date || date === "0000-00-00" || date === "") {
         return <HighlightText text="NO DATE" searchTerm={searchTerm} />;
@@ -146,7 +160,9 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'condition',
     key: 'condition',
     align: 'center',
-    width: 120,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm', 'md', 'lg', 'xl', 'xxl'],
     render: (condition) => getConditionTag(condition),
     filters: [
       { text: 'Brand New', value: 'Brand New' },
@@ -160,7 +176,9 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'location',
     key: 'location',
     align: 'center',
-    width: 150,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
@@ -168,7 +186,9 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'status',
     key: 'status',
     align: 'center',
-    width: 120,
+    width: 'auto',
+    className: 'text-xs overflow-auto',
+    responsive: ['sm', 'md', 'lg', 'xl', 'xxl'],
     render: (status) => getStatusTag(status),
     filters: [
       { text: 'On Stock', value: 'On Stock' },

@@ -4,8 +4,8 @@ import UsersActivities from '../components/Users/UsersActivities';
 
 const Users = () => {
   return (
-    <div className="flex flex-col w-full p-8">
-      <div>
+    <div className="container max-w-full">
+      <div className='mt-5'>
         <UsersStatisticBoard />
       </div>
       <div className='mt-5'>

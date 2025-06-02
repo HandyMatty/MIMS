@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar as AntdCalendar, Typography, Tag } from 'antd';
+import { Calendar as AntdCalendar, Typography, Tag, Divider, Row, Col } from 'antd';
 import { fetchEvents } from '../../services/api/eventService';
 import EventList from '../../components/Calendar/EventList';
 import EventModal from '../../components/Calendar/EventModal';
@@ -54,44 +54,46 @@ const Calendar = () => {
 
   return (
     <>
-     <div className="flex flex-col w-full p-8">
-    <div className='mb-5'>
-          <Title level={3}>CALENDAR</Title>
+    <div className="container max-w-full">
+    <div className='mt-5'>
+         <Divider style={{borderColor: '#072C1C'}}> 
+          <Title level={3}>CALENDAR</Title> </Divider>
     </div>
       {/* Legend Section */}
-        <div className="flex flex-wrap justify-center mb-5">
-          <div className="flex items-center mr-4">
+        <Row className='flex flex-col sm:flex-row justify-center items-center gap-4 mb-2'>
+          <Col span={[2,2]}>
             <Tag color="#4169E1">Important</Tag>
-            <span className="ml-2">Royal Blue</span>
-          </div>
-          <div className="flex items-center mr-4">
-            <Tag color="#FFD700">Celebration</Tag>
-            <span className="ml-2">Gold</span>
-          </div>
-          <div className="flex items-center mr-4">
+            <span>Royal Blue</span>
+          </Col>
+          <Col span={[2,2]}>
+            <Tag color="#FFD700" style={{color: 'black'}}>Celebration</Tag>
+            <span>Gold</span>
+          </Col>
+          <Col span={[2,2]}>
             <Tag color="#228B22">Task</Tag>
-            <span className="ml-2">Forest Green</span>
-          </div>
-          <div className="flex items-center mr-4">
+            <span>Forest Green</span>
+          </Col>
+          <Col span={[2,2]}>
             <Tag color="#4682B4">Meeting</Tag>
-            <span className="ml-2">Steel Blue</span>
-          </div>
-          <div className="flex items-center mr-4">
-            <Tag color="#FFC0CB">Personal</Tag>
-            <span className="ml-2">Soft Pink</span>
-          </div>
-          <div className="flex items-center mr-4">
+            <span>Steel Blue</span>
+          </Col>
+          <Col span={[2,2]}>
+            <Tag color="#FFC0CB" style={{color: 'black'}}>Personal</Tag>
+            <span>Soft Pink</span>
+          </Col>
+          <Col span={[2,2]}>
             <Tag color="#B22222">Deadline</Tag>
-            <span className="ml-2">Firebrick Red</span>
-          </div>
-          <div className="flex items-center mr-4">
-            <Tag color="#FFFFE0">Idea</Tag>
-            <span className="ml-2">Pale Yellow</span>
-          </div>
-        </div>
+            <span>Firebrick Red</span>
+          </Col>
+          <Col span={[2,2]}>
+            <Tag color="#FFFFE0" style={{ color: 'black' }}>Idea</Tag>
+            <span>Pale Yellow</span>
+          </Col>
+        </Row>
 
-    <div className="flex flex-col w-full h-auto mx-auto bg-[#A8E1C5] rounded-xl shadow p-2">
+<div className="flex flex-col w-full h-auto mx-auto bg-[#A8E1C5] rounded-xl shadow p-2">
 <AntdCalendar 
+  className='text-xs w-full'
   cellRender={(currentDate, info) => (
     <EventList 
       currentDate={currentDate} 

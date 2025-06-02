@@ -75,13 +75,14 @@ module.exports = {
       "3xl": "22px",
       mini: "15px",
       xs: "12px",
+      xxs: "10px",
       "45xl": "64px",
       "19xl": "38px",
       "32xl": "51px",
       inherit: "inherit",
     },
     screens: {
-      xs: '480px', // Add extra small screens
+      xs: '480px',
       sm: '640px',
       md: '768px',
       lg: '1024px',

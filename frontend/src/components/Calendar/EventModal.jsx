@@ -52,6 +52,7 @@ const EventModal = ({ isOpen, onClose, selectedDate, loadEvents }) => {
       open={isOpen}
       onOk={handleOk}
       onCancel={onClose}
+      centered
     >
       <Form form={form} layout="vertical">
         <Form.Item

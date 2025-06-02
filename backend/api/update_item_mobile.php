@@ -46,15 +46,19 @@ if (!$existingItem) {
 $inputPurchaseDateFormatted = date("Ymd", strtotime($purchaseDate));
 $existingPurchaseDateFormatted = date("Ymd", strtotime($existingItem['purchase_date']));
 
-// Determine whether to update the item ID
-if ($inputPurchaseDateFormatted === $existingPurchaseDateFormatted) {
-    // If the purchase dates are the same, retain the existing item id.
+$existingIdStartsWithDate = str_starts_with((string)$existingItem['id'], $inputPurchaseDateFormatted);
+
+// Check if existing ID uses 4-digit counter after the date
+$needsIdFormatFix = !preg_match('/^' . $inputPurchaseDateFormatted . '\d{4}$/', $existingItem['id']);
+
+if ($inputPurchaseDateFormatted === $existingPurchaseDateFormatted && $existingIdStartsWithDate && !$needsIdFormatFix) {
+    // Keep current ID
     $newItemId = $existingItem['id'];
 } else {
-    // Purchase date has changed; generate a new item id.
+    // Regenerate ID
     $purchaseDateFormatted = $inputPurchaseDateFormatted;
 
-    // Fetch the last item with an id starting with the formatted purchase date
+    // Get the latest item with this date prefix
     $query = "SELECT id FROM inventory WHERE id LIKE ? ORDER BY id DESC LIMIT 1";
     $stmt = $conn->prepare($query);
     $likeParam = $purchaseDateFormatted . "%";
@@ -64,13 +68,13 @@ if ($inputPurchaseDateFormatted === $existingPurchaseDateFormatted) {
     $stmt->fetch();
     $stmt->close();
 
-    if ($lastItemId) {
-        // Extract last two digits (counter), increment, and format appropriately.
-        $lastCounter = (int)substr($lastItemId, -2);
-        $newCounter = str_pad($lastCounter + 1, 2, "0", STR_PAD_LEFT);
+    if ($lastItemId && preg_match('/^' . $purchaseDateFormatted . '(\d{1,4})$/', $lastItemId, $matches)) {
+        $lastCounter = (int)$matches[1];
+        $newCounter = str_pad($lastCounter + 1, 4, "0", STR_PAD_LEFT);
     } else {
-        $newCounter = "01";
+        $newCounter = "0001";
     }
+
     $newItemId = $purchaseDateFormatted . $newCounter;
 }
 

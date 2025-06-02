@@ -49,21 +49,24 @@ const EventList = ({ currentDate, info, events, showModal, isAdmin, currentUser,
       <ul className="events">
         {listData.map((item) => (
           <li key={item.id}>
-            <Tooltip title={item.username}>
+            <Tooltip title={item.username} className='size-3 sm:size-5'>
               <Avatar src={item.avatar} />
             </Tooltip>
             <Badge color={item.type} text={
-                <span style={{ color: item.type }}>{item.content}</span>} />
+                <span style={{ color: item.type }}
+                className='text-xxs sm:text-xs'
+                >{item.content}</span>} />
 
-            {/* Show delete button only if admin or if it's the user's event */}
             {(isAdmin || item.username === currentUser?.username) && (
               <Tooltip title="Delete Event">
                 <Button
+                  className='size-1'
+                  size='small'
                   type="link"
                   danger
                   icon={<DeleteOutlined />}
                   style={{ padding: 0 }}
-                  onClick={() => handleDeleteEvent(item)} // Pass the event item to the handler
+                  onClick={() => handleDeleteEvent(item)}
                 />
               </Tooltip>
             )}
@@ -72,6 +75,8 @@ const EventList = ({ currentDate, info, events, showModal, isAdmin, currentUser,
         {!isGuest && (
           <Tooltip title="Add Event">
             <Button
+              className='size-1'
+              size='small'
               type="link"
               icon={<PlusOutlined />}
               onClick={() => showModal(currentDate)}
