@@ -70,33 +70,28 @@ const Login = () => {
   }, [navigate]);
 
   return (
-    <div className="relative w-full h-screen bg-honeydew">
+    <div className="relative flex flex-col items-center justify-center h-screen bg-honeydew overflow-hidden">
       {/* Background Vector Image */}
       <LazyImage
         className="absolute bottom-0 left-0 w-full h-auto object-cover z-0"
         style={{ maxHeight: '100vh' }}
         src={vectors}
         alt="vector bg"
-        width={1920}
-        height={1080}
       />
 
       {/* Login Container */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center">
+      <div className="relative z-10 w-auto h-auto sm:w-full sm:h-full flex items-center justify-center">
         <div className="w-full max-w-5xl">
           <main className="flex flex-col items-center justify-center h-full p-4">
-            <section className="w-full max-w-md bg-honeydew p-6 rounded-lg shadow-lg">
+            <section className="w-auto sm:w-full max-w-md bg-honeydew p-6 rounded-lg shadow-lg">
               <form onSubmit={handleLogin}>
                 <div className="flex flex-col items-center mb-10">
                   <LazyImage
-                    className="w-[150px] h-[150px ] object-contain"
+                    className="w-auto h-auto sm:w-[130px] sm:h-[130px ] object-contain"
                     src={SINSSILogo}
                     alt="SINSSI Logo"
-                    width={150}
-                    height={150}
-                    style={{ maxWidth: '150px', maxHeight: '150px' }}
                   />
-                  <h1 className="text-45xl font-lexend-deca text-darkslategray-100 text-center">
+                  <h1 className="text-32xl mt-5 sm:text-45xl font-lexend-deca text-darkslategray-100 text-center">
                     Sign in
                   </h1>
                 </div>
@@ -108,7 +103,7 @@ const Login = () => {
                     placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-darkslategray-100 text-palegoldenrod placeholder-palegoldenrod text-sm py-6 pl-2 rounded-3xs"
+                    className="w-full bg-darkslategray-100 text-palegoldenrod placeholder-palegoldenrod text-xs sm:text-sm py-6 pl-2 rounded-3xs"
                     autoComplete="username"
                   />
                 </div>
@@ -120,7 +115,7 @@ const Login = () => {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-darkslategray-100 text-palegoldenrod placeholder-palegoldenrod text-sm py-6 pl-2 rounded-3xs"
+                    className="w-full bg-darkslategray-100 text-palegoldenrod placeholder-palegoldenrod text-xs sm:text-sm py-6 pl-2 rounded-3xs"
                     autoComplete="current-password"
                   />
                   <button
@@ -147,18 +142,18 @@ const Login = () => {
                         onChange={(e) => setRememberMe(e.target.checked)}
                         className="mr-2"
                       />
-                      <label htmlFor="rememberMe" className="text-sm font-montserrat text-darkslategray-100">
+                      <label htmlFor="rememberMe" className="text-xs sm:text-sm font-montserrat text-darkslategray-100">
                         Remember me
                       </label>
                     </div>
                     <div
-                      className="text-sm font-lexend-deca text-darkslategray-100 cursor-pointer"
+                      className="text-xs sm:text-sm font-lexend-deca text-darkslategray-100 cursor-pointer"
                       onClick={handleForgotPassword}
                     >
                       Forgot password?
                     </div>
                   </div>
-                  <p className="text-center mt-4 text-darkslategray-100">
+                  <p className="text-center mt-4 text-darkslategray-100 ">
                     Sign in and start managing your inventory!
                   </p>
                   <Button

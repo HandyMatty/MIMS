@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Form, Input, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { forgotPasswordApi } from '../../services/api/forgotPasswordApi';
@@ -61,7 +61,7 @@ const ForgotPassword = ({ className = "" }) => {
 
   return (
     
-    <div className={`relative flex flex-col items-center justify-center h-screen bg-honeydew overflow-hidden ${className}`}>
+<div className={`relative flex flex-col items-center justify-center h-screen bg-honeydew overflow-hidden ${className}`}>
       {/* Background Vector */}
       <img
               className="absolute bottom-0 left-0 w-full h-auto object-cover z-0"
@@ -71,56 +71,57 @@ const ForgotPassword = ({ className = "" }) => {
             />
 
       {/* Form Section */}
-      <section className="w-full max-w-md bg-honeydew p-6 rounded-lg shadow-lg z-10 flex flex-col items-center">
+      <section className="w-auto sm:w-full max-w-sm sm:max-w-md bg-honeydew p-6 
+      rounded-lg shadow-lg z-10 flex flex-col items-center">
         {/* Logo Centered */}
         <div className="mb-6 flex justify-center">
           <img
-            className="h-[183px] w-[171px] object-cover"
+            className="w-auto h-auto sm:h-[133px] sm:w-[121px] object-cover"
             loading="lazy"
             src={SINSSILogo} alt="SINSSI Logo"
           />
         </div>
 
-        <div className="w-full max-w-[300px]">
+        <div className="w-auto sm:w-full sm:max-w-[400px]">
           {/* Back to Login Button */}
           <Button
             type="link"
             onClick={handleBackToLogin}
-            className="mb-4 flex justify-start"
+            className="mb-4 flex justify-start text-xs sm:text-sm"
             style={{ color: '#072c1c' }}
           >
-            <img className="w-[9.3px] h-[9.3px] inline mr-1" loading="lazy" alt="Back" src={back}/>
+            <img className="w-auto h-auto sm:w-[9.3px] sm:h-[9.3px]" loading="lazy" alt="Back" src={back}/>
             Back to login
           </Button>
 
           {/* Title */}
           <Title level={1} className="text-center" style={{ color: '#072c1c' }}>
-            {step === 1 ? 'Forgot Password' : 'Answer Security Question'}
+            <span className='text-xl sm:text-5xl-6'>{step === 1 ? 'Forgot Password' : 'Answer Security Question'}</span>
           </Title>
 
           {/* Subtitle or Question */}
           {step === 1 ? (
-            <Text className="text-center justify-center" style={{ color: '#072c1c', lineHeight: '1.5' }}>
+            <Text className="text-center text-xs sm:text-sm justify-center" style={{ color: '#072c1c', lineHeight: '1.5' }}>
               Enter your username to retrieve your security question.
             </Text>
           ) : (
-            <Text className="text-center justify-center" style={{ color: '#072c1c', lineHeight: '1.5' }}>
+            <Text className="text-center text-xs sm:text-sm flex justify-center" style={{ color: '#072c1c', lineHeight: '1.5' }}>
               Please answer your security question to reset your password.
             </Text>
           )}
 
           {/* Form */}
-          <Form onFinish={onFinish} className="mt-5 w-full max-w-[300px]">
+          <Form onFinish={onFinish} className="mt-5 w-auto">
             {step === 1 ? (
               <Form.Item
                 name="username"
                 rules={[{ required: true, message: 'Please input your username' }]}
               >
-                <Input placeholder="Username" className="h-[38px] custom-input" />
+                <Input placeholder="Username" className="h-auto custom-input justify-self-center flex" />
               </Form.Item>
             ) : (
               <>
-                <Text style={{ display: 'block', marginBottom: '1rem', color: '#072c1c' }}>
+                <Text style={{ display: 'block', marginBottom: '1rem', color: '#072c1c' }} className='text-sm'>
                   {securityQuestion}
                 </Text>
                 <Form.Item
@@ -138,7 +139,8 @@ const ForgotPassword = ({ className = "" }) => {
               </>
             )}
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="w-full bg-palegoldenrod text-darkslategray-100 py-5 rounded-3xs shadow-md">
+              <Button type="primary" htmlType="submit" className="w-1/3 flex justify-self-center bg-palegoldenrod
+               text-darkslategray-100 py-5 rounded-3xs shadow-md">
                 {step === 1 ? 'Next' : 'Submit'}
               </Button>
             </Form.Item>
