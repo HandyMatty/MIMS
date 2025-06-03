@@ -92,14 +92,14 @@ const UsersList = () => {
       title: 'Department',
       dataIndex: 'department',
       key: 'department',
-      responsive: ['sm'],
       width: 'auto',
-      className: 'text-xs overflow-auto',
+      className: 'text-xs overflow-auto text-wrap',
       sorter: (a, b) => a.department.localeCompare(b.department),
       render: (department, record) => (
         <Select
           value={department}
-          style={{ width: '100%' }}
+          style={{ width: 'auto' }}
+          size={isMobile ? 'small':'middle'}
           onChange={(value) => handleDepartmentUpdate(record.id, value)}
           disabled={record.role === 'guest'}
           className='transparent-select'
