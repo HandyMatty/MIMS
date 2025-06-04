@@ -99,7 +99,7 @@ const DashboardTable = ({ searchText }) => {
         </Select>
       </div>
 
-      <div className="w-auto" style={{ maxHeight: '600px' }}>
+      <div className="w-auto overflow-x-auto">
         <Table
           columns={getDashboardTableColumns(handleQrCodeClick, searchText)}
           dataSource={sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}

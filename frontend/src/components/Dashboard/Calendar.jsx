@@ -185,7 +185,7 @@ const AntCalendar = () => {
   };
 
   return (
-    <div className="max-w-full h-full rounded-xl bg-[#A8E1C5] shadow-md transition-transform transform hover:scale-105">
+    <div className="max-w-full h-auto rounded-xl bg-[#A8E1C5] shadow-md transition-transform transform hover:scale-105">
       <Calendar
         fullscreen={false}
         className="bg-transparent xs:text-xs"
@@ -220,10 +220,10 @@ const AntCalendar = () => {
                     onChange={(e) => setViewType(e.target.value)}
                     value={viewType}
                   >
-                    <Radio.Button className="custom-radio text-black" value="month">
+                    <Radio.Button className="custom-radio text-black w-auto" value="month">
                       Month
                     </Radio.Button>
-                    <Radio.Button className="custom-radio text-black" value="year">
+                    <Radio.Button className="custom-radio text-black w-auto" value="year">
                       Year
                     </Radio.Button>
                   </Radio.Group>
@@ -237,7 +237,7 @@ const AntCalendar = () => {
                       onChange(now);
                       if (viewType === 'year') onYearSelect(newYear);
                     }}
-                    className="w-20"
+                    className="w-auto"
                   >
                     {yearOptions}
                   </Select>
@@ -254,7 +254,7 @@ const AntCalendar = () => {
                         // Call the onMonthSelect function
                         onMonthSelect(newMonth, year);
                       }}
-                      className="w-24"
+                      className="w-auto"
                     >
                       {monthOptions}
                     </Select>
