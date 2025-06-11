@@ -23,7 +23,7 @@ export default defineConfig({
     },
   },
   plugins: [react()],
-  base: '/Sentinel-MIMS/',
+  base: './',
   server: {
     historyApiFallback: true,
   },
