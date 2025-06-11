@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import Highlighter from 'react-highlight-words';
 
 const HighlightText = memo(({ text, searchTerm }) => {

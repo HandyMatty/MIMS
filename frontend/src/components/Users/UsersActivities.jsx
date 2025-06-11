@@ -9,28 +9,28 @@ import { useMediaQuery } from 'react-responsive';
 const { Text } = Typography;
 
 const UsersActivities = () => {
-  const [activities, setActivities] = useState([]); // Activities data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const [searchText, setSearchText] = useState(''); // Search text state
-  const [currentPage, setCurrentPage] = useState(1); // Current page state
-  const [pageSize, setPageSize] = useState(5); // Page size state
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); 
+  const [searchText, setSearchText] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
   const [searchColumn, setSearchColumn] = useState('all');
   const [localFilteredData, setLocalFilteredData] = useState([]);
   const [filterActive, setFilterActive] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 639 });
 
-  // Fetch activities on component mount
+
   useEffect(() => {
     const fetchActivities = async () => {
       try {
         const data = await fetchActivitiesApi();
-        setActivities(data); // Set fetched activities
+        setActivities(data);
       } catch (err) {
         console.error("Error fetching activities:", err);
         setError("Failed to load activities.");
       } finally {
-        setLoading(false); // Disable loading state
+        setLoading(false);
       }
     };
     fetchActivities();
@@ -45,39 +45,65 @@ const UsersActivities = () => {
     { key: 'date', label: 'Date' },
   ];
 
-  // Debounced search handler
-  const debouncedSearch = useCallback(
-    debounce((value) => {
-      if (value === '') {
-        setFilterActive(false);
-        return;
-      }
-      
-      setFilterActive(true);
-      const filtered = activities.filter(item => {
-        if (!item) return false;
-        
-        if (searchColumn === 'all') {
-          for (const key in item) {
-            const cellValue = item[key];
-            if (cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase())) {
+const debouncedSearch = useCallback(
+  debounce((value) => {
+    if (value === '') {
+      setFilterActive(false);
+      return;
+    }
+
+    setFilterActive(true);
+    const filtered = activities.filter(item => {
+      if (!item) return false;
+
+      if (searchColumn === 'all') {
+        for (const key in item) {
+          let cellValue = item[key];
+          // If searching date, use formatted date string
+          if (key === 'date' && cellValue) {
+            const formattedDate = new Date(cellValue).toLocaleString('en-PH', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+              second: 'numeric',
+              hour12: true,
+            });
+            if (formattedDate.toLowerCase().includes(value.toLowerCase())) {
               return true;
             }
           }
-          return false;
-        } else {
-          const cellValue = item[searchColumn];
-          return cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase());
+          if (cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase())) {
+            return true;
+          }
         }
-      });
-      
-      setLocalFilteredData(filtered);
-    }, 300),
-    [activities, searchColumn]
-  );
+        return false;
+      } else if (searchColumn === 'date') {
+        // Search formatted date string
+        const formattedDate = new Date(item.date).toLocaleString('en-PH', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          hour12: true,
+        });
+        return formattedDate.toLowerCase().includes(value.toLowerCase());
+      } else {
+        const cellValue = item[searchColumn];
+        return cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase());
+      }
+    });
+
+    setLocalFilteredData(filtered);
+  }, 300),
+  [activities, searchColumn]
+);
 
   const handleSearch = useCallback((e) => {
-    const value = e.target.value;  // Remove trim() to allow spaces
+    const value = e.target.value;  
     setSearchText(value);
     debouncedSearch(value);
   }, [debouncedSearch]);
@@ -86,7 +112,6 @@ const UsersActivities = () => {
     setSearchColumn(column);
   };
 
-  // Reset all filters and pagination
   const resetAll = () => {
     setSearchText('');
     setCurrentPage(1);
@@ -96,13 +121,11 @@ const UsersActivities = () => {
 
   const filteredData = filterActive ? localFilteredData : activities;
 
-  // Paginate filtered data
   const paginatedData = filteredData.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
-  // Define table columns
   const columns = [
     {
       title: 'ID',
@@ -210,7 +233,6 @@ const UsersActivities = () => {
         </div>
       </div>
 
-      {/* Activities Table */}
       <div className='w-auto overflow-x-auto'>
         <Table
           columns={columns}
@@ -248,7 +270,6 @@ const UsersActivities = () => {
         />
       </div>
 
-      {/* Pagination Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-5 space-y-2 sm:space-y-0">
         <Text style={{ color: '#072C1C' }} className="w-full text-xs text-wrap text-center sm:text-left">
           Showing {Math.min((currentPage - 1) * pageSize + 1, filteredData.length)} to{' '}

@@ -1,28 +1,38 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import AdminRoutes from './pageRoutes/AdminRoutes';
 import UserRoutes from './pageRoutes/UserRoutes';
-import PublicRoutes from './pageRoutes/PublicRoutes'; // Import PublicRoutes
-import GuestRoutes from './pageRoutes/GuestRoutes'; // Import GuestRoutes
+import PublicRoutes from './pageRoutes/PublicRoutes';
+import GuestRoutes from './pageRoutes/GuestRoutes';
+import ErrorPage from '../pages/Error/ErrorPage'; // ✅ Import your error page
 
 const RootRoutes = () => {
-  const router = createBrowserRouter([
+  const router = createBrowserRouter(
+    [
+      {
+        path: '/admin/*',
+        element: <AdminRoutes />,
+        errorElement: <ErrorPage />, // ✅ Show on route errors
+      },
+      {
+        path: '/user/*',
+        element: <UserRoutes />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: '/guest/*',
+        element: <GuestRoutes />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: '/*',
+        element: <PublicRoutes />,
+        errorElement: <ErrorPage />,
+      },
+    ],
     {
-      path: '/admin/*',
-      element: <AdminRoutes />,
-    },
-    {
-      path: '/user/*',
-      element: <UserRoutes />,
-    },
-    {
-      path: '/guest/*', // Define routes for guests
-      element: <GuestRoutes />,
-    },
-    {
-      path: '/*',
-      element: <PublicRoutes />, // Use PublicRoutes for all other paths
-    },
-  ], { basename: process.env.NODE_ENV === 'production' ? '/Sentinel-MIMS' : '/' });  // Apply basename only in production
+      basename: process.env.NODE_ENV === 'production' ? '/Sentinel-MIMS' : '/',
+    }
+  );
 
   return <RouterProvider router={router} />;
 };

@@ -31,14 +31,14 @@ const HistoryTable = () => {
     resetAllFilters,
   } = useHistoryTable();
 
-  const getColumnMenu = (tab) => ({
-    items: searchableColumns.map(column => ({
-      key: column.key,
-      label: column.label,
-    })),
-    onClick: ({ key }) => handleColumnChange(tab, key),
-    selectedKeys: [searchColumns[tab]]
-  });
+const getColumnMenu = (tab) => ({
+  items: (searchableColumns[tab] || []).map(column => ({
+    key: column.key,
+    label: column.label,
+  })),
+  onClick: ({ key }) => handleColumnChange(tab, key),
+  selectedKeys: [searchColumns[tab]]
+});
   
 
   return (
@@ -63,13 +63,13 @@ const HistoryTable = () => {
                       icon={<FilterOutlined />}
                     >
                       <Space>
-                        {searchableColumns.find(col => col.key === searchColumns.added)?.label || 'All Columns'}
+                        {searchableColumns.added.find(col => col.key === searchColumns.added)?.label || 'All Columns'}
                         <DownOutlined />
                       </Space>
                     </Button>
                   </Dropdown>
                   <Input
-                    placeholder={`Search in ${searchColumns.added === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumns.added)?.label}`}
+                    placeholder={`Search in ${searchColumns.added === 'all' ? 'all columns' : searchableColumns.added.find(col => col.key === searchColumns.added)?.label}`}
                     prefix={<SearchOutlined style={{color: "black"}} />}
                     value={searchTerms.added}
                     onChange={(e) => handleSearch('added', e)}
@@ -179,13 +179,13 @@ const HistoryTable = () => {
                       icon={<FilterOutlined />}
                     >
                       <Space>
-                        {searchableColumns.find(col => col.key === searchColumns.updated)?.label || 'All Columns'}
+                        {searchableColumns.updated.find(col => col.key === searchColumns.updated)?.label || 'All Columns'}
                         <DownOutlined className="text-xs"/>
                       </Space>
                     </Button>
                   </Dropdown>
                   <Input
-                    placeholder={`Search in ${searchColumns.updated === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumns.updated)?.label}`}
+                    placeholder={`Search in ${searchColumns.updated === 'all' ? 'all columns' : searchableColumns.updated.find(col => col.key === searchColumns.updated)?.label}`}
                     prefix={<SearchOutlined style={{color: "black"}} />}
                     value={searchTerms.updated}
                     onChange={(e) => handleSearch('updated', e)}
@@ -289,17 +289,17 @@ const HistoryTable = () => {
                       icon={<FilterOutlined />}
                     >
                       <Space>
-                        {searchableColumns.find(col => col.key === searchColumns.deleted)?.label || 'All Columns'}
+                        {searchableColumns.deleted.find(col => col.key === searchColumns.deleted)?.label || 'All Columns'}
                         <DownOutlined />
                       </Space>
                     </Button>
                   </Dropdown>
                   <Input
-                    placeholder={`Search in ${searchColumns.deleted === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumns.deleted)?.label}`}
+                    placeholder={`Search in ${searchColumns.deleted === 'all' ? 'all columns' : searchableColumns.deleted.find(col => col.key === searchColumns.deleted)?.label}`}
                     prefix={<SearchOutlined style={{color: "black"}} />}
                     value={searchTerms.deleted}
                     onChange={(e) => handleSearch('deleted', e)}
-                    className="border border-black w-auto ml-1 text-xs"
+                    className="border border-black w-auto ml-1 text-xs overflow-auto"
                     suffix={
                       searchTerms.deleted ? (
                         <Button 
@@ -342,7 +342,7 @@ const HistoryTable = () => {
                     loading={loading}
                     className="text-xs overflow-auto"
                     expandable={ isMobile ?{
-                      expandedRowRender: (record) =>
+                      expandedRowRender: (record) => (
                         <div>
                           <div><b>ID:</b> {record.id}</div> 
                           <div><b>Action:</b> {record.action}</div>
@@ -351,19 +351,19 @@ const HistoryTable = () => {
                           <div><b>Type:</b> {record.type}</div>
                           <div><b>Brand:</b> {record.brand}</div>
                           <div><b>Qty:</b> {record.quantity}</div>
-                          <div><b>Remarks:</b> {record.quantity}</div>
+                          <div><b>Remarks:</b> {record.remarks}</div>
                           <div><b>Serial Number:</b> {record.serial_number}</div>
                           <div><b>Issued Date:</b> {record.issued_date}</div>
                           <div><b>Purchased Date:</b> {record.purchase_date}</div>
                           <div><b>Condition:</b> {record.condition}</div>
                           <div><b>Detachment/Office:</b> {record.location}</div>
                           <div><b>Status:</b> {record.status}</div>
-                        </div>
+                        </div> )
                     } :undefined}
                   />
                 </div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-center sm:justify-between mt-5 space-y-2 sm:space-y-0">
-                  <Typography.Text className="w-full text-xs text-nowrap text-center sm:text-left"
+                  <Typography.Text className="w-full text-xs text-nowrap text-center sm:text-left overflow-auto"
                     style={{ color: '#072C1C' }}>
                     Showing {(filterActive.deleted ? localFilteredData.deleted : deletedData).length > 0 ? 
                       (currentPages.deleted - 1) * pageSizes.deleted + 1 : 0} to{" "}
@@ -371,7 +371,7 @@ const HistoryTable = () => {
                       (filterActive.deleted ? localFilteredData.deleted : deletedData).length)} 
                     {" "} of {(filterActive.deleted ? localFilteredData.deleted : deletedData).length} entries
                   </Typography.Text>
-                  <div className="w-full flex justify-center sm:justify-end">
+                  <div className="w-full flex justify-center sm:justify-end overflow-auto">
                   <Pagination
                     current={currentPages.deleted}
                     pageSize={pageSizes.deleted}

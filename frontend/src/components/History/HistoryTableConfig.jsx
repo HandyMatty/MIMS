@@ -1,24 +1,48 @@
 import { Tag, Button } from "antd";
 import HighlightText from "../common/HighlightText";
 
-// Helper function to generate status tag
-export const getStatusTag = (status) => {
-  const colors = {
-    "On Stock": "green",
-    "For Repair": "volcano",
-    Deployed: "blue",
-  };
-  return <Tag color={colors[status] || "gray"} className='text-wrap text-center'>{status}</Tag>;
+export const getStatusTag = (status, searchTerm = '') => {
+  let color;
+  switch (status) {
+    case 'On Stock':
+      color = 'green';
+      break;
+    case 'For Repair':
+      color = 'volcano';
+      break;
+    case 'Deployed':
+      color = 'blue';
+      break;
+    default:
+      color = 'gray';
+  }
+  return (
+    <Tag color={color} className="text-wrap text-center">
+      <HighlightText text={status} searchTerm={searchTerm} />
+    </Tag>
+  );
 };
 
-// Helper function to generate condition tag
-export const getConditionTag = (condition) => {
-  const colors = {
-    "Brand New": "gold",
-    "Good Condition": "green",
-    Defective: "red",
-  };
-  return <Tag color={colors[condition] || "gray"} className='text-wrap text-center' >{condition}</Tag>;
+export const getConditionTag = (condition, searchTerm = '') => {
+  let color;
+  switch (condition) {
+    case 'Brand New':
+      color = 'gold';
+      break;
+    case 'Good Condition':
+      color = 'green';
+      break;
+    case 'Defective':
+      color = 'red';
+      break;
+    default:
+      color = 'gray';
+  }
+  return (
+    <Tag color={color} className="text-wrap text-center">
+      <HighlightText text={condition} searchTerm={searchTerm} />
+    </Tag>
+  );
 };
 
 export const getColumns = (showModal, tabType, searchTerm = '') => {
@@ -72,8 +96,6 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
     },
   ];
-
-  // Add specific columns for "Added" and "Deleted" tabs
   if (tabType === "Added" || tabType === "Deleted") {
     columns.push(
       {
@@ -101,7 +123,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: 'quantity',
         key: 'quantity',
         align: 'center',
-        width: 'auto',
+        width: '70px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
         sorter: (a, b) => a.quantity - b.quantity,
@@ -112,7 +134,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "remarks",
         key: "remarks",
         align: "center",
-        width: 'auto',
+        width: '170px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
         render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
@@ -122,7 +144,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: "serial_number",
         key: "serial_number",
         align: "center",
-        width: 'auto',
+        width: '150px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
         render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
@@ -157,7 +179,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: 'auto',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (condition) => getConditionTag(condition),
+        render: (condition) => getConditionTag(condition, searchTerm),
         filters: [
           { text: "Brand New", value: "Brand New" },
           { text: "Good Condition", value: "Good Condition" },
@@ -183,7 +205,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: 'auto',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (status) => getStatusTag(status),
+        render: (status) => getStatusTag(status, searchTerm),
         filters: [
           { text: "On Stock", value: "On Stock" },
           { text: "For Repair", value: "For Repair" },
@@ -194,7 +216,6 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
     );
   }
 
-  // Add "Field Changed" and "Changed Details" only for "Updated / QRCode Update" tab
   if (tabType === "Updated") {
     columns.push(
       {

@@ -2,8 +2,7 @@ import { QrcodeOutlined } from '@ant-design/icons';
 import { Tag } from 'antd';
 import HighlightText from '../common/HighlightText';
 
-// Helper function to generate status tag
-const getStatusTag = (status) => {
+export const getStatusTag = (status, searchTerm = '') => {
   let color;
   switch (status) {
     case 'On Stock':
@@ -18,11 +17,14 @@ const getStatusTag = (status) => {
     default:
       color = 'gray';
   }
-  return <Tag color={color} className='text-wrap text-center'>{status}</Tag>;
+  return (
+    <Tag color={color} className="text-wrap text-center">
+      <HighlightText text={status} searchTerm={searchTerm} />
+    </Tag>
+  );
 };
 
-// Helper function to generate condition tag
-const getConditionTag = (condition) => {
+export const getConditionTag = (condition, searchTerm = '') => {
   let color;
   switch (condition) {
     case 'Brand New':
@@ -37,7 +39,11 @@ const getConditionTag = (condition) => {
     default:
       color = 'gray';
   }
-  return <Tag color={color} className='text-wrap text-center'>{condition}</Tag>;
+  return (
+    <Tag color={color} className="text-wrap text-center">
+      <HighlightText text={condition} searchTerm={searchTerm} />
+    </Tag>
+  );
 };
 
 // Export the columns function
@@ -93,9 +99,9 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'quantity',
     key: 'quantity',
     align: 'center',
-    className: 'text-xs overflow-auto',
+    className: 'text-xs overflow-auto text-wrap',
     responsive: ['sm'],
-    width: 'auto',
+    width: '70px',
     sorter: (a, b) => a.quantity - b.quantity,
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
@@ -104,9 +110,9 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'remarks',
     key: 'remarks',
     align: 'center',
-    className: 'text-xs overflow-auto',
+    className: 'text-xs overflow-auto text-wrap',
     responsive: ['sm'],
-    width: 'auto',
+    width: '170px',
     render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
   },
   {
@@ -114,7 +120,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     dataIndex: 'serialNumber',
     key: 'serialNumber',
     align: 'center',
-    className: 'text-xs overflow-auto',
+    width: '150px',
+    className: 'text-xs overflow-auto text-wrap',
     responsive: ['sm'],
     sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
     render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
@@ -156,7 +163,7 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     align: 'center',
     className: 'text-xs overflow-auto',
     responsive: ['sm'],
-    render: (condition) => getConditionTag(condition),
+    render: (condition) => getConditionTag(condition, searchTerm),
     filters: [
       { text: 'Brand New', value: 'Brand New' },
       { text: 'Good Condition', value: 'Good Condition' },
@@ -180,7 +187,7 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     align: 'center',
     className: 'text-xs overflow-auto',
     responsive: ['sm'],
-    render: (status) => getStatusTag(status),
+    render: (status) => getStatusTag(status, searchTerm),
     filters: [
       { text: 'On Stock', value: 'On Stock' },
       { text: 'For Repair', value: 'For Repair' },

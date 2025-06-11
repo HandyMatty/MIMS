@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Layout, Menu, Badge, Modal } from 'antd';
+import React, { useEffect, useState, Suspense } from 'react';
+import { Layout, Badge, Modal, Spin } from 'antd';
 import { BellOutlined, UserOutlined, CalendarOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminAuthStore } from '../store/admin/useAuth';
@@ -7,6 +7,9 @@ import { useUserAuthStore } from '../store/user/useAuth';
 import { useGuestAuthStore } from '../store/guest/useAuth';
 import Cookies from 'js-cookie';
 import { useNotification } from '../utils/NotificationContext';
+
+// Dynamic import for Menu (optional, for demonstration)
+const DynamicMenu = React.lazy(() => import('antd/es/menu'));
 
 const { Header } = Layout;
 
@@ -130,27 +133,30 @@ const HeaderBar = ({ onMobileMenuClick }) => {
           className="block sm:hidden"
           style={{ fontSize: 20, color: '#d4e09b', cursor: 'pointer' }}
           onClick={onMobileMenuClick}
-          
         />
         {/* Profile icon (desktop & mobile) */}
-        <Menu
-          onClick={onClick}
-          selectedKeys={[location.pathname]}
-          mode="horizontal"
-          items={[items[0]]}
-          style={{ margin: 0, padding: 0, background: '#072C1C' }}
-          className='gap-2'
-        />
+        <Suspense fallback={<Spin size="small" />}>
+          <DynamicMenu
+            onClick={onClick}
+            selectedKeys={[location.pathname]}
+            mode="horizontal"
+            items={[items[0]]}
+            style={{ margin: 0, padding: 0, background: '#072C1C' }}
+            className='gap-2'
+          />
+        </Suspense>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', paddingRight: '20px' }}>
-        <Menu
-          onClick={onClick}
-          selectedKeys={[location.pathname]}
-          mode="horizontal"
-          items={[items[1], items[2]]}
-          style={{ margin: 0, padding: 0, background: '#072C1C' }}
-        />
+        <Suspense fallback={<Spin size="small" />}>
+          <DynamicMenu
+            onClick={onClick}
+            selectedKeys={[location.pathname]}
+            mode="horizontal"
+            items={[items[1], items[2]]}
+            style={{ margin: 0, padding: 0, background: '#072C1C' }}
+          />
+        </Suspense>
       </div>
     </Header>
   );

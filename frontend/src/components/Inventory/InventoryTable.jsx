@@ -99,7 +99,8 @@ const InventoryTable = () => {
     setTableKey(prevKey => prevKey + 1);
   }, [handleReset]);
 
-  const searchableColumns = useMemo(() => [
+ const searchableColumnsForTab = useMemo(() => {
+  const baseColumns = [
     { key: 'all', label: 'All Columns' },
     { key: 'id', label: 'ID' },
     { key: 'type', label: 'Type' },
@@ -111,14 +112,25 @@ const InventoryTable = () => {
     { key: 'status', label: 'Status' },
     { key: 'condition', label: 'Condition' },
     { key: 'issuedDate', label: 'Issued Date' },
-    { key: 'purchaseDate', label: 'Purchase Date' },
-  ], []);
+    { key: 'purchaseDate', label: 'Purchased Date' },
+  ];
 
-  const menuItems = useMemo(() => 
-    searchableColumns.map(column => ({
-      key: column.key,
-      label: column.label,
-    })), [searchableColumns]);
+  const currentTab = isMobile ? mobileTab : activeTab;
+
+  return baseColumns.filter(col => {
+    if (currentTab === 'issuedDate') return col.key !== 'purchaseDate';
+    if (currentTab === 'purchaseDate') return col.key !== 'issuedDate';
+    return true;
+  });
+}, [activeTab, mobileTab, isMobile]);
+
+
+const menuItems = useMemo(() => 
+  searchableColumnsForTab.map(column => ({
+    key: column.key,
+    label: column.label,
+  })), [searchableColumnsForTab]);
+
 
   const getTabContent = (tabKey) => (
     <div className="w-auto overflow-x-auto">
@@ -226,13 +238,13 @@ const InventoryTable = () => {
                   icon={<FilterOutlined />}
                 >
                   <Space>
-                    {searchableColumns.find(col => col.key === searchColumn)?.label || 'All Columns'}
+                    {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
                     <DownOutlined />
                   </Space>
                 </Button>
               </Dropdown>
               <Input
-                placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumn)?.label}`}
+                placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={handleSearch}
@@ -258,7 +270,7 @@ const InventoryTable = () => {
           </div>
           <div className="flex justify-center gap-2 w-auto">
              <Tooltip
-              title={<span className="text-xs">Add Item</span>}
+              title={<span className="text-xs">New</span>}
             >
               {(isAdmin || userRole === 'user') && (
                 <Button

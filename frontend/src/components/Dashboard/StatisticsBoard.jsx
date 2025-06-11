@@ -36,16 +36,27 @@ const StatisticsBoard = ({ searchText }) => {
     Object.values(item).join(' ').toLowerCase().includes(searchText.toLowerCase())
   );
 
-  // Calculate counts from filtered data
-  const inventoryCounts = {
-    totalEquipment: filteredData.reduce((total, item) => total + Number(item.quantity), 0),
-    BrandNew: filteredData.filter((item) => item.condition === 'Brand New').length,
-    deployed: filteredData.filter((item) => item.status === 'Deployed').length,
-    OnStock: filteredData.filter((item) => item.status === 'On Stock').length,
-    goodCondition: filteredData.filter((item) => item.condition === 'Good Condition').length,
-    defective: filteredData.filter((item) => item.condition === 'Defective').length,
-    forrepair: filteredData.filter((item) => item.status === 'For Repair').length,
-  };
+const inventoryCounts = {
+  totalEquipment: filteredData.reduce((total, item) => total + Number(item.quantity || 0), 0),
+  BrandNew: filteredData.reduce(
+    (total, item) => item.condition === 'Brand New' ? total + Number(item.quantity || 0) : total, 0
+  ),
+  goodCondition: filteredData.reduce(
+    (total, item) => item.condition === 'Good Condition' ? total + Number(item.quantity || 0) : total, 0
+  ),
+  defective: filteredData.reduce(
+    (total, item) => item.condition === 'Defective' ? total + Number(item.quantity || 0) : total, 0
+  ),
+  forrepair: filteredData.reduce(
+    (total, item) => item.status === 'For Repair' ? total + Number(item.quantity || 0) : total, 0
+  ),
+  OnStock: filteredData.reduce(
+    (total, item) => item.status === 'On Stock' ? total + Number(item.quantity || 0) : total, 0
+  ),
+  deployed: filteredData.reduce(
+    (total, item) => item.status === 'Deployed' ? total + Number(item.quantity || 0) : total, 0
+  ),
+};
 
   return (
     <div className="status-dashboard">

@@ -193,7 +193,7 @@ input[type="password"]::-ms-reveal {
 
 .ant-table-wrapper .ant-table-bordered .ant-table-container,
 .ant-table-wrapper .ant-table-bordered .ant-table-cell {
-  border-color: darkgreen !important;
+  border-color: #006400 !important;
 }
 .ant-pagination-item, .ant-pagination-item-link {
   background-color: #a7f3d0!important;

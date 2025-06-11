@@ -29,23 +29,20 @@ const HistoryBarGraph = ({ searchText }) => {
         const data = await getInventoryData();
 
         const filteredData = data.filter(item =>
-          Object.values(item)
-            .join(' ')
-            .toLowerCase()
-            .includes(searchText.toLowerCase())
+          Object.values(item).join(' ').toLowerCase().includes(searchText.toLowerCase())
         );
 
         const typeCounts = filteredData.reduce((acc, item) => {
           const { type, quantity } = item;
+          if (!type) return acc;
           if (!acc[type]) acc[type] = 0;
           acc[type] += parseInt(quantity) || 0;
           return acc;
         }, {});
 
-        const formattedData = Object.entries(typeCounts).map(([labelName, value]) => ({
-          labelName,
-          value
-        }));
+        const formattedData = Object.entries(typeCounts)
+          .map(([labelName, value]) => ({ labelName, value }))
+          .sort((a, b) => a.labelName.localeCompare(b.labelName)); // ✅ Sort alphabetically
 
         setBarData(formattedData);
       } catch (error) {
@@ -75,18 +72,45 @@ const HistoryBarGraph = ({ searchText }) => {
         style: {
           fill: '#072C1C',
           fillOpacity: 1,
-          fontSize: isMobile ? 7 : 12,
+          fontSize: isMobile ? 7 : 9,
         },
       },
       style: {
         fill: '#eee',
       },
     },
+    legend: {
+      color: {
+        title: false,
+        position: 'top',
+        itemName: {
+          style: {
+            fill: '#072C1C',
+            fontSize: isMobile ? 8 : 12,
+            fontWeight: 600,
+          },
+        },
+        items: barData
+          .slice()
+          .sort((a, b) => a.labelName.localeCompare(b.labelName)) // ✅ Sort legends alphabetically
+          .map(item => ({
+            name: item.labelName,
+            value: item.labelName,
+            marker: {
+              symbol: 'square',
+              style: {
+                fill: COLORS[barData.findIndex(d => d.labelName === item.labelName) % COLORS.length],
+                r: 5,
+              },
+            },
+          })),
+      },
+    },
     scale: {
       y: {
         domain: [0, Math.max(...barData.map(d => d.value || 0), 1000)],
       },
-    color: {
+      color: {
         range: COLORS,
       },
     },
@@ -94,24 +118,24 @@ const HistoryBarGraph = ({ searchText }) => {
       x: {
         tick: true,
         label: true,
-        labelFontSize: isMobile? 5:12,
+        labelFontSize: isMobile ? 5 : 9,
         labelFontStyle: 'bold',
         labelFill: '#072C1C',
-        labelFillOpacity: 2
+        labelFillOpacity: 2,
       },
       y: {
         grid: true,
-        gridStrokeOpacity: 5 ,
-        gridLineDash: [5 , 5] ,
+        gridStrokeOpacity: 5,
+        gridLineDash: [5, 5],
         tick: false,
         label: true,
         title: 'Inventory Types Quantity',
-        titleFontSize: isMobile ? 10:12,
-        titleFontStyle: "bold" ,
+        titleFontSize: isMobile ? 10 : 12,
+        titleFontStyle: 'bold',
         scrollY: !isMobile,
-        labelFontSize: isMobile? 8:12,
+        labelFontSize: isMobile ? 8 : 12,
         labelFill: '#072C1C',
-        labelFillOpacity: 2
+        labelFillOpacity: 2,
       },
     },
     interaction: {

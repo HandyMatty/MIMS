@@ -1,10 +1,12 @@
-import Login from "./Login/Login";
-import ForgotPassword from "./Login/ForgotPassword";
-import Dashboard from "./Dashboard";
-import InventoryPage from "./InventoryPage";
-import History from "./History";
-import QrCode from "./QrCode";
-import Users from "./Users";
-import Notifications from "./Header/Notifications";
+import React from 'react';
+
+const Login = React.lazy(() => import("./Login/Login"));
+const ForgotPassword = React.lazy(() => import("./Login/ForgotPassword"));
+const Dashboard = React.lazy(() => import("./Dashboard"));
+const InventoryPage = React.lazy(() => import("./InventoryPage"));
+const History = React.lazy(() => import("./History"));
+const QrCode = React.lazy(() => import("./QrCode"));
+const Users = React.lazy(() => import("./Users"));
+const Notifications = React.lazy(() => import("./Header/Notifications"));
 
 export {Login, ForgotPassword, Dashboard, InventoryPage, History, QrCode, Users, Notifications};

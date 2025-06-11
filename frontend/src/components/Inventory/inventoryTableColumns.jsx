@@ -2,25 +2,7 @@ import { Tag, Tooltip, Button } from 'antd';
 import { EditFilled } from '@ant-design/icons';
 import HighlightText from '../common/HighlightText';
 
-export const getConditionTag = (condition) => {
-  let color;
-  switch (condition) {
-    case 'Brand New':
-      color = 'gold';
-      break;
-    case 'Good Condition':
-      color = 'green';
-      break;
-    case 'Defective':
-      color = 'red';
-      break;
-    default:
-      color = 'gray';
-  }
-  return <Tag color={color} className='text-wrap text-center'>{condition}</Tag>;
-};
-
-export const getStatusTag = (status) => {
+export const getStatusTag = (status, searchTerm = '') => {
   let color;
   switch (status) {
     case 'On Stock':
@@ -35,7 +17,33 @@ export const getStatusTag = (status) => {
     default:
       color = 'gray';
   }
-  return <Tag color={color} className='text-wrap text-center'>{status}</Tag>;
+  return (
+    <Tag color={color} className="text-wrap text-center">
+      <HighlightText text={status} searchTerm={searchTerm} />
+    </Tag>
+  );
+};
+
+export const getConditionTag = (condition, searchTerm = '') => {
+  let color;
+  switch (condition) {
+    case 'Brand New':
+      color = 'gold';
+      break;
+    case 'Good Condition':
+      color = 'green';
+      break;
+    case 'Defective':
+      color = 'red';
+      break;
+    default:
+      color = 'gray';
+  }
+  return (
+    <Tag color={color} className="text-wrap text-center">
+      <HighlightText text={condition} searchTerm={searchTerm} />
+    </Tag>
+  );
 };
 
 export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm = '') => {
@@ -111,8 +119,8 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       dataIndex: 'quantity',
       key: 'quantity',
       align: 'center',
-      width: 'auto',
-      className: 'text-xs overflow-auto',
+      width: '80px',
+      className: 'text-xs overflow-auto text-wrap',
       responsive: ['sm'],
       sorter: (a, b) => a.quantity - b.quantity,
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
@@ -122,8 +130,8 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       dataIndex: 'remarks',
       key: 'remarks',
       align: 'center',
-      width: 'auto',
-      className: 'text-xs overflow-auto',
+      width: '170px',
+      className: 'text-xs overflow-auto text-wrap',
       responsive: ['sm'],
       render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} searchTerm={searchTerm} />
     },
@@ -132,8 +140,8 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       dataIndex: 'serialNumber',
       key: 'serialNumber',
       align: 'center',
-      width: 'auto',
-      className: 'text-xs overflow-auto',
+      width: '150px',
+      className: 'text-xs overflow-auto text-wrap',
       responsive: ['sm'],
       sorter: (a, b) => a.serialNumber?.localeCompare(b.serialNumber || ''),
       render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} searchTerm={searchTerm} />
@@ -214,7 +222,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       width: 'auto',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
-      render: (condition) => getConditionTag(condition),
+      render: (condition) => getConditionTag(condition, searchTerm),
       filters: [
         { text: 'Brand New', value: 'Brand New' },
         { text: 'Good Condition', value: 'Good Condition' },
@@ -240,7 +248,7 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       width: 'auto',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
-      render: (status) => getStatusTag(status),
+      render: (status) => getStatusTag(status, searchTerm),
       filters: [
         { text: 'On Stock', value: 'On Stock' },
         { text: 'For Repair', value: 'For Repair' },

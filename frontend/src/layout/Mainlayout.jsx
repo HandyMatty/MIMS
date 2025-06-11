@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Layout, Menu, Spin, Modal, message, Drawer } from 'antd';
 import {
   DashboardOutlined,
@@ -11,16 +11,15 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { HeaderBar } from '../components/index';
+const HeaderBar = React.lazy(() => import('../components/Header.jsx'));
+const NoticeModal = React.lazy(() => import('../components/Notice/NoticeModal'));
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
 import { useGuestAuthStore } from '../store/guest/useAuth';
 import { logoutUser } from '../services/api/logout';
 import { useActivity } from '../utils/ActivityContext';
 import SINSSILogo from "../../assets/SINSSI_LOGO-removebg-preview.png";
-import NoticeModal from '../components/Notice/NoticeModal';
 import { LazyImage, preloadImages } from '../utils/imageHelpers.jsx';
-
 
 const { Sider } = Layout;
 
@@ -39,7 +38,6 @@ const MainLayout = () => {
   const location = useLocation();
   const { logUserActivity } = useActivity();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-
 
   const isAdmin = adminAuth.token && adminAuth.userData;
   const isUser = userAuth.token && userAuth.userData;
@@ -168,7 +166,7 @@ const MainLayout = () => {
   
     checkCookiePresence(); // Run once on load
   
-    const interval = setInterval(checkCookiePresence, 15000); // Then every 60 seconds
+    const interval = setInterval(checkCookiePresence, 15000); // Then every 15 seconds
   
     return () => clearInterval(interval);
   }, [adminAuth, userAuth, guestAuth, navigate, logUserActivity]);  
@@ -214,8 +212,6 @@ const MainLayout = () => {
           const updatedUserData = JSON.parse(event.newValue);
           if (!updatedUserData || !updatedUserData.username) return;
   
-          console.log("Updating username dynamically:", updatedUserData.username);
-  
           // Check which auth store should be updated
           if (isAdmin) {
             adminAuth.setUserData(updatedUserData);
@@ -258,128 +254,142 @@ const MainLayout = () => {
   }
 
   return (
-    <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-      <NoticeModal />
-       <Drawer
-            placement="top"
-            open={showMobileMenu}
-            onClose={() => setShowMobileMenu(false)}
-            style={{
-              backgroundColor: '#0C9B4B',
-              width: 'auto'
-            }}
-          >
-            <Menu
-              className='bg-inherit w-auto text-black justify-self-center'
-              mode="vertical"
-              selectedKeys={[current]}
-              onClick={(e) => {
-                setShowMobileMenu(false);
-                onClick(e);
-              }}
-              items={[
-                ...items,
-                {
-                  key: 'logout',
-                  label: 'Logout',
-                  icon: <LogoutOutlined style={{ fontSize: '20px', paddingTop: 15 }} />,
-                },
-              ]}
-            />
-          </Drawer>
-
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        style={{
-          backgroundColor: '#0C9B4B',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1000,
-          height: '100vh',
-        }}
-        trigger={null}
-        className='hidden sm:block'
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <LazyImage
-                style={{ height: '40px', objectFit: 'cover', filter: 'brightness(50%)' }}
-                src={SINSSILogo}
-                alt="SINSSI Logo"
-                width={40}
-                height={40}
-              />
-              {!collapsed && (
-                <span
-                  style={{
-                    color: '#072C1C',
-                    fontSize: '32px',
-                    fontWeight: '600',
-                    marginLeft: '8px',
-                    fontFamily: 'Rubik, sans-serif',
-                  }}
-                >
-                  MIMS
-                </span>
-              )}
-            </div>
-            <div style={{ marginTop: '36px' }}>
-              <MenuOutlined
-                style={{ color: '#072C1C', fontSize: '20px', cursor: 'pointer' }}
-                onClick={() => setCollapsed(!collapsed)}
-              />
-            </div>
-          </div>
-         
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center h-screen bg-honeydew">
+        <LazyImage
+          className="h-[183px] w-[171px] object-cover mb-4 logo-bounce"
+          src={SINSSILogo}
+          alt="SINSSI Logo"
+          width={171}
+          height={183}
+        />
+        <Spin size="large" />
+        <p className="mt-4 text-darkslategray-200">Loading...</p>
+      </div>
+    }>
+      <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+        <NoticeModal />
+        <Drawer
+          placement="top"
+          open={showMobileMenu}
+          onClose={() => setShowMobileMenu(false)}
+          style={{
+            backgroundColor: '#0C9B4B',
+            width: 'auto'
+          }}
+        >
           <Menu
-            theme="light"
-            mode="inline"
-            className="custom-menu"
-            style={{ backgroundColor: '#0C9B4B', marginTop: '22px', color: '#072C1C' }}
+            className='bg-inherit w-auto text-black justify-self-center'
+            mode="vertical"
             selectedKeys={[current]}
-            onClick={onClick}
+            onClick={(e) => {
+              setShowMobileMenu(false);
+              onClick(e);
+            }}
             items={[
               ...items,
               {
                 key: 'logout',
                 label: 'Logout',
-                icon: <LogoutOutlined style={{ fontSize: '20px' }} />,
-                style: { position: 'absolute', bottom: 50 },
+                icon: <LogoutOutlined style={{ fontSize: '20px', paddingTop: 15 }} />,
               },
             ]}
           />
-        </div>
-      </Sider>
+        </Drawer>
 
-      <Layout>
-      <HeaderBar onMobileMenuClick={() => setShowMobileMenu(true)} />
-        <Layout.Content
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={setCollapsed}
           style={{
-            padding: '10px',
-            overflowY: 'auto',
-            overflowX: 'auto',
-            backgroundColor: '#EAF4E2',
+            backgroundColor: '#0C9B4B',
+            position: 'sticky',
+            top: 0,
+            zIndex: 1000,
+            height: '100vh',
           }}
+          trigger={null}
+          className='hidden sm:block'
         >
-          <Outlet />
-        </Layout.Content>
-      </Layout>
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <LazyImage
+                  style={{ height: '40px', objectFit: 'cover', filter: 'brightness(50%)' }}
+                  src={SINSSILogo}
+                  alt="SINSSI Logo"
+                  width={40}
+                  height={40}
+                />
+                {!collapsed && (
+                  <span
+                    style={{
+                      color: '#072C1C',
+                      fontSize: '32px',
+                      fontWeight: '600',
+                      marginLeft: '8px',
+                      fontFamily: 'Rubik, sans-serif',
+                    }}
+                  >
+                    MIMS
+                  </span>
+                )}
+              </div>
+              <div style={{ marginTop: '36px' }}>
+                <MenuOutlined
+                  style={{ color: '#072C1C', fontSize: '20px', cursor: 'pointer' }}
+                  onClick={() => setCollapsed(!collapsed)}
+                />
+              </div>
+            </div>
+          
+            <Menu
+              theme="light"
+              mode="inline"
+              className="custom-menu"
+              style={{ backgroundColor: '#0C9B4B', marginTop: '22px', color: '#072C1C' }}
+              selectedKeys={[current]}
+              onClick={onClick}
+              items={[
+                ...items,
+                {
+                  key: 'logout',
+                  label: 'Logout',
+                  icon: <LogoutOutlined style={{ fontSize: '20px' }} />,
+                  style: { position: 'absolute', bottom: 50 },
+                },
+              ]}
+            />
+          </div>
+        </Sider>
 
-      <Modal
-        title="Confirm Logout"
-        open={isModalVisible}
-        onOk={handleModalOk}
-        onCancel={handleModalCancel}
-        okText="Yes, Logout"
-        cancelText="Cancel"
-        centered
-      >
-        <p>Are you sure you want to log out?</p>
-      </Modal>
-    </Layout>
+        <Layout>
+          <HeaderBar onMobileMenuClick={() => setShowMobileMenu(true)} />
+          <Layout.Content
+            style={{
+              padding: '10px',
+              overflowY: 'auto',
+              overflowX: 'auto',
+              backgroundColor: '#EAF4E2',
+            }}
+          >
+            <Outlet />
+          </Layout.Content>
+        </Layout>
+
+        <Modal
+          title="Confirm Logout"
+          open={isModalVisible}
+          onOk={handleModalOk}
+          onCancel={handleModalCancel}
+          okText="Yes, Logout"
+          cancelText="Cancel"
+          centered
+        >
+          <p>Are you sure you want to log out?</p>
+        </Modal>
+      </Layout>
+    </Suspense>
   );
 };
 

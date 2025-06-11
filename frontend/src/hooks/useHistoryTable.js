@@ -26,7 +26,8 @@ export const useHistoryTable = () => {
   const [filterActive, setFilterActive] = useState({ added: false, updated: false, deleted: false });
 
   // Searchable columns for the dropdown
-  const searchableColumns = [
+const searchableColumns = {
+  added: [
     { key: 'all', label: 'All Columns' },
     { key: 'id', label: 'ID' },
     { key: 'action', label: 'Action' },
@@ -35,12 +36,41 @@ export const useHistoryTable = () => {
     { key: 'type', label: 'Type' },
     { key: 'brand', label: 'Brand' },
     { key: 'quantity', label: 'Quantity' },
-    { key: 'field_changed', label: 'Field Changed' },
+    { key: 'remarks', label: 'Remarks' },
     { key: 'serial_number', label: 'Serial Number' },
+    { key: 'issued_date', label: 'Issued Date' },
+    { key: 'purchase_date', label: 'Purchased Date' },
+    { key: 'condition', label: 'Condition' },
     { key: 'location', label: 'Location' },
     { key: 'status', label: 'Status' },
+  ],
+  updated: [
+    { key: 'all', label: 'All Columns' },
+    { key: 'id', label: 'ID' },
+    { key: 'action', label: 'Action' },
+    { key: 'action_date', label: 'Action Date' },
+    { key: 'item_id', label: 'Item ID' },
+    { key: 'field_changed', label: 'Field Changed'},
+
+  ],
+  deleted: [
+    { key: 'all', label: 'All Columns' },
+    { key: 'id', label: 'ID' },
+    { key: 'action', label: 'Action' },
+    { key: 'action_date', label: 'Action Date' },
+    { key: 'item_id', label: 'Item ID' },
+    { key: 'type', label: 'Type' },
+    { key: 'brand', label: 'Brand' },
+    { key: 'quantity', label: 'Quantity' },
+    { key: 'remarks', label: 'Remarks' },
+    { key: 'serial_number', label: 'Serial Number' },
+    { key: 'issued_date', label: 'Issued Date' },
+    { key: 'purchase_date', label: 'Purchased Date' },
     { key: 'condition', label: 'Condition' },
-  ];
+    { key: 'location', label: 'Detachment/Office' },
+    { key: 'status', label: 'Status' },
+  ],
+};
 
   useEffect(() => {
     const fetchHistoryData = async () => {

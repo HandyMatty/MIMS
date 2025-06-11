@@ -1,18 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Rose } from '@ant-design/plots';
+import { Column } from '@ant-design/plots';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import { Spin } from 'antd';
 
 const Graph = () => {
-  const [roseData, setRoseData] = useState([]);
+  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
+    useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchInventoryData = async () => {
       try {
         const data = await getInventoryData();
 
-        // Aggregate total purchased and issued per month
         const purchaseCounts = {};
         const issuedCounts = {};
 
@@ -32,29 +38,27 @@ const Graph = () => {
           }
         });
 
-        // Collect all unique months and sort them
         const allMonths = Array.from(
           new Set([...Object.keys(purchaseCounts), ...Object.keys(issuedCounts)])
         ).sort((a, b) => new Date(a + '-01') - new Date(b + '-01'));
 
-        // Prepare data for Rose chart: one entry per month per type
-        const roseDataArr = [];
+        const result = [];
         allMonths.forEach(monthYear => {
-          roseDataArr.push({
+          result.push({
             month: monthYear,
             type: 'Purchased',
             value: purchaseCounts[monthYear] || 0,
           });
-          roseDataArr.push({
+          result.push({
             month: monthYear,
             type: 'Issued',
             value: issuedCounts[monthYear] || 0,
           });
         });
 
-        setRoseData(roseDataArr);
-      } catch (error) {
-        console.error('Error fetching inventory data', error);
+        setChartData(result);
+      } catch (err) {
+        console.error('Error fetching inventory data', err);
       } finally {
         setLoading(false);
       }
@@ -64,52 +68,43 @@ const Graph = () => {
   }, []);
 
   const config = {
-    width: 400,
-    height: 400,
-    autoFit: false,
-    radius: 1.20,
-    data: roseData,
+    data: chartData,
+    isGroup: true,
     xField: 'month',
     yField: 'value',
-    colorField: 'type',
-    transform: [{ type: 'groupX', y: 'sum' }],
-    scale: { y: { type: 'sqrt' }, x: { padding: 0 } },
-    legend: { color: { length: 400, layout: { justifyContent: 'center' } } },
-    labels: [
-      {
-        text: 'value',
-        position: 'outside',
-        formatter: (val) => `${val}`,
-        transform: [{ type: 'overlapDodgeY' }],
+    seriesField: 'type',
+    columnWidthRatio: 0.4,
+    colorField: 'type' ,
+    color: ['#34d399', '#60a5fa'],
+    xAxis: {
+      label: {
+        autoRotate: false,
+        style: {
+          fontSize: isMobile ? 6:8,
+        },
       },
-    ],
-    tooltip: {
-      items: [
-        { channel: 'y', valueFormatter: (v) => `${v}` }
-      ]
     },
-    axis: {
-    x: false ,
-    y: {
-        grid: true,
-        gridStrokeOpacity: 5 ,
-        gridLineDash: [5 , 5] ,
+    yAxis: {
+      minInterval: 1,
+      label: {
+        formatter: val => `${val}`,
+      },
     },
-  },
+    label: {
+      position: 'middle',
+      layout: [
+        { type: 'interval-adjust-position' },
+        { type: 'interval-hide-overlap' },
+        { type: 'adjust-color' },
+      ],
+    },
   };
 
-return (
-  <div className="w-full h-full rounded-xl bg-[#A8E1C5] shadow-md transition-transform transform hover:scale-105 text-xs flex justify-center items-center">
-      {loading ? (
-        <div className="loading-spinner">
-          <Spin size="large" />
-        </div>
-      ) : (
-        <Rose {...config} className='flex justify-center items-center align-middle'/>
-      )}
-
-  </div>
-);
+  return (
+    <div className="w-auto h-full rounded-xl bg-[#A8E1C5] shadow-md">
+      {loading ? <Spin size="large" /> : <Column {...config} />}
+    </div>
+  );
 };
 
 export default Graph;
