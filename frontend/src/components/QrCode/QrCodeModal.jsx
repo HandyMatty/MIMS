@@ -1,4 +1,6 @@
 import { Modal, QRCode } from 'antd';
+import SINSSILogo from "../../../assets/SINSSI_LOGO-removebg-preview.png";
+
 
 const QrCodeModal = ({ isVisible, onClose, qrDetails }) => {
   return (
@@ -11,6 +13,7 @@ const QrCodeModal = ({ isVisible, onClose, qrDetails }) => {
     >
       {qrDetails && (
         <QRCode
+          icon={SINSSILogo}
           value={JSON.stringify(qrDetails)}
           size={256}
           color="#000000"

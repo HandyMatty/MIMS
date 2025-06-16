@@ -76,32 +76,32 @@ const Calendar = () => {
           </Divider>
         </div>
         {/* Legend Section */}
-        <Row className='flex flex-col sm:flex-row justify-center items-center gap-4 mb-2'>
-          <Col span={2}>
+        <Row className='flex flex-col sm:flex-row justify-center items-center gap-5 mb-2'>
+          <Col xs={12} sm={3}>
             <Tag color="#4169E1">Important</Tag>
             <span>Royal Blue</span>
           </Col>
-          <Col span={2}>
+          <Col xs={12} sm={3}>
             <Tag color="#FFD700" style={{ color: 'black' }}>Celebration</Tag>
             <span>Gold</span>
           </Col>
-          <Col span={2}>
+          <Col xs={12} sm={3}>
             <Tag color="#228B22">Task</Tag>
             <span>Forest Green</span>
           </Col>
-          <Col span={2}>
+          <Col xs={12} sm={3}>
             <Tag color="#4682B4">Meeting</Tag>
             <span>Steel Blue</span>
           </Col>
-          <Col span={2}>
+          <Col xs={12} sm={3}>
             <Tag color="#FFC0CB" style={{ color: 'black' }}>Personal</Tag>
             <span>Soft Pink</span>
           </Col>
-          <Col span={2}>
+          <Col xs={12} sm={3}>
             <Tag color="#B22222">Deadline</Tag>
             <span>Firebrick Red</span>
           </Col>
-          <Col span={2}>
+          <Col xs={12} sm={3}>
             <Tag color="#FFFFE0" style={{ color: 'black' }}>Idea</Tag>
             <span>Pale Yellow</span>
           </Col>

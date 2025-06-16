@@ -3,6 +3,7 @@ import { Table, Select, Input, Button, Typography, Pagination, Tooltip, Card, Ta
 import { SearchOutlined, DeleteOutlined, PlusCircleOutlined, ReloadOutlined, DownOutlined, FilterOutlined } from '@ant-design/icons';
 import AddItemModal from './AddItemModal'; 
 import EditItemModal from './EditItemModal';
+import RedistributeItemModal from './RedistributeItemModal';
 import { columns } from './inventoryTableColumns';
 import { useState, useCallback, useMemo } from 'react';
 import debounce from 'lodash/debounce';
@@ -34,6 +35,10 @@ const InventoryTable = () => {
     setIsModalVisible,
     isEditModalVisible,
     setIsEditModalVisible,
+    redistributeItemData,
+    setRedistributeItemData,
+    isRedistributeModalVisible,
+    setIsRedistributeModalVisible,
     editingItem,
     isLoading,
     activeTab,
@@ -41,6 +46,8 @@ const InventoryTable = () => {
     userRole,
     paginatedData,
     totalEntries,
+    handleRedistribute,
+    handleRedistributeItem,
     handlePageChange,
     handleSortOrderChange,
     handleTableChange,
@@ -99,38 +106,36 @@ const InventoryTable = () => {
     setTableKey(prevKey => prevKey + 1);
   }, [handleReset]);
 
- const searchableColumnsForTab = useMemo(() => {
-  const baseColumns = [
-    { key: 'all', label: 'All Columns' },
-    { key: 'id', label: 'ID' },
-    { key: 'type', label: 'Type' },
-    { key: 'brand', label: 'Brand' },
-    { key: 'serialNumber', label: 'Serial Number' },
-    { key: 'remarks', label: 'Remarks' },
-    { key: 'quantity', label: 'Quantity' },
-    { key: 'location', label: 'Location' },
-    { key: 'status', label: 'Status' },
-    { key: 'condition', label: 'Condition' },
-    { key: 'issuedDate', label: 'Issued Date' },
-    { key: 'purchaseDate', label: 'Purchased Date' },
-  ];
+  const searchableColumnsForTab = useMemo(() => {
+    const baseColumns = [
+      { key: 'all', label: 'All Columns' },
+      { key: 'id', label: 'ID' },
+      { key: 'type', label: 'Type' },
+      { key: 'brand', label: 'Brand' },
+      { key: 'serialNumber', label: 'Serial Number' },
+      { key: 'remarks', label: 'Remarks' },
+      { key: 'quantity', label: 'Quantity' },
+      { key: 'location', label: 'Location' },
+      { key: 'status', label: 'Status' },
+      { key: 'condition', label: 'Condition' },
+      { key: 'issuedDate', label: 'Issued Date' },
+      { key: 'purchaseDate', label: 'Purchased Date' },
+    ];
 
-  const currentTab = isMobile ? mobileTab : activeTab;
+    const currentTab = isMobile ? mobileTab : activeTab;
 
-  return baseColumns.filter(col => {
-    if (currentTab === 'issuedDate') return col.key !== 'purchaseDate';
-    if (currentTab === 'purchaseDate') return col.key !== 'issuedDate';
-    return true;
-  });
-}, [activeTab, mobileTab, isMobile]);
+    return baseColumns.filter(col => {
+      if (currentTab === 'issuedDate') return col.key !== 'purchaseDate';
+      if (currentTab === 'purchaseDate') return col.key !== 'issuedDate';
+      return true;
+    });
+  }, [activeTab, mobileTab, isMobile]);
 
-
-const menuItems = useMemo(() => 
-  searchableColumnsForTab.map(column => ({
-    key: column.key,
-    label: column.label,
-  })), [searchableColumnsForTab]);
-
+  const menuItems = useMemo(() => 
+    searchableColumnsForTab.map(column => ({
+      key: column.key,
+      label: column.label,
+    })), [searchableColumnsForTab]);
 
   const getTabContent = (tabKey) => (
     <div className="w-auto overflow-x-auto">
@@ -139,14 +144,14 @@ const menuItems = useMemo(() =>
         rowSelection={rowSelection}
         rowKey="id"
         dataSource={filteredData}
-        columns={columns(handleEdit, sortOrder, userRole, tabKey, searchText)}
+        columns={columns(handleEdit, handleRedistribute, sortOrder, userRole, tabKey, searchText)}
         pagination={false}
         bordered
         onChange={handleTableChange}
         scroll={{ x: "max-content", y: 600 }}
         loading={isLoading}
         responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
-        expandable={ isMobile ?{ 
+        expandable={isMobile ? {
           expandedRowRender: (record) => (
             <div className="text-xs space-y-1">
               <div><b>ID:</b> {record.id}</div>
@@ -156,11 +161,10 @@ const menuItems = useMemo(() =>
               <div><b>Remarks:</b> {record.remarks}</div>
               <div><b>Serial Number:</b> {record.serialNumber}</div>
               {(tabKey === 'default' || tabKey === 'issuedDate') && (
-
-              <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>
+                <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>
               )}
               {(tabKey === 'default' || tabKey === 'purchaseDate') && (
-              <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>
+                <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>
               )}
               <div><b>Condition:</b> {record.condition}</div>
               <div><b>Detachment/Office:</b> {record.location}</div>
@@ -216,60 +220,58 @@ const menuItems = useMemo(() =>
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center mb-2 mt-2 w-full">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full sm:w-auto">
-              <Dropdown
-                className='border-black bg-[#a7f3d0] hidden sm:block'
-                menu={{
-                  items: menuItems.map(item => ({
-                    ...item,
-                    label: (
-                      <span className="break-words whitespace-normal text-xs">
-                        {item.label}
-                      </span>
-                    ),
-                  })),
-                  onClick: ({ key }) => setSearchColumn(key),
-                  selectedKeys: [searchColumn],
-                }}
-                trigger={['click']}
+            <Dropdown
+              className='border-black bg-[#a7f3d0] hidden sm:block'
+              menu={{
+                items: menuItems.map(item => ({
+                  ...item,
+                  label: (
+                    <span className="break-words whitespace-normal text-xs">
+                      {item.label}
+                    </span>
+                  ),
+                })),
+                onClick: ({ key }) => setSearchColumn(key),
+                selectedKeys: [searchColumn],
+              }}
+              trigger={['click']}
+            >
+              <Button
+                type="text"
+                className="border-black w-full sm:w-auto text-xs"
+                icon={<FilterOutlined />}
               >
-                <Button
-                  type="text"
-                  className="border-black w-full sm:w-auto text-xs"
-                  icon={<FilterOutlined />}
-                >
-                  <Space>
-                    {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                    <DownOutlined />
-                  </Space>
-                </Button>
-              </Dropdown>
-              <Input
-                placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
-                prefix={<SearchOutlined />}
-                value={searchText}
-                onChange={handleSearch}
-                className="ml-1 w-auto sm:w-auto border-black text-xs"
-                suffix={
-                  searchText ? (
-                    <Button
-                      type="text"
-                      size="small"
-                      onClick={() => {
-                        setSearchText('');
-                        setFilterActive(false);
-                      }}
-                      className="text-xs"
-                    >
-                      ×
-                    </Button>
-                  ) : null
-                }
-              />
-              
-              
+                <Space>
+                  {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </Dropdown>
+            <Input
+              placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
+              prefix={<SearchOutlined />}
+              value={searchText}
+              onChange={handleSearch}
+              className="ml-1 w-auto sm:w-auto border-black text-xs"
+              suffix={
+                searchText ? (
+                  <Button
+                    type="text"
+                    size="small"
+                    onClick={() => {
+                      setSearchText('');
+                      setFilterActive(false);
+                    }}
+                    className="text-xs"
+                  >
+                    ×
+                  </Button>
+                ) : null
+              }
+            />
           </div>
           <div className="flex justify-center gap-2 w-auto">
-             <Tooltip
+            <Tooltip
               title={<span className="text-xs">New</span>}
             >
               {(isAdmin || userRole === 'user') && (
@@ -293,25 +295,25 @@ const menuItems = useMemo(() =>
                 />
               </Tooltip>
             )}
-           <Button 
-                onClick={resetAll}
-                className="custom-button mt-1"
-                type="default"
-                size="small"
-                icon={<ReloadOutlined  className='text-xs'/>}
-              >
-                <span className="text-xs">Reset</span>
-              </Button>
-              <Select
-                defaultValue="Newest"
-                className="w-auto text-xs transparent-select mt-1"
-                onChange={handleSortOrderChange}
-                value={sortOrder === 'newest' ? 'Newest' : 'Oldest'}
-                size="small"
-              >
-                <Option value="Newest"><span className="text-xs">Newest</span></Option>
-                <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
-              </Select>
+            <Button 
+              onClick={resetAll}
+              className="custom-button mt-1"
+              type="default"
+              size="small"
+              icon={<ReloadOutlined className='text-xs'/>}
+            >
+              <span className="text-xs">Reset</span>
+            </Button>
+            <Select
+              defaultValue="Newest"
+              className="w-auto text-xs transparent-select mt-1"
+              onChange={handleSortOrderChange}
+              value={sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+              size="small"
+            >
+              <Option value="Newest"><span className="text-xs">Newest</span></Option>
+              <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
+            </Select>
           </div>
         </div>
       </div>
@@ -328,18 +330,18 @@ const menuItems = useMemo(() =>
           style={{ color: '#072C1C' }}>
           Showing data of {totalEntries > 0 ? (currentPage - 1) * pageSize + 1 : 0} to {Math.min(currentPage * pageSize, totalEntries)} of {totalEntries} entries
         </Typography.Text>
-      <div className="w-full flex justify-center sm:justify-end">
-        <Pagination
-          current={currentPage}
-          pageSize={pageSize}
-          total={totalEntries}
-          showSizeChanger
-          pageSizeOptions={['10', '20', '30', '50', '100', '200', '500', '1000', '2000']}
-          onChange={handlePageChange}
-          className="text-xs"
-          responsive
-        />
-      </div>
+        <div className="w-full flex justify-center sm:justify-end">
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={totalEntries}
+            showSizeChanger
+            pageSizeOptions={['10', '20', '30', '50', '100', '200', '500', '1000', '2000']}
+            onChange={handlePageChange}
+            className="text-xs"
+            responsive
+          />
+        </div>
       </div>
 
       <AddItemModal
@@ -353,6 +355,16 @@ const menuItems = useMemo(() =>
         onClose={() => setIsEditModalVisible(false)}
         onEdit={handleEditItem}
         item={editingItem}
+        loading={isLoading}
+      />
+      <RedistributeItemModal
+        visible={isRedistributeModalVisible}
+        onClose={() => {
+          setIsRedistributeModalVisible(false);
+          setRedistributeItemData(null);
+        }}
+        onEdit={handleRedistributeItem}
+        item={redistributeItemData}
         loading={isLoading}
       />
     </Card>

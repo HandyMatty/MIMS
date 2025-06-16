@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import { Button, message, notification, Spin } from 'antd';
+import { Button, Spin, App } from 'antd';
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useLoginAuth from '../../services/request/useLoginAuth';
@@ -8,6 +8,8 @@ import vectors from '../../../assets/vectors.svg';
 import { LazyImage, preloadImages } from '../../utils/imageHelpers.jsx';
 
 const Login = () => {
+  const { message } = App.useApp();
+  const { notification } = App.useApp();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);

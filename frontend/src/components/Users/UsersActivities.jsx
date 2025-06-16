@@ -158,8 +158,8 @@ const debouncedSearch = useCallback(
       title: 'Details',
       dataIndex: 'details',
       key: 'details',
-      width: 'auto',
-      className: 'text-xs overflow-auto',
+      width: '500px',
+      className: 'text-xs whitespace-normal break-words',
       responsive: ['sm'],
       render: (text) => <HighlightText text={text} searchTerm={searchText} />
     },
@@ -248,7 +248,7 @@ const debouncedSearch = useCallback(
             isMobile
               ? {
                   expandedRowRender: (record) => (
-                    <div className="text-xs space-y-1">
+                    <div className="text-xs space-y-1 text-wrap">
                       <div><b>ID:</b> {record.id}</div>
                       <div><b>Username:</b> {record.username}</div>
                       <div><b>Activity:</b> {record.activity}</div>

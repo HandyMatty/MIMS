@@ -5,6 +5,7 @@ import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
 import { useAdminAuthStore } from '../../store/admin/useAuth'; 
 import { useUserAuthStore } from '../../store/user/useAuth'; 
+import SINSSILogo from '../../../assets/SINSSI_LOGO-removebg-preview.png';
 
 const QrCodeGenerator = ({ itemDetails }) => {
   const [selectedFormat, setSelectedFormat] = React.useState('PNG');
@@ -18,7 +19,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
   const isAuthenticated = adminUserData || userUserData;
 
   const defaultItemData = {
-    id: "N/A",
+    Id: "N/A",
     Type: "N/A",
     Brand: "N/A",
     quantity: "N/A",
@@ -33,7 +34,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
 
   const itemData = itemDetails
     ? {
-        id: itemDetails.id || "N/A",
+        Id: itemDetails.id || "N/A",
         Type: itemDetails.type || "N/A",
         Brand: itemDetails.brand || "N/A",
         remarks: itemDetails.remarks || "N/A",
@@ -47,7 +48,6 @@ const QrCodeGenerator = ({ itemDetails }) => {
       }
     : defaultItemData;
 
-  // Log activity when QR code is downloaded
   const handleDownload = (format) => {
     if (format === 'PNG') {
       downloadAsPng(qrCodeRef);
@@ -58,7 +58,6 @@ const QrCodeGenerator = ({ itemDetails }) => {
     logUserNotification('Downloaded QR CODE', `You successfully downloaded QR code in ${format} format`);
   };
 
-  // Log activity when QR code is printed
   const handlePrint = () => {
     printQrCode(qrCodeRef);
     logUserActivity(username, 'Print QR Code', `Printed QR code for item with serial number: ${itemDetails.serialNumber}`);
@@ -68,7 +67,6 @@ const QrCodeGenerator = ({ itemDetails }) => {
   return (
     <Card title={<span className="text-lgi sm:text-sm md:text-base lg:text-lgi xl:text-xl font-bold flex justify-center">QR CODE</span>} className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
-        {/* Details at the top on mobile, left on desktop */}
         <div className="w-full md:w-1/2">
           <div
             className="p-4 rounded-lg bg-[#A8E1C5] shadow"
@@ -102,7 +100,6 @@ const QrCodeGenerator = ({ itemDetails }) => {
           </div>
         </div>
 
-        {/* QR code and buttons at the bottom on mobile, right on desktop */}
         <div className="w-full md:w-1/2 flex flex-col items-center space-y-4 mt-6 md:mt-0">
           <div
             ref={qrCodeRef}
@@ -117,6 +114,8 @@ const QrCodeGenerator = ({ itemDetails }) => {
             }}
           >
             <QRCode
+              icon={SINSSILogo}
+              iconSize={40}
               value={JSON.stringify(
                 Object.fromEntries(
                   Object.entries(itemDetails || {}).filter(([key]) => !(

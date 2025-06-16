@@ -315,11 +315,11 @@ const MainLayout = () => {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <LazyImage
-                  style={{ height: '40px', objectFit: 'cover', filter: 'brightness(50%)' }}
+                  style={{ height: '43px', objectFit: 'cover', filter: 'brightness(50%)' }}
                   src={SINSSILogo}
                   alt="SINSSI Logo"
                   width={40}
-                  height={40}
+                  height={43}
                 />
                 {!collapsed && (
                   <span

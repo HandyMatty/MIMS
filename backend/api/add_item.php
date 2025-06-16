@@ -65,7 +65,7 @@ if ($stmt->execute()) {
     $history_stmt = $conn->prepare("INSERT INTO history (action, item_id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, remarks, quantity) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");    
 
-    $history_action = 'added';
+    $history_action = 'Added';
     $history_stmt->bind_param("sssssssssssi", $history_action, $newId, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks, $quantity);
     $history_stmt->execute();
     $history_stmt->close();

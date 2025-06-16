@@ -2,7 +2,6 @@
   "name": "mims",
   "version": "0.2.0",
   "private": true,
-    "homepage": "https://sentinelphils.com/Sentinel-MIMS",
   "dependencies": {
     "@ant-design/charts": "^2.3.0",
     "@emotion/react": "^11.13.5",

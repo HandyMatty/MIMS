@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { message } from 'antd';
-import { addItemToInventory, getInventoryData, deleteItems, updateItem } from '../services/api/addItemToInventory';
+import { App } from 'antd';
+import { addItemToInventory, getInventoryData, deleteItems, updateItem, redistributeItem } from '../services/api/addItemToInventory';
 import { useActivity } from '../utils/ActivityContext';
 import { useNotification } from '../utils/NotificationContext';
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
 
 export const useInventoryTable = () => {
+  const { message } = App.useApp();
   const [searchText, setSearchText] = useState('');
   const [sortOrder, setSortOrder] = useState('newest');
   const [sorterConfig, setSorterConfig] = useState({ field: 'id', order: 'descend' });
@@ -16,6 +17,8 @@ export const useInventoryTable = () => {
   const [dataSource, setDataSource] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isRedistributeModalVisible, setIsRedistributeModalVisible] = useState(false);
+  const [redistributeItemData, setRedistributeItemData] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('default');
@@ -117,6 +120,35 @@ export const useInventoryTable = () => {
     setIsEditModalVisible(true);
   };
 
+  const handleRedistribute = (item) => {
+    setRedistributeItemData(item);
+    setIsRedistributeModalVisible(true);
+  };
+
+  const handleRedistributeItem = async (payload) => {
+    setIsLoading(true);
+    try {
+      await redistributeItem(payload);
+      message.success('Item redistributed successfully.');
+      const updatedData = await getInventoryData();
+      setDataSource(updatedData);
+      setIsRedistributeModalVisible(false);
+      setRedistributeItemData(null);
+      await logUserActivity(username, "Inventory", `Redistributed item with ID: ${payload.id}`);
+      await logUserNotification("Inventory Update", `You redistributed an item with ID: ${payload.id}`);
+    } catch (error) {
+      const backendMessage = error?.response?.data?.message || error.message || '';
+      if (backendMessage.toLowerCase().includes('quantity') && backendMessage.includes('1')) {
+        message.error("You can't redistribute an item with quantity of 1.");
+      } else {
+        message.error('Failed to redistribute item.');
+      }
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleEditItem = async (updatedItem) => {
     const original = editingItem;
     const hasChanges = Object.keys(updatedItem).some((key) => {
@@ -186,21 +218,12 @@ export const useInventoryTable = () => {
   };
 
   const handleReset = () => {
-    // Reset search
     setSearchText('');
-    
-    // Reset sorter
     setSortOrder('newest');
     setSorterConfig({ field: 'id', order: 'descend' });
-    
-    // Reset pagination
     setCurrentPage(1);
     setPageSize(10);
-    
-    // Reset selection
     setSelectedRowKeys([]);
-    
-    // Reset tab
     setActiveTab('default');
   };
 
@@ -230,6 +253,10 @@ export const useInventoryTable = () => {
     setIsModalVisible,
     isEditModalVisible,
     setIsEditModalVisible,
+    redistributeItemData,
+    setRedistributeItemData,
+    isRedistributeModalVisible,
+    setIsRedistributeModalVisible,
     editingItem,
     setEditingItem,
     isLoading,
@@ -244,6 +271,8 @@ export const useInventoryTable = () => {
     sortedData,
     paginatedData,
     totalEntries,
+    handleRedistribute,
+    handleRedistributeItem,
     handlePageChange,
     handleSortOrderChange,
     handleTableChange,
@@ -254,21 +283,5 @@ export const useInventoryTable = () => {
     handleTabChange,
     handleReset,
     rowSelection,
-    dataSource,
-    setFilteredData: (filteredData) => {
-      const sortedFiltered = [...filteredData].sort((a, b) => {
-        if (sorterConfig.field && sorterConfig.order) {
-          const { field, order } = sorterConfig;
-          if (order === 'ascend') {
-            return a[field] > b[field] ? 1 : -1;
-          } else if (order === 'descend') {
-            return a[field] < b[field] ? 1 : -1;
-          }
-        }
-        return 0;
-      });
-      
-      setSortedData(sortedFiltered);
-    },
   };
-}; 
+};

@@ -1,5 +1,5 @@
 import { Tag, Tooltip, Button } from 'antd';
-import { EditFilled } from '@ant-design/icons';
+import { CopyFilled, EditFilled } from '@ant-design/icons';
 import HighlightText from '../common/HighlightText';
 
 export const getStatusTag = (status, searchTerm = '') => {
@@ -46,7 +46,7 @@ export const getConditionTag = (condition, searchTerm = '') => {
   );
 };
 
-export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm = '') => {
+export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, activeTab, searchTerm = '') => {
   const baseColumns = [
     {
       title: 'ID',
@@ -267,9 +267,26 @@ export const columns = (handleEdit, sortOrder, userRole, activeTab, searchTerm =
       width: 'auto',
       className: 'text-xs overflow-auto',
       render: (record) => (
-        <Tooltip title="Edit">
-          <Button type="text" icon={<EditFilled />} onClick={() => handleEdit(record)} size='small' />
-        </Tooltip>
+        <>
+          <Tooltip title="Edit">
+            <Button
+              type="text"
+              icon={<EditFilled />}
+              onClick={() => handleEdit(record)}
+              size="small"
+            />
+          </Tooltip>
+          {record.quantity > 1 && (
+            <Tooltip title="Redistribute">
+              <Button
+                type="text"
+                icon={<CopyFilled />}
+                onClick={() => handleRedistribute(record)}
+                size="small"
+              />
+            </Tooltip>
+          )}
+        </>
       ),
     });
   }

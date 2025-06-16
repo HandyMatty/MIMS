@@ -76,32 +76,38 @@ const Graph = () => {
     columnWidthRatio: 0.4,
     colorField: 'type' ,
     color: ['#34d399', '#60a5fa'],
-    xAxis: {
-      label: {
-        autoRotate: false,
-        style: {
-          fontSize: isMobile ? 6:8,
-        },
+    legend: {
+    color: {
+      position: 'top',
+      layout: {
+        justifyContent: 'center',
       },
     },
-    yAxis: {
+  },
+  axis: {
+    x: {
+      label: {
+        autoRotate: false,
+      },
+      labelFontSize: isMobile ? 7:10,
+    },
+  
+    y: {
       minInterval: 1,
       label: {
         formatter: val => `${val}`,
       },
+      labelFontSize: isMobile ? 7:10,
     },
-    label: {
-      position: 'middle',
-      layout: [
-        { type: 'interval-adjust-position' },
-        { type: 'interval-hide-overlap' },
-        { type: 'adjust-color' },
-      ],
-    },
+  },
   };
 
   return (
-    <div className="w-auto h-full rounded-xl bg-[#A8E1C5] shadow-md">
+    <div className="w-auto h-full rounded-xl bg-[#A8E1C5] shadow-md"  
+    style={{
+        height: isMobile ? 270 : 420,
+        width: '100%',
+      }}>
       {loading ? <Spin size="large" /> : <Column {...config} />}
     </div>
   );

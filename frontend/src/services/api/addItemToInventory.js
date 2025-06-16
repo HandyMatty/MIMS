@@ -30,7 +30,7 @@ export const deleteItems = async (ids) => {
     return response.data;
   } catch (error) {
     console.error("Delete item API Error:", error);
-    throw error; // Rethrow the error to handle it where the function is called
+    throw error;
   }
 };
 
@@ -40,6 +40,18 @@ export const updateItem = async (itemData) => {
     return response.data; // Return the success message or item data
   } catch (error) {
     console.error("Update item API Error:", error);
+    throw error;
+  }
+};
+
+export const redistributeItem = async (itemData) => {
+  try {
+    const response = await axiosAuth.post("/redistribute_item.php", itemData, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Redistribute item API Error:", error);
     throw error;
   }
 };

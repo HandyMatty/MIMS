@@ -81,15 +81,19 @@ const HistoryBarGraph = ({ searchText }) => {
     },
     legend: {
       color: {
+        itemLabelFontSize: isMobile ? 7:10,
         title: false,
         position: 'top',
+        maxCols: 8,
+        maxRows: 2,
         itemName: {
           style: {
             fill: '#072C1C',
-            fontSize: isMobile ? 8 : 12,
-            fontWeight: 600,
           },
         },
+        layout: {
+        justifyContent: 'center',
+      },
         items: barData
           .slice()
           .sort((a, b) => a.labelName.localeCompare(b.labelName)) // ✅ Sort legends alphabetically
