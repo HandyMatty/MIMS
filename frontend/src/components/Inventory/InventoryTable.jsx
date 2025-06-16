@@ -150,47 +150,6 @@ const InventoryTable = () => {
     selectedKeys: [searchColumn]
   });
 
-  const getTabContent = (tabKey) => (
-    <div className="w-auto overflow-x-auto">
-      <Table
-        key={`table-${tableKey}-${tabKey}`}
-        rowSelection={rowSelection}
-        rowKey="id"
-        dataSource={filteredData}
-        columns={columns(handleEdit, handleRedistribute, sortOrder, userRole, tabKey, searchText)}
-        pagination={false}
-        bordered
-        onChange={handleTableChange}
-        scroll={{ x: "max-content", y: 600 }}
-        loading={isLoading}
-        responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
-        expandable={isMobile ? {
-          expandedRowRender: (record) => (
-            <div className="text-xs space-y-1">
-              <div><b>ID:</b> {record.id}</div>
-              <div><b>Type:</b> {record.type}</div>
-              <div><b>Brand:</b> {record.brand}</div>
-              <div><b>Quantity:</b> {record.quantity}</div>
-              <div><b>Remarks:</b> {record.remarks}</div>
-              <div><b>Serial Number:</b> {record.serialNumber}</div>
-              {(tabKey === 'default' || tabKey === 'issuedDate') && (
-                <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>
-              )}
-              {(tabKey === 'default' || tabKey === 'purchaseDate') && (
-                <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>
-              )}
-              <div><b>Condition:</b> {record.condition}</div>
-              <div><b>Detachment/Office:</b> {record.location}</div>
-              <div><b>Status:</b> {record.status}</div>
-            </div>
-          ),
-          rowExpandable: () => true,
-        } : undefined}
-        className="text-xs"
-      />
-    </div>
-  );
-
   return (
     <Card
       title={
@@ -213,6 +172,45 @@ const InventoryTable = () => {
             </Option>
           ))}
         </Select>
+        <div className="w-auto overflow-x-auto mt-4">
+          <Table
+            rowSelection={rowSelection}
+            rowKey="id"
+            dataSource={filteredData}
+            columns={columns(handleEdit, handleRedistribute, sortOrder, userRole, mobileTab, searchText)}
+            pagination={false}
+            bordered
+            onChange={handleTableChange}
+            scroll={{ x: "max-content", y: 600 }}
+            loading={isLoading}
+            responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
+            expandable={{
+              expandedRowRender: (record) => (
+                <div className="text-xs space-y-1">
+                  <div><b>ID:</b> {record.id}</div>
+                  <div><b>Type:</b> {record.type}</div>
+                  <div><b>Brand:</b> {record.brand}</div>
+                  <div><b>Quantity:</b> {record.quantity}</div>
+                  <div><b>Remarks:</b> {record.remarks}</div>
+                  <div><b>Serial Number:</b> {record.serialNumber}</div>
+                  {mobileTab === 'issuedDate' && <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>}
+                  {mobileTab === 'purchaseDate' && <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>}
+                  {mobileTab === 'default' && (
+                    <>
+                      <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>
+                      <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>
+                    </>
+                  )}
+                  <div><b>Condition:</b> {record.condition}</div>
+                  <div><b>Detachment/Office:</b> {record.location}</div>
+                  <div><b>Status:</b> {record.status}</div>
+                </div>
+              ),
+              rowExpandable: () => true,
+            }}
+            className="text-xs"
+          />
+        </div>
       </div>
       <div className="hidden sm:block">
         <Tabs
