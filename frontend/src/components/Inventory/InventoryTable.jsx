@@ -137,6 +137,19 @@ const InventoryTable = () => {
       label: column.label,
     })), [searchableColumnsForTab]);
 
+  const getColumnMenu = (tab) => ({
+    items: searchableColumnsForTab.map(column => ({
+      key: column.key,
+      label: (
+        <span className="break-words whitespace-normal text-xs">
+          {column.label}
+        </span>
+      ),
+    })),
+    onClick: ({ key }) => setSearchColumn(key),
+    selectedKeys: [searchColumn]
+  });
+
   const getTabContent = (tabKey) => (
     <div className="w-auto overflow-x-auto">
       <Table
@@ -209,120 +222,373 @@ const InventoryTable = () => {
           type="card"
           tabBarGutter={4}
           moreIcon={null}
-          items={tabOptions.map(tab => ({
-            key: tab.key,
-            label: <span className="text-xs">{tab.label}</span>,
-            children: null,
-          }))}
+          items={[
+            {
+              key: "default",
+              label: <span className="text-xs">Default</span>,
+              children: (
+                <>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+                    <Dropdown menu={getColumnMenu('default')} trigger={['click']}>
+                      <Button 
+                        type="text" 
+                        className="border-black bg-[#a7f3d0] text-xs sm:block hidden"
+                        icon={<FilterOutlined />}
+                      >
+                        <Space>
+                          {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
+                          <DownOutlined />
+                        </Space>
+                      </Button>
+                    </Dropdown>
+                    <Input
+                      placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
+                      prefix={<SearchOutlined />}
+                      value={searchText}
+                      onChange={handleSearch}
+                      className="ml-1 w-auto sm:w-auto border-black text-xs"
+                      suffix={
+                        searchText ? (
+                          <Button
+                            type="text"
+                            size="small"
+                            onClick={() => {
+                              setSearchText('');
+                              setFilterActive(false);
+                            }}
+                            className="text-xs"
+                          >
+                            ×
+                          </Button>
+                        ) : null
+                      }
+                    />
+                    <div className="flex justify-center gap-2 w-auto">
+                      <Tooltip
+                        title={<span className="text-xs">New</span>}
+                      >
+                        {(isAdmin || userRole === 'user') && (
+                          <Button
+                            type="text"
+                            icon={<PlusCircleOutlined />}
+                            onClick={() => setIsModalVisible(true)}
+                            className="text-xs"
+                          />
+                        )}
+                      </Tooltip>
+                      {isAdmin && (
+                        <Tooltip
+                          title={<span className="text-xs">Delete</span>}
+                        >
+                          <Button
+                            type="text"
+                            icon={<DeleteOutlined />}
+                            onClick={handleBatchDelete}
+                            className="text-xs"
+                          />
+                        </Tooltip>
+                      )}
+                      <Button 
+                        onClick={resetAll}
+                        className="custom-button mt-1"
+                        type="default"
+                        size="small"
+                        icon={<ReloadOutlined className='text-xs'/>}
+                      >
+                        <span className="text-xs">Reset</span>
+                      </Button>
+                      <Select
+                        defaultValue="Newest"
+                        className="w-auto text-xs transparent-select mt-1"
+                        onChange={handleSortOrderChange}
+                        value={sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+                        size="small"
+                      >
+                        <Option value="Newest"><span className="text-xs">Newest</span></Option>
+                        <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="w-auto overflow-x-auto">
+                    <Table
+                      rowSelection={rowSelection}
+                      rowKey="id"
+                      dataSource={filteredData}
+                      columns={columns(handleEdit, handleRedistribute, sortOrder, userRole, 'default', searchText)}
+                      pagination={false}
+                      bordered
+                      onChange={handleTableChange}
+                      scroll={{ x: "max-content", y: 600 }}
+                      loading={isLoading}
+                      responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
+                      expandable={isMobile ? {
+                        expandedRowRender: (record) => (
+                          <div className="text-xs space-y-1">
+                            <div><b>ID:</b> {record.id}</div>
+                            <div><b>Type:</b> {record.type}</div>
+                            <div><b>Brand:</b> {record.brand}</div>
+                            <div><b>Quantity:</b> {record.quantity}</div>
+                            <div><b>Remarks:</b> {record.remarks}</div>
+                            <div><b>Serial Number:</b> {record.serialNumber}</div>
+                            <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>
+                            <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>
+                            <div><b>Condition:</b> {record.condition}</div>
+                            <div><b>Detachment/Office:</b> {record.location}</div>
+                            <div><b>Status:</b> {record.status}</div>
+                          </div>
+                        ),
+                        rowExpandable: () => true,
+                      } : undefined}
+                      className="text-xs"
+                    />
+                  </div>
+                </>
+              ),
+            },
+            {
+              key: "issuedDate",
+              label: <span className="text-xs">Issued Date</span>,
+              children: (
+                <>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+                    <Dropdown menu={getColumnMenu('issuedDate')} trigger={['click']}>
+                      <Button 
+                        type="text" 
+                        className="border-black bg-[#a7f3d0] text-xs sm:block hidden"
+                        icon={<FilterOutlined />}
+                      >
+                        <Space>
+                          {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
+                          <DownOutlined />
+                        </Space>
+                      </Button>
+                    </Dropdown>
+                    <Input
+                      placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
+                      prefix={<SearchOutlined />}
+                      value={searchText}
+                      onChange={handleSearch}
+                      className="ml-1 w-auto sm:w-auto border-black text-xs"
+                      suffix={
+                        searchText ? (
+                          <Button
+                            type="text"
+                            size="small"
+                            onClick={() => {
+                              setSearchText('');
+                              setFilterActive(false);
+                            }}
+                            className="text-xs"
+                          >
+                            ×
+                          </Button>
+                        ) : null
+                      }
+                    />
+                    <div className="flex justify-center gap-2 w-auto">
+                      <Tooltip
+                        title={<span className="text-xs">New</span>}
+                      >
+                        {(isAdmin || userRole === 'user') && (
+                          <Button
+                            type="text"
+                            icon={<PlusCircleOutlined />}
+                            onClick={() => setIsModalVisible(true)}
+                            className="text-xs"
+                          />
+                        )}
+                      </Tooltip>
+                      {isAdmin && (
+                        <Tooltip
+                          title={<span className="text-xs">Delete</span>}
+                        >
+                          <Button
+                            type="text"
+                            icon={<DeleteOutlined />}
+                            onClick={handleBatchDelete}
+                            className="text-xs"
+                          />
+                        </Tooltip>
+                      )}
+                      <Button 
+                        onClick={resetAll}
+                        className="custom-button mt-1"
+                        type="default"
+                        size="small"
+                        icon={<ReloadOutlined className='text-xs'/>}
+                      >
+                        <span className="text-xs">Reset</span>
+                      </Button>
+                      <Select
+                        defaultValue="Newest"
+                        className="w-auto text-xs transparent-select mt-1"
+                        onChange={handleSortOrderChange}
+                        value={sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+                        size="small"
+                      >
+                        <Option value="Newest"><span className="text-xs">Newest</span></Option>
+                        <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="w-auto overflow-x-auto">
+                    <Table
+                      rowSelection={rowSelection}
+                      rowKey="id"
+                      dataSource={filteredData}
+                      columns={columns(handleEdit, handleRedistribute, sortOrder, userRole, 'issuedDate', searchText)}
+                      pagination={false}
+                      bordered
+                      onChange={handleTableChange}
+                      scroll={{ x: "max-content", y: 600 }}
+                      loading={isLoading}
+                      responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
+                      expandable={isMobile ? {
+                        expandedRowRender: (record) => (
+                          <div className="text-xs space-y-1">
+                            <div><b>ID:</b> {record.id}</div>
+                            <div><b>Type:</b> {record.type}</div>
+                            <div><b>Brand:</b> {record.brand}</div>
+                            <div><b>Quantity:</b> {record.quantity}</div>
+                            <div><b>Remarks:</b> {record.remarks}</div>
+                            <div><b>Serial Number:</b> {record.serialNumber}</div>
+                            <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>
+                            <div><b>Condition:</b> {record.condition}</div>
+                            <div><b>Detachment/Office:</b> {record.location}</div>
+                            <div><b>Status:</b> {record.status}</div>
+                          </div>
+                        ),
+                        rowExpandable: () => true,
+                      } : undefined}
+                      className="text-xs"
+                    />
+                  </div>
+                </>
+              ),
+            },
+            {
+              key: "purchaseDate",
+              label: <span className="text-xs">Purchased Date</span>,
+              children: (
+                <>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+                    <Dropdown menu={getColumnMenu('purchaseDate')} trigger={['click']}>
+                      <Button 
+                        type="text" 
+                        className="border-black bg-[#a7f3d0] text-xs sm:block hidden"
+                        icon={<FilterOutlined />}
+                      >
+                        <Space>
+                          {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
+                          <DownOutlined />
+                        </Space>
+                      </Button>
+                    </Dropdown>
+                    <Input
+                      placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
+                      prefix={<SearchOutlined />}
+                      value={searchText}
+                      onChange={handleSearch}
+                      className="ml-1 w-auto sm:w-auto border-black text-xs"
+                      suffix={
+                        searchText ? (
+                          <Button
+                            type="text"
+                            size="small"
+                            onClick={() => {
+                              setSearchText('');
+                              setFilterActive(false);
+                            }}
+                            className="text-xs"
+                          >
+                            ×
+                          </Button>
+                        ) : null
+                      }
+                    />
+                    <div className="flex justify-center gap-2 w-auto">
+                      <Tooltip
+                        title={<span className="text-xs">New</span>}
+                      >
+                        {(isAdmin || userRole === 'user') && (
+                          <Button
+                            type="text"
+                            icon={<PlusCircleOutlined />}
+                            onClick={() => setIsModalVisible(true)}
+                            className="text-xs"
+                          />
+                        )}
+                      </Tooltip>
+                      {isAdmin && (
+                        <Tooltip
+                          title={<span className="text-xs">Delete</span>}
+                        >
+                          <Button
+                            type="text"
+                            icon={<DeleteOutlined />}
+                            onClick={handleBatchDelete}
+                            className="text-xs"
+                          />
+                        </Tooltip>
+                      )}
+                      <Button 
+                        onClick={resetAll}
+                        className="custom-button mt-1"
+                        type="default"
+                        size="small"
+                        icon={<ReloadOutlined className='text-xs'/>}
+                      >
+                        <span className="text-xs">Reset</span>
+                      </Button>
+                      <Select
+                        defaultValue="Newest"
+                        className="w-auto text-xs transparent-select mt-1"
+                        onChange={handleSortOrderChange}
+                        value={sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+                        size="small"
+                      >
+                        <Option value="Newest"><span className="text-xs">Newest</span></Option>
+                        <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="w-auto overflow-x-auto">
+                    <Table
+                      rowSelection={rowSelection}
+                      rowKey="id"
+                      dataSource={filteredData}
+                      columns={columns(handleEdit, handleRedistribute, sortOrder, userRole, 'purchaseDate', searchText)}
+                      pagination={false}
+                      bordered
+                      onChange={handleTableChange}
+                      scroll={{ x: "max-content", y: 600 }}
+                      loading={isLoading}
+                      responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
+                      expandable={isMobile ? {
+                        expandedRowRender: (record) => (
+                          <div className="text-xs space-y-1">
+                            <div><b>ID:</b> {record.id}</div>
+                            <div><b>Type:</b> {record.type}</div>
+                            <div><b>Brand:</b> {record.brand}</div>
+                            <div><b>Quantity:</b> {record.quantity}</div>
+                            <div><b>Remarks:</b> {record.remarks}</div>
+                            <div><b>Serial Number:</b> {record.serialNumber}</div>
+                            <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>
+                            <div><b>Condition:</b> {record.condition}</div>
+                            <div><b>Detachment/Office:</b> {record.location}</div>
+                            <div><b>Status:</b> {record.status}</div>
+                          </div>
+                        ),
+                        rowExpandable: () => true,
+                      } : undefined}
+                      className="text-xs"
+                    />
+                  </div>
+                </>
+              ),
+            },
+          ]}
         />
-      </div>
-
-      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center mb-2 mt-2 w-full">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full sm:w-auto">
-            <Dropdown
-              className='border-black bg-[#a7f3d0] hidden sm:block'
-              menu={{
-                items: menuItems.map(item => ({
-                  ...item,
-                  label: (
-                    <span className="break-words whitespace-normal text-xs">
-                      {item.label}
-                    </span>
-                  ),
-                })),
-                onClick: ({ key }) => setSearchColumn(key),
-                selectedKeys: [searchColumn],
-              }}
-              trigger={['click']}
-            >
-              <Button
-                type="text"
-                className="border-black w-full sm:w-auto text-xs"
-                icon={<FilterOutlined />}
-              >
-                <Space>
-                  {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                  <DownOutlined />
-                </Space>
-              </Button>
-            </Dropdown>
-            <Input
-              placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={handleSearch}
-              className="ml-1 w-auto sm:w-auto border-black text-xs"
-              suffix={
-                searchText ? (
-                  <Button
-                    type="text"
-                    size="small"
-                    onClick={() => {
-                      setSearchText('');
-                      setFilterActive(false);
-                    }}
-                    className="text-xs"
-                  >
-                    ×
-                  </Button>
-                ) : null
-              }
-            />
-          </div>
-          <div className="flex justify-center gap-2 w-auto">
-            <Tooltip
-              title={<span className="text-xs">New</span>}
-            >
-              {(isAdmin || userRole === 'user') && (
-                <Button
-                  type="text"
-                  icon={<PlusCircleOutlined />}
-                  onClick={() => setIsModalVisible(true)}
-                  className="text-xs"
-                />
-              )}
-            </Tooltip>
-            {isAdmin && (
-              <Tooltip
-                title={<span className="text-xs">Delete</span>}
-              >
-                <Button
-                  type="text"
-                  icon={<DeleteOutlined />}
-                  onClick={handleBatchDelete}
-                  className="text-xs"
-                />
-              </Tooltip>
-            )}
-            <Button 
-              onClick={resetAll}
-              className="custom-button mt-1"
-              type="default"
-              size="small"
-              icon={<ReloadOutlined className='text-xs'/>}
-            >
-              <span className="text-xs">Reset</span>
-            </Button>
-            <Select
-              defaultValue="Newest"
-              className="w-auto text-xs transparent-select mt-1"
-              onChange={handleSortOrderChange}
-              value={sortOrder === 'newest' ? 'Newest' : 'Oldest'}
-              size="small"
-            >
-              <Option value="Newest"><span className="text-xs">Newest</span></Option>
-              <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
-            </Select>
-          </div>
-        </div>
-      </div>
-
-      <div className="hidden sm:block">
-        {getTabContent(activeTab)}
-      </div>
-      <div className="sm:hidden">
-        {getTabContent(mobileTab)}
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-5 space-y-2 sm:space-y-0">
