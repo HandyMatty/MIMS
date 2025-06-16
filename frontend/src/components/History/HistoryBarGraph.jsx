@@ -84,19 +84,19 @@ const HistoryBarGraph = ({ searchText }) => {
         itemLabelFontSize: isMobile ? 7:10,
         title: false,
         position: 'top',
-        maxCols: 8,
-        maxRows: 2,
+        maxCols: barData.length,
+        maxRows: 1,
         itemName: {
           style: {
             fill: '#072C1C',
           },
         },
         layout: {
-        justifyContent: 'center',
-      },
+          justifyContent: 'center',
+        },
         items: barData
           .slice()
-          .sort((a, b) => a.labelName.localeCompare(b.labelName)) // ✅ Sort legends alphabetically
+          .sort((a, b) => a.labelName.localeCompare(b.labelName))
           .map(item => ({
             name: item.labelName,
             value: item.labelName,
