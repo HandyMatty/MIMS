@@ -275,12 +275,36 @@ const MainLayout = () => {
           onClose={() => setShowMobileMenu(false)}
           style={{
             backgroundColor: '#0C9B4B',
-            width: 'auto'
+            width: 'auto',
+            height: 'auto',
           }}
         >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <LazyImage
+                  style={{ height: '23px', objectFit: 'cover', filter: 'brightness(50%)' }}
+                  src={SINSSILogo}
+                  alt="SINSSI Logo"
+                  width={20}
+                  height={23}
+                />
+                {!collapsed && (
+                  <span
+                    style={{
+                      color: '#072C1C',
+                      fontSize: '22px',
+                      fontWeight: '600',
+                      marginLeft: '8px',
+                      fontFamily: 'Rubik, sans-serif',
+                    }}
+                  >
+                    MIMS
+                  </span>
+                )}
+              </div>
           <Menu
             className='bg-inherit w-auto text-black justify-self-center'
             mode="vertical"
+            style={{border: 'none'}}
             selectedKeys={[current]}
             onClick={(e) => {
               setShowMobileMenu(false);
