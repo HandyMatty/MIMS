@@ -191,7 +191,17 @@ const RedistributeItemModal = ({ visible, onClose, item, onEdit, isLoading }) =>
               name="quantity"
               rules={[
                 { required: true, message: 'Please input the quantity to redistribute' },
-                { type: 'number', min: 1, max: item?.quantity ? item.quantity - 1 : 1, message: 'Invalid quantity' }
+                { 
+                  validator: (_, value) => {
+                    if (!value || value < 1) {
+                      return Promise.reject('Quantity must be at least 1');
+                    }
+                    if (value >= item?.quantity) {
+                      return Promise.reject(`Quantity must be less than ${item?.quantity}`);
+                    }
+                    return Promise.resolve();
+                  }
+                }
               ]}
             >
               <Input 
