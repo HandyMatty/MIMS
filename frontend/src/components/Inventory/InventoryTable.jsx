@@ -314,7 +314,7 @@ const InventoryTable = () => {
                         className="custom-button w-auto text-xs"
                         disabled={!selectedRowKeys || selectedRowKeys.length === 0}
                       >
-                        <span className="text-xs">Print Selected</span>
+                        <span className="text-xs">Print</span>
                       </Button>
                     </div>
                   </div>
@@ -443,7 +443,7 @@ const InventoryTable = () => {
                         className="custom-button w-auto text-xs"
                         disabled={!selectedRowKeys || selectedRowKeys.length === 0}
                       >
-                        <span className="text-xs">Print Selected</span>
+                        <span className="text-xs">Print</span>
                       </Button>
                     </div>
                   </div>
@@ -571,7 +571,7 @@ const InventoryTable = () => {
                         className="custom-button w-auto text-xs"
                         disabled={!selectedRowKeys || selectedRowKeys.length === 0}
                       >
-                        <span className="text-xs">Print Selected</span>
+                        <span className="text-xs">Print</span>
                       </Button>
                     </div>
                   </div>

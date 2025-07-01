@@ -137,7 +137,7 @@ const DashboardTable = ({ searchText }) => {
           className="custom-button text-xs"
           disabled={selectedRowKeys.length === 0}
         >
-          Print Selected
+          Print
         </Button>
       </div>
 

@@ -60,15 +60,14 @@ export const handlePrint = (selectedItems) => {
             ${tableRows}
           </tbody>
         </table>
-        <script>
-          window.onload = function() {
-            window.print();
-            window.close();
-          }
-        </script>
       </body>
     </html>
   `);
-
   printWindow.document.close();
+
+  printWindow.onload = function() {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
 }; 

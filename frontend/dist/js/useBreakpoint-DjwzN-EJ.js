@@ -1,1 +1,0 @@
-import{r as o,as as a}from"./index-Bfv_RYKM.js";import{u as c}from"./useForceUpdate-UmoMdvYc.js";import{u as f}from"./responsiveObserver-DpdOGnt2.js";function b(){let s=arguments.length>0&&arguments[0]!==void 0?arguments[0]:!0;const e=o.useRef({}),t=c(),r=f();return a(()=>{const n=r.subscribe(u=>{e.current=u,s&&t()});return()=>r.unsubscribe(n)},[]),e.current}export{b as u};

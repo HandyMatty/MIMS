@@ -1,1 +1,0 @@
-import{j as e,M as s,S as n}from"./index-Bfv_RYKM.js";import{Q as a}from"./index-D5Kz4ytj.js";const d=({isVisible:r,onClose:t,qrDetails:o})=>e.jsx(s,{title:"QR Code Details",open:r,onCancel:t,footer:null,centered:!0,children:o&&e.jsx(a,{icon:n,value:JSON.stringify(o),size:256,color:"#000000",style:{margin:"0 auto"}})});export{d as Q};
