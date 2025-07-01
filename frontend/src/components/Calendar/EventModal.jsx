@@ -52,6 +52,8 @@ const EventModal = ({ isOpen, onClose, selectedDate, loadEvents }) => {
       open={isOpen}
       onOk={handleOk}
       onCancel={onClose}
+      okButtonProps= {{ className: 'custom-button' }}
+      cancelButtonProps= {{ className: 'custom-button-cancel' }}
       centered
     >
       <Form form={form} layout="vertical">

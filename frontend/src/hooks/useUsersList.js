@@ -223,6 +223,8 @@ const useUsersList = () => {
       okText: 'Yes',
       cancelText: 'No',
       centered: true,
+      okButtonProps: { className: 'custom-button' },
+      cancelButtonProps: { className: 'custom-button-cancel' },
       onOk: async () => {
         const tempPassword = generateTempPassword();
         try {

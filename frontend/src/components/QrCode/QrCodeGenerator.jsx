@@ -1,19 +1,21 @@
-import React, { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Button, QRCode, Descriptions, Card } from 'antd';
-import { downloadAsPng, downloadAsSvg, printQrCode } from '../../utils/qrCodeUtils'; 
-import { useActivity } from '../../utils/ActivityContext';  
+import { downloadAsPng, downloadAsSvg, printQrCode } from '../../utils/qrCodeUtils';
+import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
-import { useAdminAuthStore } from '../../store/admin/useAuth'; 
-import { useUserAuthStore } from '../../store/user/useAuth'; 
+import { useAdminAuthStore } from '../../store/admin/useAuth';
+import { useUserAuthStore } from '../../store/user/useAuth';
 import SINSSILogo from '../../../assets/SINSSI_LOGO-removebg-preview.png';
+import { useTheme } from '../../utils/ThemeContext';
 
 const QrCodeGenerator = ({ itemDetails }) => {
-  const [selectedFormat, setSelectedFormat] = React.useState('PNG');
+  const [selectedFormat, setSelectedFormat] = useState('PNG');
   const qrCodeRef = useRef(null);
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
   const { userData: adminUserData } = useAdminAuthStore();
   const { userData: userUserData } = useUserAuthStore();
+  const { theme, currentTheme } = useTheme();
   
   const username = adminUserData?.username || userUserData?.username || 'Unknown User';
   const isAuthenticated = adminUserData || userUserData;
@@ -64,17 +66,35 @@ const QrCodeGenerator = ({ itemDetails }) => {
     logUserNotification( 'Printed QR CODE', `You successfully printed QR code for item with serial number: ${itemDetails.serialNumber}`);
   };
 
+  const getFormatButtonStyle = (format) => {
+    const isSelected = selectedFormat === format;
+    if (currentTheme === 'default') {
+      return {
+        backgroundColor: isSelected ? '#d9f99d' : '#EAF4E2', // default colors
+        color: '#072C1C',
+      };
+    }
+    return {
+      backgroundColor: isSelected ? theme.CardHead : theme.componentBackground,
+      color: theme.text,
+    };
+  };
+
   return (
-    <Card title={<span className="text-lgi sm:text-sm md:text-base lg:text-lgi xl:text-xl font-bold flex justify-center">QR CODE</span>} className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
+    <Card
+      title={<span className="text-lgi sm:text-sm md:text-base lg:text-lgi xl:text-xl font-bold flex justify-center">QR CODE</span>}
+      className="flex flex-col w-full mx-auto rounded-xl shadow border-none"
+      style={currentTheme !== 'default' ? { backgroundColor: theme.componentBackground, color: theme.text } : { backgroundColor: '#A8E1C5' }}
+    >
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
         <div className="w-full md:w-1/2">
           <div
-            className="p-4 rounded-lg bg-[#A8E1C5] shadow"
-            style={{ border: '1px solid #072C1C', borderRadius: '8px' }}
+            className="p-4 rounded-lg shadow"
+            style={currentTheme !== 'default' ? { backgroundColor: theme.background, border: '1px solid', borderRadius: '8px' } : { backgroundColor: '#A8E1C5', border: '1px solid #072C1C', borderRadius: '8px' }}
           >
             <Descriptions
               title={
-                <div className="text-center font-bold md:text-lgi overflow-auto text-lgi">
+                <div className="text-center font-bold md:text-lgi overflow-auto text-lgi" style={currentTheme !== 'default' ? { color: theme.text } : {}}>
                   Item Details
                 </div>
               }
@@ -82,12 +102,8 @@ const QrCodeGenerator = ({ itemDetails }) => {
               bordered
               column={1}
               size="small"
-              labelStyle={{
-                fontWeight: 'bold',
-                color: '#072C1C',
-                width: 'auto',
-              }}
-              contentStyle={{ color: '#072C1C' }}
+              labelStyle={currentTheme !== 'default' ? { fontWeight: 'bold', color: theme.text, width: 'auto' } : { fontWeight: 'bold', color: '#072C1C', width: 'auto' }}
+              contentStyle={currentTheme !== 'default' ? { color: theme.text } : { color: '#072C1C' }}
             >
               {Object.entries(itemData)
                 .filter(([label]) => !(label === "quantity" && itemData["Serial Number"] !== "N/A"))
@@ -103,7 +119,15 @@ const QrCodeGenerator = ({ itemDetails }) => {
         <div className="w-full md:w-1/2 flex flex-col items-center space-y-4 mt-6 md:mt-0">
           <div
             ref={qrCodeRef}
-            style={{
+            style={currentTheme !== 'default' ? {
+              display: 'inline-block',
+              border: '1px solid',
+              borderRadius: '8px',
+              padding: '0',
+              width: '250px',
+              height: '250px',
+              maxWidth: '100%',
+            } : {
               display: 'inline-block',
               border: '1px solid #072C1C',
               borderRadius: '8px',
@@ -134,12 +158,12 @@ const QrCodeGenerator = ({ itemDetails }) => {
 
           {/* Format Selection */}
           <div className="flex flex-col items-center">
-            <div className="font-bold text-sm text-[#072C1C] mb-2">Image format:</div>
+            <div className="font-bold text-sm mb-2" style={currentTheme !== 'default' ? { color: theme.text } : { color: '#072C1C' }}>Image format:</div>
             <Button.Group>
               <Button
                 type="primary"
                 onClick={() => setSelectedFormat('PNG')}
-                className={`text-black ${selectedFormat === 'PNG' ? 'bg-lime-200' : 'bg-[#EAF4E2]'}`}
+                style={getFormatButtonStyle('PNG')}
                 disabled={!isAuthenticated}
               >
                 PNG
@@ -147,7 +171,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
               <Button
                 type="primary"
                 onClick={() => setSelectedFormat('SVG')}
-                className={`text-black ${selectedFormat === 'SVG' ? 'bg-lime-200' : 'bg-[#EAF4E2]'}`}
+                style={getFormatButtonStyle('SVG')}
                 disabled={!isAuthenticated}
               >
                 SVG
@@ -158,7 +182,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
           {/* Download Button */}
           <Button
             onClick={() => handleDownload(selectedFormat)}
-            className="bg-lime-200 shadow-md text-[#072C1C] text-base sm:text-lg"
+            className="qr-action-btn shadow-md text-base sm:text-lg"
             type="primary"
             style={{ width: '100%', maxWidth: '177px', height: '31px' }}
             disabled={!isAuthenticated}
@@ -169,7 +193,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
           {/* Print Button */}
           <Button
             onClick={handlePrint}
-            className="bg-lime-200 shadow-md text-[#072C1C] text-base sm:text-lg"
+            className="qr-action-btn shadow-md text-base sm:text-lg"
             type="primary"
             style={{ width: '100%', maxWidth: '177px', height: '31px' }}
             disabled={!isAuthenticated}

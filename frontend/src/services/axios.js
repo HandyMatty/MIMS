@@ -2,6 +2,7 @@ import axios from "axios";
 import { message } from "antd";
 import { useAdminAuthStore } from "../store/admin/useAuth";
 import { useUserAuthStore } from "../store/user/useAuth";
+import Cookies from 'js-cookie';
 
 export const axiosAuth = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -34,7 +35,7 @@ export const createAxiosInstanceWithInterceptor = (type = "data", user) => {
   }
 
   const instance = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL,
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     headers,
   });
 
@@ -65,6 +66,21 @@ export const createAxiosInstanceWithInterceptor = (type = "data", user) => {
         } else {
           console.warn('Reset function not available.');
         }
+      }
+      if (error.response && error.response.status === 401) {
+        message.warning('You have been logged out because your account was accessed from another device.');
+        localStorage.clear();
+        sessionStorage.clear();
+        // Remove cookies if you use js-cookie
+        Cookies.remove('authToken', { path: '/' });
+        // Remove all user-specific authToken cookies
+        const allCookies = Cookies.get();
+        Object.keys(allCookies).forEach((cookieName) => {
+          if (cookieName.startsWith('authToken_')) {
+            Cookies.remove(cookieName, { path: '/' });
+          }
+        });
+        window.location.href = '/login';
       }
       return Promise.reject(error);
     }

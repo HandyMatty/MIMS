@@ -1,6 +1,6 @@
 import { useInventoryTable } from '../../hooks/useInventoryTable';
 import { Table, Select, Input, Button, Typography, Pagination, Tooltip, Card, Tabs, Dropdown, Space } from 'antd';
-import { SearchOutlined, DeleteOutlined, PlusCircleOutlined, ReloadOutlined, DownOutlined, FilterOutlined } from '@ant-design/icons';
+import { SearchOutlined, ReloadOutlined, DownOutlined, FilterOutlined, ControlOutlined, DeleteOutlined, PrinterOutlined } from '@ant-design/icons';
 import AddItemModal from './AddItemModal'; 
 import EditItemModal from './EditItemModal';
 import RedistributeItemModal from './RedistributeItemModal';
@@ -8,6 +8,7 @@ import { columns } from './inventoryTableColumns';
 import { useState, useCallback, useMemo } from 'react';
 import debounce from 'lodash/debounce';
 import { useMediaQuery } from 'react-responsive';
+import { handlePrint as printUtilsHandlePrint } from '../../utils/printUtils';
 
 const { Option } = Select;
 
@@ -56,10 +57,18 @@ const InventoryTable = () => {
     handleEditItem,
     handleBatchDelete,
     handleTabChange,
-    handleReset,
     rowSelection,
     dataSource,
+    selectedRowKeys,
+    handleRefresh,
   } = useInventoryTable();
+
+  const handlePrint = () => {
+    const selectedItems = dataSource.filter(item => selectedRowKeys.includes(item.id));
+    if (selectedItems.length > 0) {
+      printUtilsHandlePrint(selectedItems);
+    }
+  };
 
   const filteredData = useMemo(() => {
     if (!filterActive) return paginatedData;
@@ -99,13 +108,6 @@ const InventoryTable = () => {
     debouncedSearch(value);
   }, [debouncedSearch, setSearchText]);
 
-  const resetAll = useCallback(() => {
-    handleReset();
-    setSearchColumn('all');
-    setFilterActive(false);
-    setTableKey(prevKey => prevKey + 1);
-  }, [handleReset]);
-
   const searchableColumnsForTab = useMemo(() => {
     const baseColumns = [
       { key: 'all', label: 'All Columns' },
@@ -131,12 +133,6 @@ const InventoryTable = () => {
     });
   }, [activeTab, mobileTab, isMobile]);
 
-  const menuItems = useMemo(() => 
-    searchableColumnsForTab.map(column => ({
-      key: column.key,
-      label: column.label,
-    })), [searchableColumnsForTab]);
-
   const getColumnMenu = (tab) => ({
     items: searchableColumnsForTab.map(column => ({
       key: column.key,
@@ -149,6 +145,14 @@ const InventoryTable = () => {
     onClick: ({ key }) => setSearchColumn(key),
     selectedKeys: [searchColumn]
   });
+
+  const handleFullRefresh = () => {
+    setSearchColumn('all');
+    setFilterActive(false);
+    setLocalFilteredData([]);
+    setTableKey(prev => prev + 1);
+    handleRefresh();
+  };
 
   return (
     <Card
@@ -174,6 +178,7 @@ const InventoryTable = () => {
         </Select>
         <div className="w-auto overflow-x-auto mt-4">
           <Table
+            key={tableKey}
             rowSelection={rowSelection}
             rowKey="id"
             dataSource={filteredData}
@@ -218,7 +223,7 @@ const InventoryTable = () => {
           activeKey={activeTab}
           onChange={handleTabChange}
           type="card"
-          tabBarGutter={4}
+          tabBarGutter={1}
           moreIcon={null}
           items={[
             {
@@ -227,16 +232,16 @@ const InventoryTable = () => {
               children: (
                 <>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
-                    <Dropdown menu={getColumnMenu('default')} trigger={['click']}>
-                      <Button 
-                        type="text" 
-                        className="border-black bg-[#a7f3d0] text-xs sm:block hidden"
-                        icon={<FilterOutlined />}
-                      >
+                    <Dropdown menu={getColumnMenu('default')} trigger={['click']} className="border-black text-xs sm:block hidden theme-aware-dropdown-btn">
+                    <Button 
+                    type="text"
+                        className="flex items-center"
+                  >
+                    <FilterOutlined className="text-xs" />
                         <Space>
                           {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                          <DownOutlined />
                         </Space>
+                        <DownOutlined className='align-middle ml-1' />
                       </Button>
                     </Dropdown>
                     <Input
@@ -261,54 +266,61 @@ const InventoryTable = () => {
                         ) : null
                       }
                     />
-                    <div className="flex justify-center gap-2 w-auto">
-                      <Tooltip
-                        title={<span className="text-xs">New</span>}
-                      >
+                    <div className="flex items-center gap-2">
+                      <Tooltip title="Actions">
                         {(isAdmin || userRole === 'user') && (
                           <Button
                             type="text"
-                            icon={<PlusCircleOutlined />}
+                            icon={<ControlOutlined />}
                             onClick={() => setIsModalVisible(true)}
                             className="text-xs"
                           />
                         )}
                       </Tooltip>
                       {isAdmin && (
-                        <Tooltip
-                          title={<span className="text-xs">Delete</span>}
-                        >
+                        <Tooltip title="Delete">
                           <Button
-                            type="text"
+                            type="link"
                             icon={<DeleteOutlined />}
+                            danger
+                            disabled={selectedRowKeys.length === 0}
                             onClick={handleBatchDelete}
                             className="text-xs"
                           />
                         </Tooltip>
                       )}
-                      <Button 
-                        onClick={resetAll}
-                        className="custom-button mt-1"
-                        type="default"
-                        size="small"
-                        icon={<ReloadOutlined className='text-xs'/>}
-                      >
-                        <span className="text-xs">Reset</span>
-                      </Button>
                       <Select
                         defaultValue="Newest"
-                        className="w-auto text-xs transparent-select mt-1"
+                        className="w-auto text-xs transparent-select"
                         onChange={handleSortOrderChange}
-                        value={sortOrder === 'newest' ? 'Newest' : 'Oldest'}
                         size="small"
                       >
                         <Option value="Newest"><span className="text-xs">Newest</span></Option>
                         <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
                       </Select>
+                      <Button 
+                        onClick={handleFullRefresh} 
+                        className="custom-button w-auto text-xs"
+                        type="default"
+                        size="small"
+                        icon={<ReloadOutlined />}
+                      >
+                        <span className="text-xs">Refresh</span>
+                      </Button>
+                      <Button
+                        onClick={handlePrint}
+                        icon={<PrinterOutlined />}
+                        size='small'
+                        className="custom-button w-auto text-xs"
+                        disabled={!selectedRowKeys || selectedRowKeys.length === 0}
+                      >
+                        <span className="text-xs">Print Selected</span>
+                      </Button>
                     </div>
                   </div>
                   <div className="w-auto overflow-x-auto">
                     <Table
+                      key={tableKey}
                       rowSelection={rowSelection}
                       rowKey="id"
                       dataSource={filteredData}
@@ -349,16 +361,16 @@ const InventoryTable = () => {
               children: (
                 <>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
-                    <Dropdown menu={getColumnMenu('issuedDate')} trigger={['click']}>
-                      <Button 
-                        type="text" 
-                        className="border-black bg-[#a7f3d0] text-xs sm:block hidden"
-                        icon={<FilterOutlined />}
-                      >
+                    <Dropdown menu={getColumnMenu('issueddate')} trigger={['click']} className="border-black text-xs sm:block hidden theme-aware-dropdown-btn">
+                    <Button 
+                    type="text"
+                    className="flex items-center"
+                  >
+                    <FilterOutlined className="text-xs" />
                         <Space>
                           {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                          <DownOutlined />
                         </Space>
+                        <DownOutlined className='align-middle ml-1' />
                       </Button>
                     </Dropdown>
                     <Input
@@ -383,54 +395,61 @@ const InventoryTable = () => {
                         ) : null
                       }
                     />
-                    <div className="flex justify-center gap-2 w-auto">
-                      <Tooltip
-                        title={<span className="text-xs">New</span>}
-                      >
+                    <div className="flex items-center gap-2">
+                      <Tooltip title="Actions">
                         {(isAdmin || userRole === 'user') && (
                           <Button
                             type="text"
-                            icon={<PlusCircleOutlined />}
+                            icon={<ControlOutlined />}
                             onClick={() => setIsModalVisible(true)}
                             className="text-xs"
                           />
                         )}
                       </Tooltip>
                       {isAdmin && (
-                        <Tooltip
-                          title={<span className="text-xs">Delete</span>}
-                        >
+                        <Tooltip title="Delete">
                           <Button
-                            type="text"
+                            type="link"
                             icon={<DeleteOutlined />}
+                            danger
+                            disabled={selectedRowKeys.length === 0}
                             onClick={handleBatchDelete}
                             className="text-xs"
                           />
                         </Tooltip>
                       )}
-                      <Button 
-                        onClick={resetAll}
-                        className="custom-button mt-1"
-                        type="default"
-                        size="small"
-                        icon={<ReloadOutlined className='text-xs'/>}
-                      >
-                        <span className="text-xs">Reset</span>
-                      </Button>
                       <Select
                         defaultValue="Newest"
-                        className="w-auto text-xs transparent-select mt-1"
+                        className="w-auto text-xs transparent-select"
                         onChange={handleSortOrderChange}
-                        value={sortOrder === 'newest' ? 'Newest' : 'Oldest'}
                         size="small"
                       >
                         <Option value="Newest"><span className="text-xs">Newest</span></Option>
                         <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
                       </Select>
+                      <Button 
+                        onClick={handleFullRefresh} 
+                        className="custom-button w-auto text-xs"
+                        type="default"
+                        size="small"
+                        icon={<ReloadOutlined />}
+                      >
+                        <span className="text-xs">Refresh</span>
+                      </Button>
+                      <Button
+                        onClick={handlePrint}
+                        icon={<PrinterOutlined />}
+                        size='small'
+                        className="custom-button w-auto text-xs"
+                        disabled={!selectedRowKeys || selectedRowKeys.length === 0}
+                      >
+                        <span className="text-xs">Print Selected</span>
+                      </Button>
                     </div>
                   </div>
                   <div className="w-auto overflow-x-auto">
                     <Table
+                      key={tableKey}
                       rowSelection={rowSelection}
                       rowKey="id"
                       dataSource={filteredData}
@@ -470,16 +489,16 @@ const InventoryTable = () => {
               children: (
                 <>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
-                    <Dropdown menu={getColumnMenu('purchaseDate')} trigger={['click']}>
-                      <Button 
-                        type="text" 
-                        className="border-black bg-[#a7f3d0] text-xs sm:block hidden"
-                        icon={<FilterOutlined />}
-                      >
+                    <Dropdown menu={getColumnMenu('purchaseDate')} trigger={['click']} className="border-black text-xs sm:block hidden theme-aware-dropdown-btn">
+                    <Button 
+                    type="text"
+                    className="flex items-center"
+                  >
+                    <FilterOutlined className="text-xs" />
                         <Space>
                           {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                          <DownOutlined />
                         </Space>
+                        <DownOutlined className='align-middle ml-1' />
                       </Button>
                     </Dropdown>
                     <Input
@@ -504,54 +523,61 @@ const InventoryTable = () => {
                         ) : null
                       }
                     />
-                    <div className="flex justify-center gap-2 w-auto">
-                      <Tooltip
-                        title={<span className="text-xs">New</span>}
-                      >
+                    <div className="flex items-center gap-2">
+                      <Tooltip title="Actions">
                         {(isAdmin || userRole === 'user') && (
                           <Button
                             type="text"
-                            icon={<PlusCircleOutlined />}
+                            icon={<ControlOutlined />}
                             onClick={() => setIsModalVisible(true)}
                             className="text-xs"
                           />
                         )}
                       </Tooltip>
                       {isAdmin && (
-                        <Tooltip
-                          title={<span className="text-xs">Delete</span>}
-                        >
+                        <Tooltip title="Delete">
                           <Button
-                            type="text"
+                            type="link"
                             icon={<DeleteOutlined />}
+                            danger
+                            disabled={selectedRowKeys.length === 0}
                             onClick={handleBatchDelete}
                             className="text-xs"
                           />
                         </Tooltip>
                       )}
-                      <Button 
-                        onClick={resetAll}
-                        className="custom-button mt-1"
-                        type="default"
-                        size="small"
-                        icon={<ReloadOutlined className='text-xs'/>}
-                      >
-                        <span className="text-xs">Reset</span>
-                      </Button>
                       <Select
                         defaultValue="Newest"
-                        className="w-auto text-xs transparent-select mt-1"
+                        className="w-auto text-xs transparent-select"
                         onChange={handleSortOrderChange}
-                        value={sortOrder === 'newest' ? 'Newest' : 'Oldest'}
                         size="small"
                       >
                         <Option value="Newest"><span className="text-xs">Newest</span></Option>
                         <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
                       </Select>
+                      <Button 
+                        onClick={handleFullRefresh} 
+                        className="custom-button w-auto text-xs"
+                        type="default"
+                        size="small"
+                        icon={<ReloadOutlined />}
+                      >
+                        <span className="text-xs">Refresh</span>
+                      </Button>
+                      <Button
+                        onClick={handlePrint}
+                        icon={<PrinterOutlined />}
+                        size='small'
+                        className="custom-button w-auto text-xs"
+                        disabled={!selectedRowKeys || selectedRowKeys.length === 0}
+                      >
+                        <span className="text-xs">Print Selected</span>
+                      </Button>
                     </div>
                   </div>
                   <div className="w-auto overflow-x-auto">
                     <Table
+                      key={tableKey}
                       rowSelection={rowSelection}
                       rowKey="id"
                       dataSource={filteredData}
@@ -611,7 +637,9 @@ const InventoryTable = () => {
       <AddItemModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)} 
-        onAdd={handleAddItem} 
+        onAdd={handleAddItem}
+        onRedistribute={handleRedistributeItem}
+        handleEditItem={handleEditItem}
         loading={isLoading} 
       />
       <EditItemModal

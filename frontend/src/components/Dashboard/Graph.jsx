@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { Column } from '@ant-design/plots';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import { Spin } from 'antd';
+import { useTheme } from '../../utils/ThemeContext';
+import './customGraph.css';
 
 const Graph = () => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  const { theme, currentTheme } = useTheme();
 
     useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -103,8 +106,15 @@ const Graph = () => {
   };
 
   return (
-    <div className="w-auto h-full rounded-xl bg-[#A8E1C5] shadow-md"  
-    style={{
+    <div className="w-auto h-full rounded-xl bg-[#a7f3d0] shadow-md flex justify-center items-center graph-container"
+      style={currentTheme !== 'default' ? {
+        height: isMobile ? 270 : 420,
+        width: '100%',
+        background: theme.componentBackground,
+        color: theme.text,
+        '--tooltip-bg': theme.header,
+        '--tooltip-text': theme.textLight,
+      } : {
         height: isMobile ? 270 : 420,
         width: '100%',
       }}>

@@ -52,7 +52,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'qrCode',
     key: 'qrCode',
     align: 'center',
-    width: 'auto',
+    width: '80px',
     className: 'text-xs overflow-auto',
     responsive: ['sm'],
     render: (_, item) => (
@@ -69,7 +69,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'id',
     align: 'center',
     sorter: true,
-    width: 'auto',
+    width: '130px',
     className: 'text-xs overflow-auto',
     responsive: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
@@ -80,7 +80,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'type',
     align: 'center',
     sorter: true,
-    width: 'auto',
+    width: '120px',
     className: 'text-xs overflow-auto',
     responsive: ['sm', 'md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
@@ -92,7 +92,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'brand',
     align: 'center',
     sorter: true,
-    width: 'auto',
+    width: '120px',
     className: 'text-xs overflow-auto',
     responsive: ['md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
@@ -102,7 +102,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'quantity',
     key: 'quantity',
     align: 'center',
-    width: '80px',
+    width: '70px',
     className: 'text-xs overflow-auto text-wrap',
     sorter: (a, b) => a.quantity - b.quantity,
     responsive: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
@@ -113,7 +113,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'remarks',
     key: 'remarks',
     align: 'center',
-    width: '170px',
+    width: '200px',
     className: 'text-xs overflow-auto text-wrap',
     responsive: ['lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
@@ -124,7 +124,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'serialNumber',
     align: 'center',
     sorter: true,
-    width: '150px',
+    width: '170px',
     className: 'text-xs overflow-auto text-wrap',
     responsive: ['lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
@@ -135,7 +135,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'issuedDate',
     align: 'center',
     sorter: true,
-    width: 'auto',
+    width: '120px',
     className: 'text-xs overflow-auto',
     responsive: ['md', 'lg', 'xl', 'xxl'],
     render: (date) => {
@@ -151,7 +151,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     key: 'purchaseDate',
     align: 'center',
     sorter: true,
-    width: 'auto',
+    width: '120px',
     className: 'text-xs overflow-auto',
     responsive: ['md', 'lg', 'xl', 'xxl'],
     render: (date) => {
@@ -166,7 +166,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'condition',
     key: 'condition',
     align: 'center',
-    width: 'auto',
+    width: '120px',
     className: 'text-xs overflow-auto',
     responsive: ['sm', 'md', 'lg', 'xl', 'xxl'],
     render: (condition) => getConditionTag(condition, searchTerm),
@@ -182,7 +182,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'location',
     key: 'location',
     align: 'center',
-    width: 'auto',
+    width: '150px',
     className: 'text-xs overflow-auto',
     responsive: ['md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
@@ -192,7 +192,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'status',
     key: 'status',
     align: 'center',
-    width: 'auto',
+    width: '120px',
     className: 'text-xs overflow-auto',
     responsive: ['sm', 'md', 'lg', 'xl', 'xxl'],
     render: (status) => getStatusTag(status, searchTerm),

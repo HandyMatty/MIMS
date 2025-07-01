@@ -4,11 +4,10 @@ import { BellOutlined, UserOutlined, CalendarOutlined, MenuOutlined } from '@ant
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
-import { useGuestAuthStore } from '../store/guest/useAuth';
-import Cookies from 'js-cookie';
 import { useNotification } from '../utils/NotificationContext';
+import { useTheme } from '../utils/ThemeContext';
+import ThemeToggle from './common/ThemeToggle';
 
-// Dynamic import for Menu (optional, for demonstration)
 const DynamicMenu = React.lazy(() => import('antd/es/menu'));
 
 const { Header } = Layout;
@@ -16,32 +15,18 @@ const { Header } = Layout;
 const HeaderBar = ({ onMobileMenuClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme } = useTheme();
 
   const adminAuth = useAdminAuthStore();
   const userAuth = useUserAuthStore();
-  const guestAuth = useGuestAuthStore();
 
-  const [username, setUsername] = useState(null);
   const { notifications } = useNotification();
 
   const isAdmin = !!(adminAuth.token && adminAuth.userData);
   const isUser = !!(userAuth.token && userAuth.userData);
-  const isGuest = !!(guestAuth.token && guestAuth.userData);
 
   const guestFallback = !isAdmin && !isUser;
   const unreadNotifications = guestFallback ? 0 : notifications.filter((notif) => !notif.read).length;
-
-  useEffect(() => {
-    if (isAdmin) {
-      setUsername(adminAuth.userData?.username || Cookies.get('username'));
-    } else if (isUser) {
-      setUsername(userAuth.userData?.username || Cookies.get('username'));
-    } else if (isGuest) {
-      setUsername(guestAuth.userData?.username || Cookies.get('username'));
-    } else {
-      setUsername(null);
-    }
-  }, [adminAuth, userAuth, guestAuth, isAdmin, isUser, isGuest]);
 
   const onClick = (e) => {
     if (e.key === '/profile') {
@@ -93,7 +78,7 @@ const HeaderBar = ({ onMobileMenuClick }) => {
       icon: (
         <div
           className={`custom-avatar-icon ${
-            location.pathname === '/admin/calendar' || location.pathname === '/user/calendar' ? 'active' : ''
+            location.pathname === '/admin/calendar' || location.pathname === '/user/calendar' || location.pathname === '/guest/calendar' ? 'active' : ''
           }`}
         >
           <CalendarOutlined />
@@ -106,7 +91,7 @@ const HeaderBar = ({ onMobileMenuClick }) => {
         <Badge count={unreadNotifications} offset={[-11, 12]} size="small" showZero={false}>
           <div
             className={`custom-avatar-icon ${
-              location.pathname === '/admin/notifications' || location.pathname === '/user/notifications' ? 'active' : ''
+              location.pathname === '/admin/notifications' || location.pathname === '/user/notifications' || location.pathname === '/guest/notifications' ? 'active' : ''
             }`}
           >
             <BellOutlined />
@@ -121,7 +106,7 @@ const HeaderBar = ({ onMobileMenuClick }) => {
       className="site-layout-background flex justify-between items-center"
       style={{
         padding: 0,
-        background: '#072C1C',
+        background: theme.header,
         position: 'sticky',
         top: 0,
         zIndex: 1000,
@@ -131,7 +116,7 @@ const HeaderBar = ({ onMobileMenuClick }) => {
       <div className="flex items-center pl-4">
         <MenuOutlined
           className="block sm:hidden"
-          style={{ fontSize: 20, color: '#d4e09b', cursor: 'pointer' }}
+          style={{ fontSize: 20, color: theme.textLight, cursor: 'pointer' }}
           onClick={onMobileMenuClick}
         />
         {/* Profile icon (desktop & mobile) */}
@@ -141,20 +126,21 @@ const HeaderBar = ({ onMobileMenuClick }) => {
             selectedKeys={[location.pathname]}
             mode="horizontal"
             items={[items[0]]}
-            style={{ margin: 0, padding: 0, background: '#072C1C' }}
+            style={{ margin: 0, padding: 0, background: theme.header }}
             className='gap-2'
           />
         </Suspense>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', paddingRight: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', paddingRight: '20px', gap: '8px' }}>
+        <ThemeToggle />
         <Suspense fallback={<Spin size="small" />}>
           <DynamicMenu
             onClick={onClick}
             selectedKeys={[location.pathname]}
             mode="horizontal"
             items={[items[1], items[2]]}
-            style={{ margin: 0, padding: 0, background: '#072C1C' }}
+            style={{ margin: 0, padding: 0, background: theme.header }}
           />
         </Suspense>
       </div>

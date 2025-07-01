@@ -7,6 +7,8 @@
   font-family: 'Inter', sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --theme-border: #000000;
+  --theme-hover-bg: #94d7b3;
 }
 
 html, body {
@@ -41,59 +43,65 @@ body {
 /* Sider Css */
 .custom-menu .ant-menu-item-selected, 
 .custom-menu .ant-menu-item:hover {
-  background-color: #D4E09B !important;
+  background-color: var(--theme-text-light, #D4E09B) !important;
 }
 
-.custom-menu .ant-menu-item {
-  color: #072C1C !important;
-}
-
+/* Default state for menu items and icons */
+.custom-menu .ant-menu-item,
 .custom-menu .ant-menu-item .anticon {
-  color: #072C1C !important;
+  color: var(--theme-menu-item, #072C1C) !important;
+}
+
+/* Text and icon color on hover and select */
+.custom-menu .ant-menu-item-selected,
+.custom-menu .ant-menu-item:hover,
+.custom-menu .ant-menu-item-selected .anticon,
+.custom-menu .ant-menu-item:hover .anticon {
+    color: var(--theme-text, #072C1C) !important;
 }
 
 .custom-menu .ant-menu-item {
   margin-bottom: 20px; /* Adds spacing between menu items */
-  color: #072C1C !important;
 }
+
 /* Tooltip Styles */
 .ant-tooltip-inner {
-  background-color: #072C1C !important; /* Background color of tooltip */
-  color: #D4E09B !important; /* Text color of tooltip */
+  background-color: var(--theme-text, #072C1C) !important; /* Background color of tooltip */
+  color: var(--theme-text-light, #D4E09B) !important; /* Text color of tooltip */
   font-size: 14px; /* Font size of tooltip text */
 }
 /* Login.css */
 
 /* Customize the placeholder color */
 .custom-password-input::placeholder {
-  color: #D4E09B !important; /* Apply the same color to the placeholder */
+  color: var(--theme-text-light, #D4E09B) !important; /* Apply the same color to the placeholder */
 }
 
 /* Customize the text color inside the password field */
 .custom-password-input {
   background-color: #2F4F4F; /* Adjust background color if needed */
-  color: #D4E09B !important; /* Set text color */
+  color: var(--theme-text-light, #D4E09B) !important; /* Set text color */
 }
 
 /* Customize the placeholder text */
 .custom-password-input input::placeholder {
-  color: #D4E09B !important;
+  color: var(--theme-text-light, #D4E09B) !important;
 }
 /* Apply styles to the custom input */
 .custom-input {
-  background-color: #072c1c !important; /* Dark green background */
-  color: #d4e09b !important;            /* Pale goldenrod text */
+  background-color: var(--theme-text, #072c1c) !important; /* Dark green background */
+  color: var(--theme-text-light, #d4e09b) !important;            /* Pale goldenrod text */
 }
 
 /* Styling for placeholder text */
 .custom-input::placeholder {
-  color: #d4e09b !important;            /* Pale goldenrod placeholder text */
+  color: var(--theme-text-light, #d4e09b) !important;            /* Pale goldenrod placeholder text */
   opacity: 1; /* Optional: Make sure it's fully opaque */
 }
 
 /* Ensure that input text color persists */
 .custom-input .input {
-  color: #d4e09b !important;
+  color: var(--theme-text-light, #d4e09b) !important;
 }
 
 /*logo animation loading*/
@@ -123,29 +131,29 @@ body {
 /* Default icon color (yellow) */
 .custom-avatar-icon .anticon {
   font-size: 20px;
-  color: #D4E09B;
+  color: var(--theme-text-light, #D4E09B);
 }
 
 /* Active state: when the icon is clicked */
 .custom-avatar-icon.active {
-  background-color: #D4E09B; /* Active background color (yellow) */
-  color: #072C1C; /* Active icon color (green) */
+  background-color: var(--theme-text-light, #D4E09B); /* Active background color (yellow) */
+  color: var(--theme-text, #072C1C); /* Active icon color (green) */
 }
 
 /* Ensure icon color changes to green when active */
 .custom-avatar-icon.active .anticon {
-  color: #072C1C;
+  color: var(--theme-text, #072C1C);
 }
 
 /* Hover effect: yellow background */
 .custom-avatar-icon:hover {
-  background-color: #D4E09B; /* Hover background color (yellow) */
-  color: #072C1C; /* Icon color when hovered */
+  background-color: var(--theme-text-light, #D4E09B); /* Hover background color (yellow) */
+  color: var(--theme-text, #072C1C); /* Icon color when hovered */
 }
 
 /* Ensure icon inherits hover color */
 .custom-avatar-icon:hover .anticon {
-  color: #072C1C; /* Icon color changes on hover */
+  color: var(--theme-text, #072C1C); /* Icon color changes on hover */
 }
 /*Calendar*/
 .events {
@@ -174,17 +182,18 @@ input[type="password"]::-ms-reveal {
 }
 /* Ensuring that the table body and the header color do not change */
 .ant-table-tbody > tr > td {
-  background-color: #A8E1C5 !important; /* Keep the body rows the same background color */
+  background-color: var(--theme-table-container-bg, #a7f3d0  ) !important;
 }
 
 /* Optional: Customize hover effect */
 .ant-table-tbody > tr:hover > td {
-  background-color: #94d7b3 !important; 
-
+  background-color: var(--theme-table-hover-bg, #94d7b3 ) !important;
 }
+
 /* Remove white border background from Ant Design Table */
 .ant-table-thead > tr > th {
-  background-color: #5fe7a7 !important;
+  background-color: var(--theme-table-head-bg, #5fe7a7) !important;
+  color: var(--theme-text, black) !important;
 }
 
 .ant-table-container {
@@ -196,29 +205,29 @@ input[type="password"]::-ms-reveal {
   border-color: #006400 !important;
 }
 .ant-pagination-item, .ant-pagination-item-link {
-  background-color: #a7f3d0!important;
-  border: 1px solid black !important;
-  color: black !important;
+  background-color: var(--theme-pagination-bg, #5fe7a7) !important;
+  border: 1px solid var(--theme-pagination-border, black) !important;
+  color: var(--theme-pagination-text, black) !important;
 }
 .ant-pagination-item-active {
-  background-color: #d9f99d !important;
-  color: black !important;
-  border-color: black !important;
+  background-color: var(--theme-pagination-active-bg, #d9f99d) !important;
+  color: var(--theme-pagination-text, black) !important;
+  border-color: var(--theme-pagination-border, black) !important;
 }
 .ant-pagination-options .ant-select-selector {
-  background-color: #a7f3d0 !important;
-  border-color: black !important;
+  background-color: var(--theme-pagination-bg, #5fe7a7) !important;
+  border-color: var(--theme-pagination-border, black) !important;
 }
 .ant-select-arrow{
-  color:black!important;
+  color: var(--theme-pagination-text, black) !important;
 }
 .ant-pagination-item a {
-  color: black !important; /* Make sure the text (numbers) are black */
+  color: var(--theme-pagination-text, black) !important;
 }
 .ant-pagination-item:hover {
-  background-color: #d9f99d !important;
-  color: black !important;
-  border-color: black !important;
+  background-color: var(--theme-pagination-active-bg, #d9f99d) !important;
+  color: var(--theme-pagination-text, black) !important;
+  border-color: var(--theme-pagination-border, black) !important;
 }
 .custom-input-table .ant-input::placeholder {
   color: black; 
@@ -230,18 +239,31 @@ input[type="password"]::-ms-reveal {
 }
  
 .transparent-select .ant-select-selector {
-  background-color: #a7f3d0 !important;
+  background-color: var(--theme-pagination-active-bg, #5fe7a7) !important;
   border: 1px solid black !important;
 } 
+
+.transparent-select:hover .ant-select-selector {
+  background-color: var(--theme-pagination-bg, #94d7b3) !important;
+}
  
 /* Ant Card CSS */
 .ant-card .ant-card-head {
-  background-color: #5fe7a7 !important;
-  border-bottom: 2px solid #a7f3d0; /* Red border for example */
+  background-color: var(--theme-card-head-bg, #5fe7a7) !important;
+  border-bottom: 3px solid var(--theme-card-head-border, #0C9B4B) !important;
 }
+.ant-card .ant-card-body {
+  background-color: var(--theme-component-bg, #a7f3d0) !important;
+}
+
+.custom-card .ant-card-body {
+  background-color: #ffffff !important;
+  border-radius: 10%;
+}
+
 /* Apply to entire table body */
 .ant-table-tbody td {
-  word-wrap: break-word;
+  word-wrap: break-word; 
   word-break: break-word;
 }
 
@@ -258,20 +280,44 @@ input[type="password"]::-ms-reveal {
 
 /* Optional: Change active tab border */
 .ant-tabs-tab-active {
-  border-bottom: 3px solid #5fe7a7 !important;
-  background-color: #eaf4e2  !important;
+  background-color: var(--theme-background, #eaf4e2) !important;
+}
+
+.ant-tabs-tab-btn {
+  color: var(--theme-text, #072C1C) !important;
 }
 
 .ant-table-filter-trigger.active {
   color: #072c1c !important;
 }
 .custom-button {
-  background-color: #a7f3d0 !important;
+  background-color: var(--theme-pagination-active-bg, #5fe7a7) !important;
   border: 1px solid black !important;
   color: black !important;
   width: auto;
   border-radius: 4px;
 }
+
+.custom-button:hover {
+  background-color: var(--theme-pagination-bg, #94d7b3) !important;
+}
+
+.custom-button-cancel {
+  background-color: transparent !important;
+  border: 1px solid red !important;
+  color: red !important;
+  width: auto;
+  border-radius: 4px;
+}
+
+.custom-button-cancel:hover {
+  background-color: red !important;
+  border: 1px solid black !important;
+  color: black !important;
+  width: auto;
+  border-radius: 4px;
+}
+
 /* CalendarCustom.css */
 .ant-picker-cell-inner {
   min-height: 40px;
@@ -283,4 +329,236 @@ input[type="password"]::-ms-reveal {
     min-height: 28px;
     padding: 1px 0;
   }
+}
+
+/* Prevent text selection in menu items and dropdowns */
+.ant-select-item-option-content,
+.ant-dropdown-menu-title-content,
+.ant-menu-item,
+.ant-menu-submenu-title,
+.ant-menu-title-content,
+.ant-picker-calendar,
+.ant-card-head,
+.ant-typography,
+span {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* Support for forced colors mode */
+@media (forced-colors: active) {
+  .ant-btn,
+  .ant-menu-item,
+  .ant-dropdown-menu-item,
+  .ant-select-item {
+    forced-color-adjust: none;
+  }
+}
+
+/* Table Scrollbar Styling */
+.ant-table-body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.ant-table-body::-webkit-scrollbar-track {
+  background: var(--theme-table-container-bg, #a7f3d0);
+  border-radius: 4px;
+}
+
+.ant-table-body::-webkit-scrollbar-thumb {
+  background: var(--theme-table-head-bg, #5fe7a7);
+  border-radius: 4px;
+}
+
+.ant-table-body::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-table-hover-bg, #94d7b3);
+}
+
+/* For Firefox */
+.ant-table-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-table-head-bg, #5fe7a7) var(--theme-table-container-bg, #a7f3d0);
+}
+
+.theme-aware-dropdown-btn {
+  background-color: var(--theme-table-hover-bg, #5fe7a7) !important;
+  color: var(--theme-text, black) !important;
+}
+
+.theme-aware-dropdown-btn:hover {
+  background-color: var(--theme-card-head-bg, #94d7b3) !important;
+}
+
+.custom-btn {
+  background: var(--theme-component-bg, #a7f3d0);
+}
+
+.my-notification-card .ant-card-body {
+  background-color: var(--theme-background, #EAF4E2) !important;
+}
+
+/* Global Dropdown Menu & Item Styles */
+.ant-dropdown-menu {
+  background-color: #ffffff !important;
+}
+
+.ant-dropdown-menu-item {
+  color: var(--theme-text, black) !important;
+}
+
+.ant-dropdown-menu-item:hover,
+.ant-dropdown-menu-item-selected {
+  background-color: var(--theme-table-hover-bg, #94d7b3) !important;
+}
+
+/* Global Select Styles */
+.custom-selector .ant-select-selector {
+  background-color: var(--theme-component-bg, #a7f3d0) !important;
+  border: 1px solid var(--theme-border, black) !important;
+  color: var(--theme-text, black) !important;
+}
+
+.ant-select-arrow {
+  color: var(--theme-text, black) !important;
+}
+
+.ant-select-dropdown {
+  background-color: #ffffff !important;
+}
+
+.ant-select-item {
+  color: var(--theme-text, black) !important;
+}
+
+.ant-select-item-option-active:not(.ant-select-item-option-disabled),
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: var(--theme-table-hover-bg, #94d7b3) !important;
+  color: var(--theme-text, black) !important;
+}
+
+/* QR Code Generator Action Button */
+.qr-action-btn {
+  background-color: var(--theme-card-head-bg, #d9f99d) !important;
+  color: var(--theme-text, #072C1C) !important;
+  border: 1px solid var(--theme-border, transparent) !important;
+}
+
+.qr-action-btn:hover {
+  background-color: var(--theme-hover-bg, #94d7b3) !important;
+}
+
+/* Global Scrollbar Styles */
+body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--theme-component-bg, #a7f3d0);
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--theme-card-head-bg, #5fe7a7);
+  border-radius: 5px;
+  border: 2px solid var(--theme-component-bg, #a7f3d0);
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-hover-bg, #94d7b3);
+}
+
+/* Firefox scrollbar styles */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-card-head-bg, #5fe7a7) var(--theme-component-bg, #EAF4E2);
+}
+
+.ant-radio-button {
+  background: var(--theme-sider, #5fe7a7) !important;
+  border-color: var(--theme-border, #000000) !important;
+  color: var(--theme-text, #2F4F4F) !important;
+}
+
+.ant-radio-button-wrapper:not(.ant-radio-button-wrapper-disabled):hover {
+  background: var(--theme-hover-bg, #94d7b3) !important;
+  color: var(--theme-text, black) !important;
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  background: var(--theme-card-head-bg, #5fe7a7) !important;
+  color: var(--theme-text, black) !important;
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
+  background: var(--theme-hover-bg, #94d7b3) !important;
+  color: var(--theme-text, black) !important;
+}
+
+/* Global Spin Component Styles */
+.ant-spin-dot-item {
+  background-color: var(--theme-spin-color, #0C9B4B) !important;
+}
+
+.ant-spin-text {
+  color: var(--theme-spin-text, #666) !important;
+}
+
+.ant-spin-container {
+  background-color: var(--theme-spin-bg, transparent) !important;
+}
+/* Theme-aware Alert Styles */
+.theme-aware-alert .ant-alert-info {
+  background-color: var(--theme-component-bg, #5fe7a7) !important;
+}
+
+.theme-aware-alert .ant-alert-message {
+  color: var(--theme-text, black) !important;
+}
+
+.theme-aware-alert .ant-alert-description {
+  color: var(--theme-text, black) !important;
+}
+
+.theme-aware-alert .ant-alert-icon {
+  color: var(--theme-card-head-bg, #5fe7a7) !important;
+}
+/* Move the close button 20px from the top and 30px from the right */
+.ant-modal-close {
+  top: 20px !important;
+  right: 25px !important;
+}
+
+/* Date panel: today cell */
+.ant-picker-cell-today .ant-picker-cell-inner {
+  background: var(--theme-sider, #94d7b3) !important;
+  color: var(--theme-text, #000000) !important;
+  box-shadow: none !important;
+}
+
+/* Month panel: today cell */
+.ant-picker-month-panel .ant-picker-cell-today .ant-picker-cell-inner,
+.ant-picker-month-panel .ant-picker-cell-today.ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--theme-sider, #94d7b3) !important;
+  color: var(--theme-text, #000000) !important;
+  box-shadow: none !important;
+}
+
+/* Month panel: selected month (not today) */
+.ant-picker-month-panel .ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--theme-card-head-bg, #5fe7a7) !important;
+  color: var(--theme-text, #000000) !important;
+  box-shadow: none !important;
+}
+
+.ant-picker-date-panel .ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--theme-card-head-bg, #5fe7a7) !important;
+  color: var(--theme-text, #000000) !important;
+  box-shadow: none !important;
+}
+
+.ant-picker-calendar-date-value {
+  color: #000000 !important;
 }

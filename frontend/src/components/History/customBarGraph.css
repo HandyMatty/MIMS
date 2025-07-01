@@ -2,29 +2,38 @@
 .history-bar-graph-container {
   width: 100%;
   height: 400px;
-  background-color: #a8e1c5;
+  background-color: #a7f3d0;
   border-radius: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
   padding-bottom: 10px;
   overflow: hidden;
+
+  /* Theme variables with default values */
+  --tooltip-bg: #072C1C;
+  --tooltip-text: #d4e09a;
 }
 
 /* Tooltip styles for Ant Design Charts */
 .g2-tooltip {
-  background-color: #072C1C !important;
-  color: #d4e09a !important;
-  border: none !important;
+  background-color: var(--tooltip-bg, #072C1C) !important;
+  color: var(--tooltip-text, #d4e09a) !important;
   border-radius: 5px !important;
   padding: 10px !important;
   font-size: 14px !important;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
+
 .g2-tooltip-title {
-  color: #d4e09a !important;
+  color: var(--tooltip-text, #d4e09a) !important;
 }
+
+.g2-tooltip-list-item {
+  color: var(--tooltip-text, #d4e09a) !important;
+}
+
 .g2-tooltip-list-item-value {
-  color: #d4e09a !important;
+  color: var(--tooltip-text, #d4e09a) !important;
 }
 
 /* Loading spinner */

@@ -53,7 +53,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       dataIndex: 'id',
       key: 'id',
       align: 'center',
-      width: 'auto',
+      width: '120px',
       className: 'text-xs overflow-auto',
       sorter: (a, b) => a.id.localeCompare(b.id),
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
@@ -63,7 +63,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       dataIndex: 'type',
       key: 'type',
       align: 'center',
-      width: 'auto',
+      width: '100px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />,
@@ -108,7 +108,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       dataIndex: 'brand',
       key: 'brand',
       align: 'center',
-      width: 'auto',
+      width: '100px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
       sorter: (a, b) => a.brand.localeCompare(b.brand),
@@ -130,7 +130,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       dataIndex: 'remarks',
       key: 'remarks',
       align: 'center',
-      width: '170px',
+      width: '200px',
       className: 'text-xs overflow-auto text-wrap',
       responsive: ['sm'],
       render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} searchTerm={searchTerm} />
@@ -153,7 +153,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
             dataIndex: 'issuedDate',
             key: 'issuedDate',
             align: 'center',
-            width: 'auto',
+            width: '120px',
             className: 'text-xs overflow-auto',
             responsive: ['sm'],
             sorter: (a, b) => {
@@ -168,7 +168,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
             dataIndex: 'purchaseDate',
             key: 'purchaseDate',
             align: 'center',
-            width: 'auto',
+            width: '120px',
             className: 'text-xs overflow-auto',
             responsive: ['sm'],
             sorter: (a, b) => {
@@ -186,7 +186,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
             dataIndex: 'issuedDate',
             key: 'issuedDate',
             align: 'center',
-            width: 'auto',
+            width: '120px',
             className: 'text-xs overflow-auto',
             responsive: ['sm'],
             sorter: (a, b) => {
@@ -203,7 +203,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
             dataIndex: 'purchaseDate',
             key: 'purchaseDate',
             align: 'center',
-            width: 'auto',
+            width: '120px',
             className: 'text-xs overflow-auto',
             responsive: ['sm'],
             sorter: (a, b) => {
@@ -219,7 +219,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       dataIndex: 'condition',
       key: 'condition',
       align: 'center',
-      width: 'auto',
+      width: '120px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
       render: (condition) => getConditionTag(condition, searchTerm),
@@ -235,7 +235,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       dataIndex: 'location',
       key: 'location',
       align: 'center',
-      width: 'auto',
+      width: '150px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
       render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
@@ -245,7 +245,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      width: 'auto',
+      width: '110px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
       render: (status) => getStatusTag(status, searchTerm),
@@ -264,7 +264,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       title: 'Action',
       key: 'action',
       align: 'center',
-      width: 'auto',
+      width: '80px',
       className: 'text-xs overflow-auto',
       render: (record) => (
         <>

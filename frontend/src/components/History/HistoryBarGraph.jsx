@@ -3,6 +3,7 @@ import { Bar } from '@ant-design/plots';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import { Spin } from 'antd';
 import './customBarGraph.css';
+import { useTheme } from '../../utils/ThemeContext';
 
 const COLORS = [
   '#f4664a', '#faad14', '#a0d911', '#52c41a', '#13c2c2', '#1890ff', '#2f54eb', '#722ed1',
@@ -16,6 +17,7 @@ const HistoryBarGraph = ({ searchText }) => {
   const [barData, setBarData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  const { theme, currentTheme } = useTheme();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -157,6 +159,11 @@ const HistoryBarGraph = ({ searchText }) => {
         width: '100%',
         minWidth: 320,
         padding: isMobile ? '2px' : '10px',
+        ...(currentTheme !== 'default' && {
+          '--tooltip-bg': theme.header,
+          '--tooltip-text': theme.textLight,
+          background: theme.componentBackground,
+        })
       }}
     >
       {loading ? (

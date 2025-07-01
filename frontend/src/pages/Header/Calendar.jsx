@@ -7,6 +7,7 @@ import { useAdminAuthStore } from '../../store/admin/useAuth';
 import { useUserAuthStore } from '../../store/user/useAuth';
 import SINSSILogo from "../../../assets/SINSSI_LOGO-removebg-preview.png";
 import { LazyImage, preloadImages } from '../../utils/imageHelpers.jsx';
+import { useTheme } from '../../utils/ThemeContext';
 
 const { Title } = Typography;
 
@@ -21,6 +22,7 @@ const Calendar = () => {
   const { userData: adminAuthData } = useAdminAuthStore();
   const isAdmin = !!adminAuthData;
   const currentUser = userAuthData || adminAuthData;
+  const { theme, currentTheme } = useTheme();
 
   useEffect(() => {
     loadEvents();
@@ -71,43 +73,45 @@ const Calendar = () => {
     }>
       <div className="container max-w-full">
         <div className='mt-5'>
-          <Divider style={{ borderColor: '#072C1C' }}>
-            <Title level={3}>CALENDAR</Title>
+          <Divider style={currentTheme !== 'default' ? { borderColor: theme.text } : { borderColor: '#072C1C' }}>
+            <Title level={3} style={currentTheme !== 'default' ? { color: theme.text } : {}}>CALENDAR</Title>
           </Divider>
         </div>
         {/* Legend Section */}
-        <Row className='flex flex-col sm:flex-row justify-center items-center gap-5 mb-2'>
-          <Col xs={12} sm={3}>
+        <Row gutter={[16, 8]} className="mb-2 justify-center"
+         >
+          <Col xs={12} sm={6} md={3}>
             <Tag color="#4169E1">Important</Tag>
             <span>Royal Blue</span>
           </Col>
-          <Col xs={12} sm={3}>
+          <Col xs={12} sm={6} md={3}>
             <Tag color="#FFD700" style={{ color: 'black' }}>Celebration</Tag>
             <span>Gold</span>
           </Col>
-          <Col xs={12} sm={3}>
+          <Col xs={12} sm={6} md={3}>
             <Tag color="#228B22">Task</Tag>
             <span>Forest Green</span>
           </Col>
-          <Col xs={12} sm={3}>
+          <Col xs={12} sm={6} md={3}>
             <Tag color="#4682B4">Meeting</Tag>
             <span>Steel Blue</span>
           </Col>
-          <Col xs={12} sm={3}>
+          <Col xs={12} sm={6} md={3}>
             <Tag color="#FFC0CB" style={{ color: 'black' }}>Personal</Tag>
             <span>Soft Pink</span>
           </Col>
-          <Col xs={12} sm={3}>
+          <Col xs={12} sm={6} md={3}>
             <Tag color="#B22222">Deadline</Tag>
             <span>Firebrick Red</span>
           </Col>
-          <Col xs={12} sm={3}>
+          <Col xs={12} sm={6} md={3}>
             <Tag color="#FFFFE0" style={{ color: 'black' }}>Idea</Tag>
             <span>Pale Yellow</span>
           </Col>
         </Row>
 
-        <div className="flex flex-col w-full h-auto mx-auto bg-[#A8E1C5] rounded-xl shadow p-2">
+        <div className="flex flex-col w-full h-auto mx-auto bg-[#a7f3d0] rounded-xl shadow p-2"
+          style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}>
           <AntdCalendar
             className='text-xs w-full'
             cellRender={(currentDate, info) => (

@@ -1,5 +1,5 @@
 import { Button, Modal, Typography } from 'antd';
-import { useState, useEffect, memo, useCallback } from 'react';
+import { useState, memo, useCallback } from 'react';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -39,7 +39,8 @@ const NoticeModal = () => {
       title="📢 System Notice"
       open={isVisible}
       footer={[
-        <Button key="ok" type="primary" onClick={handleOk}>
+        <Button key="ok" type="primary" onClick={handleOk} style={{background: 'var(--theme-card-head-bg, #006400 )', 
+        color: 'var(--theme-component-bg, #a7f3d0 )'}}>
           Got it
         </Button>,
       ]}

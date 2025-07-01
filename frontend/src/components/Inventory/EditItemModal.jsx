@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Modal, Form, Input, Select, Button, DatePicker, App, Row, Col } from 'antd';
+import { Modal, Form, Input, Select, Button, DatePicker, App, Row, Col, Card, Typography } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import dayjs from 'dayjs';
@@ -10,6 +10,7 @@ import { useUserAuthStore } from '../../store/user/useAuth';
 import Cookies from 'js-cookie';
 
 const { Option } = Select;
+const { Title } = Typography;
 
 const EditItemModal = ({ visible, onClose, onEdit, item }) => {
   const [form] = Form.useForm();
@@ -133,185 +134,276 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
 
   return (
     <Modal
-      title="Edit Item"
+      title={
+        <div className="text-center">
+          <Title level={3} className="mb-0 font-semibold">
+            Edit Item
+          </Title>
+          <p className="text-sm mt-1 opacity-75">Update item details and information</p>
+        </div>
+      }
       open={visible}
       onCancel={handleClose}
       footer={null}
-      width={900}
+      width={1000}
+      className="custom-card"
+      styles={{
+        body: { padding: 0 },
+        header: { 
+          borderBottom: '1px solid #f0f0f0',
+          padding: '24px 24px 16px 24px',
+          background: 'var(--theme-card-head-bg, #5fe7a7)',
+          borderRadius: '12px 12px 0 0'
+        },
+        content: { borderRadius: '12px', overflow: 'hidden' }
+      }}
     >
-      <Form
-        form={form}
-        onFinish={handleSubmit}
-        layout="vertical"
-        initialValues={{
-          quantity: 1,
-        }}
-      >
-        <Row gutter={16}>
-          {/* LEFT COLUMN */}
-          <Col span={12}>
-            <Form.Item
-              label="Type"
-              name="type"
-              rules={[{ required: true, message: 'Please select the item type!' }]} >
-              <Select>
-                <Option value="AVR">AVR</Option>
-                <Option value="Battery">Battery</Option>
-                <Option value="Biometrics">Biometrics</Option>
-                <Option value="Camera">Camera</Option>
-                <Option value="CCTV">CCTV</Option>
-                <Option value="Charger">Charger</Option>
-                <Option value="Guard Tour Chips">Guard Tour Chips</Option>
-                <Option value="Guard Tour System">Guard Tour System</Option>
-                <Option value="Headset">Headset</Option>
-                <Option value="Keyboard">Keyboard</Option>
-                <Option value="Laptop">Laptop</Option>
-                <Option value="Megaphone">Megaphone</Option>
-                <Option value="WIFI-Mesh">WIFI-Mesh</Option>
-                <Option value="Metal Detector">Metal Detector</Option>
-                <Option value="Microphone">Microphone</Option>
-                <Option value="Modem">Modem</Option>
-                <Option value="Monitor">Monitor</Option>
-                <Option value="Mouse">Mouse</Option>
-                <Option value="Others">Others</Option>
-                <Option value="Pedestal">Pedestal</Option>
-                <Option value="Podium">Podium</Option>
-                <Option value="Printer">Printer</Option>
-                <Option value="Radio">Radio</Option>
-                <Option value="Router">Router</Option>
-                <Option value="Search Stick">Search Stick</Option>
-                <Option value="Searchlight">Searchlight</Option>
-                <Option value="Smartphone">Smartphone</Option>
-                <Option value="Speaker">Speaker</Option>
-                <Option value="Switch">Switch</Option>
-                <Option value="System Unit">System Unit</Option>
-                <Option value="Under Chassis">Under Chassis</Option>
-                <Option value="UPS">UPS</Option>
-              </Select>
-            </Form.Item>
+      <div className="p-8 bg-gray-50">
+        <Card className="shadow-lg border-0">
+          <Form
+            form={form}
+            onFinish={handleSubmit}
+            layout="vertical"
+            initialValues={{
+              quantity: 1,
+            }}
+          >
+            <Row gutter={[32, 24]}>
+              {/* LEFT COLUMN */}
+              <Col xs={24} md={12}>
+                <div className="space-y-6">
+                  <Form.Item
+                    label={<span className="font-semibold">Type</span>}
+                    name="type"
+                    rules={[{ required: true, message: 'Please select the item type!' }]}
+                  >
+                    <Select 
+                      size="medium"
+                      placeholder="Select item type"
+                    >
+                      <Option value="AVR">AVR</Option>
+                      <Option value="Battery">Battery</Option>
+                      <Option value="Biometrics">Biometrics</Option>
+                      <Option value="Camera">Camera</Option>
+                      <Option value="CCTV">CCTV</Option>
+                      <Option value="Charger">Charger</Option>
+                      <Option value="Guard Tour Chips">Guard Tour Chips</Option>
+                      <Option value="Guard Tour System">Guard Tour System</Option>
+                      <Option value="Headset">Headset</Option>
+                      <Option value="Keyboard">Keyboard</Option>
+                      <Option value="Laptop">Laptop</Option>
+                      <Option value="Megaphone">Megaphone</Option>
+                      <Option value="WIFI-Mesh">WIFI-Mesh</Option>
+                      <Option value="Metal Detector">Metal Detector</Option>
+                      <Option value="Microphone">Microphone</Option>
+                      <Option value="Modem">Modem</Option>
+                      <Option value="Monitor">Monitor</Option>
+                      <Option value="Mouse">Mouse</Option>
+                      <Option value="Others">Others</Option>
+                      <Option value="Pedestal">Pedestal</Option>
+                      <Option value="Podium">Podium</Option>
+                      <Option value="Printer">Printer</Option>
+                      <Option value="Radio">Radio</Option>
+                      <Option value="Router">Router</Option>
+                      <Option value="Search Stick">Search Stick</Option>
+                      <Option value="Searchlight">Searchlight</Option>
+                      <Option value="Smartphone">Smartphone</Option>
+                      <Option value="Speaker">Speaker</Option>
+                      <Option value="Switch">Switch</Option>
+                      <Option value="System Unit">System Unit</Option>
+                      <Option value="Under Chassis">Under Chassis</Option>
+                      <Option value="UPS">UPS</Option>
+                    </Select>
+                  </Form.Item>
 
-            <Form.Item
-              label="Brand"
-              name="brand"
-              rules={[{ required: true, message: 'Please input the brand!' }]} >
-              <Input />
-            </Form.Item>
+                  <Form.Item
+                    label={<span className="font-semibold">Brand</span>}
+                    name="brand"
+                    rules={[{ required: true, message: 'Please input the brand!' }]}
+                  >
+                    <Input 
+                      size="medium"
+                      placeholder="Enter brand name"
+                    />
+                  </Form.Item>
 
-            <Form.Item
-              label="Remarks"
-              name="remarks" >
-              <Input.TextArea />
-            </Form.Item>
+                  <Form.Item
+                    label={<span className="font-semibold">Remarks</span>}
+                    name="remarks"
+                    tooltip="Optional - Leave empty if there no remarks"
+                  >
+                    <Input.TextArea 
+                      size="medium"
+                      rows={3}
+                      placeholder="Enter any additional remarks"
+                    />
+                  </Form.Item>
 
-            <Form.Item
-              label="Serial Number"
-              name="serialNumber" >
-              <Input onChange={handleSerialChange} />
-            </Form.Item>
+                  <Form.Item
+                    label={<span className="font-semibold">Serial Number</span>}
+                    name="serialNumber"
+                    tooltip="Optional - Leave empty if item has no serial number"
+                  >
+                    <Input 
+                      size="medium"
+                      onChange={handleSerialChange}
+                      placeholder="Enter serial number (optional)"
+                    />
+                  </Form.Item>
 
-            {!hasSerialNumber && (
-              <Form.Item
-                label="Quantity"
-                name="quantity"
-                rules={[{ required: true, message: 'Please input the quantity!' }]}
-              >
-                <Input type="number" min={1} />
-              </Form.Item>
-            )}
+                  {!hasSerialNumber && (
+                    <Form.Item
+                      label={<span className="font-semibold">Quantity</span>}
+                      name="quantity"
+                      rules={[{ required: true, message: 'Please input the quantity!' }]}
+                    >
+                      <Input 
+                        size="medium"
+                        type="number" 
+                        min={1}
+                        placeholder="Enter quantity"
+                      />
+                    </Form.Item>
+                  )}
 
-            <Form.Item 
-              label="Issued Date" 
-              name="issuedDate"
-              tooltip="Optional - Leave empty if not issued yet"
-            >
-              <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
-            </Form.Item>
-          </Col>
+                  <Form.Item 
+                    label={<span className="font-semibold">Issued Date</span>}
+                    name="issuedDate"
+                    tooltip="Optional - Leave empty if not issued yet"
+                  >
+                    <DatePicker 
+                      size="medium"
+                      className="w-full"
+                      format="YYYY-MM-DD"
+                      placeholder="Select issued date"
+                    />
+                  </Form.Item>
+                </div>
+              </Col>
 
-          {/* RIGHT COLUMN */}
-          <Col span={12}>
-            <Form.Item
-              label="Purchased Date"
-              name="purchaseDate"
-              rules={[{ required: true, message: 'Please select the purchase date!' }]} >
-              <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
-            </Form.Item>
+              {/* RIGHT COLUMN */}
+              <Col xs={24} md={12}>
+                <div className="space-y-6">
+                  <Form.Item
+                    label={<span className="font-semibold">Purchased Date</span>}
+                    name="purchaseDate"
+                    rules={[{ required: true, message: 'Please select the purchase date!' }]}
+                  >
+                    <DatePicker 
+                      size="medium"
+                      className="w-full"
+                      format="YYYY-MM-DD"
+                      placeholder="Select purchase date"
+                    />
+                  </Form.Item>
 
-            <Form.Item
-              label="Condition"
-              name="condition"
-              rules={[{ required: true, message: 'Please select the condition!' }]} >
-              <Select>
-                <Option value="Brand New">Brand New</Option>
-                <Option value="Good Condition">Good Condition</Option>
-                <Option value="Defective">Defective</Option>
-              </Select>
-            </Form.Item>
+                  <Form.Item
+                    label={<span className="font-semibold">Condition</span>}
+                    name="condition"
+                    rules={[{ required: true, message: 'Please select the condition!' }]}
+                  >
+                    <Select 
+                      size="medium"
+                      placeholder="Select condition"
+                    >
+                      <Option value="Brand New">Brand New</Option>
+                      <Option value="Good Condition">Good Condition</Option>
+                      <Option value="Defective">Defective</Option>
+                    </Select>
+                  </Form.Item>
 
-            <Form.Item
-              label="Detachment/Office"
-              name="locationType"
-              rules={[{ required: true, message: 'Please select a location!' }]}
-            >
-              <Select
-                onChange={(value) => setIsHeadOffice(value === 'Head Office')}
-              >
-                <Option value="Head Office">Head Office</Option>
-                <Option value="Other">Other (Specify Below)</Option>
-              </Select>
-            </Form.Item>
+                  <Form.Item
+                    label={<span className="font-semibold">Detachment/Office</span>}
+                    name="locationType"
+                    rules={[{ required: true, message: 'Please select a location!' }]}
+                  >
+                    <Select
+                      size="medium"
+                      onChange={(value) => setIsHeadOffice(value === 'Head Office')}
+                      placeholder="Select location type"
+                    >
+                      <Option value="Head Office">Head Office</Option>
+                      <Option value="Other">Other (Specify Below)</Option>
+                    </Select>
+                  </Form.Item>
 
-            {isHeadOffice && (
-              <Form.Item
-                label="Department (Head Office)"
-                name="department"
-                rules={[{ required: true, message: 'Please select a department!' }]}
-              >
-                <Select>
-                  <Option value="SOD">SOD</Option>
-                  <Option value="CID">CID</Option>
-                  <Option value="GAD">GAD</Option>
-                  <Option value="HRD">HRD</Option>
-                  <Option value="AFD">AFD</Option>
-                  <Option value="EOD">EOD</Option>
-                  <Option value="BDO">BDO</Option>
-                </Select>
-              </Form.Item>
-            )}
+                  {isHeadOffice && (
+                    <Form.Item
+                      label={<span className="font-semibold">Department (Head Office)</span>}
+                      name="department"
+                      rules={[{ required: true, message: 'Please select a department!' }]}
+                    >
+                      <Select 
+                        size="medium"
+                        placeholder="Select department"
+                      >
+                        <Option value="SOD">SOD</Option>
+                        <Option value="CID">CID</Option>
+                        <Option value="GAD">GAD</Option>
+                        <Option value="HRD">HRD</Option>
+                        <Option value="AFD">AFD</Option>
+                        <Option value="EOD">EOD</Option>
+                        <Option value="BDO">BDO</Option>
+                      </Select>
+                    </Form.Item>
+                  )}
 
-            {!isHeadOffice && (
-              <Form.Item
-                label="Specific Location"
-                name="location"
-                rules={[{ required: true, message: 'Please input a location!' }]}
-              >
-                <Input />
-              </Form.Item>
-            )}
+                  {!isHeadOffice && (
+                    <Form.Item
+                      label={<span className="font-semibold">Specific Location</span>}
+                      name="location"
+                      rules={[{ required: true, message: 'Please input a location!' }]}
+                    >
+                      <Input 
+                        size="medium"
+                        placeholder="Enter specific location"
+                      />
+                    </Form.Item>
+                  )}
 
-            <Form.Item
-              label="Status"
-              name="status"
-              rules={[{ required: true, message: 'Please select the status!' }]} >
-              <Select>
-                <Option value="On Stock">On Stock</Option>
-                <Option value="Deployed">Deployed</Option>
-                <Option value="For Repair">For Repair</Option>
-              </Select>
-            </Form.Item>
+                  <Form.Item
+                    label={<span className="font-semibold">Status</span>}
+                    name="status"
+                    rules={[{ required: true, message: 'Please select the status!' }]}
+                  >
+                    <Select 
+                      size="medium"
+                      placeholder="Select status"
+                    >
+                      <Option value="On Stock">On Stock</Option>
+                      <Option value="Deployed">Deployed</Option>
+                      <Option value="For Repair">For Repair</Option>
+                    </Select>
+                  </Form.Item>
 
-            <Form.Item>
-              <Row justify="center">
-                <Col>
-                  <Button type="primary" htmlType="submit" icon={<EditOutlined />}>
-                    Update Item
-                  </Button>
-                </Col>
-              </Row>
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
+                  <Form.Item className="mb-0">
+                    <div className="flex justify-center pt-4">
+                      <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        icon={<EditOutlined />}
+                        size="small"
+                        style={{
+                          background: 'var(--theme-card-head-bg, #5fe7a7)',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '10px',
+                          height: 'auto',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          color: 'black'
+                        }}
+                      >
+                        Update Item
+                      </Button>
+                    </div>
+                  </Form.Item>
+                </div>
+              </Col>
+            </Row>
+          </Form>
+        </Card>
+      </div>
     </Modal>
   );
 };

@@ -5,6 +5,7 @@ import { Calendar, Col, Radio, Row, Select, Typography, Modal, Button, List, Ava
 import dayLocaleData from 'dayjs/plugin/localeData';
 import { fetchEvents } from '../../services/api/eventService'; // Import your API function
 import './customCalendarStyles.css'; // Import your custom styles
+import { useTheme } from '../../utils/ThemeContext';
 
 // Extend dayjs to use locale data
 dayjs.extend(dayLocaleData);
@@ -18,6 +19,7 @@ const AntCalendar = () => {
   const [selectedMonth, setSelectedMonth] = useState(null); // State to track the selected month
   const [selectedYear, setSelectedYear] = useState(null); // State to track the selected year
   const [viewType, setViewType] = useState('month'); // State for the current view (month/year)
+  const { theme, currentTheme } = useTheme();
 
   // Fetch all events on component mount
   useEffect(() => {
@@ -131,7 +133,12 @@ const AntCalendar = () => {
       const eventTitles = dateEvents.map((event) => event.content).join(', ');
       return (
         <Tooltip title={eventTitles} placement="top">
-          <div className="w-1.5 h-1.5 bg-green-700 rounded-full mx-auto my-1 xs:text-xs" />
+          <div 
+            className="w-1.5 h-1.5 rounded-full mx-auto my-1" 
+            style={{
+              backgroundColor: currentTheme !== 'default' ? (theme.primary || theme.text) : '#15803d'
+            }}
+          />
         </Tooltip>
       );
     }
@@ -159,7 +166,7 @@ const AntCalendar = () => {
   const renderYearViewModalContent = () => {
     return Object.keys(groupedEvents).map((month) => (
       <div key={month}>
-        <Typography.Title level={5} className='xs:text-xs'>
+        <Typography.Title level={5}>
           {dayjs().month(month).format('MMMM')}
         </Typography.Title>
         <List
@@ -168,11 +175,10 @@ const AntCalendar = () => {
           renderItem={(event) => (
             <List.Item key={event.id}>
               <List.Item.Meta
-              className='xs:text-xs'
                 avatar={<Avatar src={event.avatar} />}
                 title={event.username}
                 description={
-                  <span style={{ color: event.event_type }} className='xs:text-xs'>
+                  <span style={{ color: event.event_type }}>
                     {event.content}
                   </span>
                 }
@@ -185,10 +191,26 @@ const AntCalendar = () => {
   };
 
   return (
-    <div className="w-auto h-full rounded-xl bg-[#A8E1C5] shadow-md">
+    <div 
+      className="max-w-full h-auto rounded-xl bg-[#5fe7a7] shadow-md calendar-container calendar-card-head" 
+      style={{
+        ...(currentTheme !== 'default' && {
+          '--calendar-bg': theme.componentBackground,
+          '--calendar-text': theme.text,
+          '--calendar-border': theme.border,
+          '--calendar-radio-checked-bg': theme.primary || theme.text,
+          '--calendar-cell-hover-bg': theme.primary ? `${theme.primary}33` : `${theme.text}33`,
+          '--calendar-selected-bg': theme.primary || theme.text,
+          '--calendar-selected-text': theme.componentBackground,
+          '--calendar-today-bg': theme.primary ? theme.primary : theme.text,
+          '--calendar-today-text': theme.componentBackground,
+          background: theme.componentBackground,
+        })
+      }}
+    >
       <Calendar
         fullscreen={false}
-        className="bg-transparent xs:text-xs"
+        className="bg-transparent"
         onSelect={onDateClick}
         cellRender={cellRender}
         headerRender={({ value, onChange }) => {
@@ -209,8 +231,8 @@ const AntCalendar = () => {
           ));
 
           return (
-            <div className="p-2">
-              <Typography.Title level={4} className="m-0">
+            <div className="p-1">
+              <Typography.Title level={4}>
                 Calendar
               </Typography.Title>
               <Row gutter={8}>
@@ -220,10 +242,10 @@ const AntCalendar = () => {
                     onChange={(e) => setViewType(e.target.value)}
                     value={viewType}
                   >
-                    <Radio.Button className="custom-radio text-black w-auto text-xs sm:text-sm" value="month">
+                    <Radio.Button className="text-black" value="month">
                       Month
                     </Radio.Button>
-                    <Radio.Button className="custom-radio text-black w-auto text-xs sm:text-sm" value="year">
+                    <Radio.Button className="text-black" value="year">
                       Year
                     </Radio.Button>
                   </Radio.Group>
@@ -237,7 +259,7 @@ const AntCalendar = () => {
                       onChange(now);
                       if (viewType === 'year') onYearSelect(newYear);
                     }}
-                    className="w-auto"
+                    className="w-20"
                   >
                     {yearOptions}
                   </Select>
@@ -250,11 +272,9 @@ const AntCalendar = () => {
                       onChange={(newMonth) => {
                         const now = value.clone().month(newMonth);
                         onChange(now);
-                    
-                        // Call the onMonthSelect function
                         onMonthSelect(newMonth, year);
                       }}
-                      className="w-auto"
+                      className="w-auto "
                     >
                       {monthOptions}
                     </Select>
@@ -267,6 +287,7 @@ const AntCalendar = () => {
         onPanelChange={onPanelChange}
       />
 
+      {/* Modal for displaying events */}
       <Modal
         title={
           viewType === 'year'
@@ -275,9 +296,8 @@ const AntCalendar = () => {
         }
         open={isModalOpen}
         onCancel={handleModalClose}
-        centered
         footer={[
-          <Button key="close" onClick={handleModalClose}>
+          <Button key="close" onClick={handleModalClose} className='custom-button-cancel'>
             Close
           </Button>,
         ]}

@@ -53,11 +53,6 @@ if ($lockout_until !== null && strtotime($lockout_until) > $current_time) {
     exit;
 }
 
-// Check for already active session
-if ($status === 'Active' && $token_expiry > $current_time) {
-    echo json_encode(['success' => false, 'message' => 'Already logged in on another device.']);
-    exit;
-}
 
 // Verify password
 if (!password_verify($password, $hashed_password)) {

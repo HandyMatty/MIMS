@@ -131,7 +131,7 @@ const debouncedSearch = useCallback(
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 'auto',
+      width: '120px',
       className: 'text-xs overflow-auto',
       sorter: (a, b) => String(a.id).localeCompare(String(b.id)),
       render: (id) => <HighlightText text={id || 'N/A'} searchTerm={searchText} />
@@ -140,7 +140,7 @@ const debouncedSearch = useCallback(
       title: 'Username',
       dataIndex: 'username',
       key: 'username',
-      width: 'auto',
+      width: '150px',
       className: 'text-xs overflow-auto',
       sorter: (a, b) => a.username.localeCompare(b.username),
       render: (text) => <HighlightText text={text} searchTerm={searchText} />
@@ -149,7 +149,7 @@ const debouncedSearch = useCallback(
       title: 'Activity',
       dataIndex: 'activity',
       key: 'activity',
-      width: 'auto',
+      width: '150px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
       render: (text) => <HighlightText text={text} searchTerm={searchText} />
@@ -158,7 +158,7 @@ const debouncedSearch = useCallback(
       title: 'Details',
       dataIndex: 'details',
       key: 'details',
-      width: '500px',
+      width: '200px',
       className: 'text-xs whitespace-normal break-words',
       responsive: ['sm'],
       render: (text) => <HighlightText text={text} searchTerm={searchText} />
@@ -167,7 +167,7 @@ const debouncedSearch = useCallback(
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
-      width: 'auto',
+      width: '200px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
@@ -192,7 +192,7 @@ const debouncedSearch = useCallback(
       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 sm:mb-0">
           <Dropdown 
-          className='w-auto hidden sm:block'
+          className='w-auto hidden sm:block border-black theme-aware-dropdown-btn text-xs'
           menu={{ 
             items: searchableColumns.map(column => ({
               key: column.key,
@@ -203,13 +203,13 @@ const debouncedSearch = useCallback(
           }} trigger={['click']}>
             <Button 
               type="text" 
-              className="border-black bg-[#a7f3d0] text-xs"
-              icon={<FilterOutlined  className='text-xs'/>}
+              className="flex items-center"
             >
+              <FilterOutlined  className='text-xs'/>
               <Space>
                 {searchableColumns.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                <DownOutlined />
               </Space>
+              <DownOutlined className='align-middle ml-1' />
             </Button>
           </Dropdown>
           <Input

@@ -12,10 +12,12 @@ import {
 import './customStatisticBoard.css';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import CountUp from 'react-countup';
+import { useTheme } from '../../utils/ThemeContext';
 
 const StatisticsBoard = ({ searchText }) => {
   const [inventoryData, setInventoryData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { theme, currentTheme } = useTheme();
 
   useEffect(() => {
     const fetchInventory = async () => {
@@ -64,13 +66,14 @@ const inventoryCounts = {
         <Col xs={12} sm={8} md={6}>
           <Card
             title={
-              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi "
+                style={currentTheme !== 'default' ? { color: theme.text } : {}}>
                 <LaptopOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Total Equipment
               </span>
             }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
-            style={{ textAlign: 'center'}}
+            style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
             <Statistic
@@ -79,8 +82,9 @@ const inventoryCounts = {
                 <CountUp
                   end={Number(value)}
                   duration={2}
-                  separator=","
-                  className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                  separator="," 
+                  className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold"
+                  style={currentTheme !== 'default' ? { color: theme.text } : {}}
                 />
               )}
             />
@@ -90,13 +94,14 @@ const inventoryCounts = {
         <Col xs={12} sm={8} md={6}>
           <Card
             title={
-              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi "
+                style={currentTheme !== 'default' ? { color: theme.text } : {}}>
                 <TagsOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Brand New
               </span>
             }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
-            style={{ textAlign: 'center' }}
+            style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
             <Statistic
@@ -105,8 +110,9 @@ const inventoryCounts = {
                 <CountUp
                   end={Number(value)}
                   duration={2}
-                  separator=","
-                  className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                  separator="," 
+                  className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold"
+                  style={currentTheme !== 'default' ? { color: theme.text } : {}}
                 />
               )}
             />
@@ -116,13 +122,14 @@ const inventoryCounts = {
         <Col xs={12} sm={8} md={6}>
           <Card
             title={
-              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi "
+                style={currentTheme !== 'default' ? { color: theme.text } : {}}>
                 <LikeOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Good Condition
               </span>
             }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
-            style={{ textAlign: 'center' }}
+            style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
             <Statistic
@@ -131,8 +138,9 @@ const inventoryCounts = {
                   <CountUp
                     end={Number(value)}
                     duration={1.2}
-                    separator=","
-                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                    separator="," 
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold"
+                    style={currentTheme !== 'default' ? { color: theme.text } : {}}
                   />
                 )}
               />
@@ -142,13 +150,14 @@ const inventoryCounts = {
         <Col xs={12} sm={8} md={6}>
           <Card
             title={
-              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi "
+                style={currentTheme !== 'default' ? { color: theme.text } : {}}>
                 <WarningOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Defective
               </span>
             }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
-            style={{ textAlign: 'center' }}
+            style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
               <Statistic
@@ -157,8 +166,9 @@ const inventoryCounts = {
                   <CountUp
                     end={Number(value)}
                     duration={1.2}
-                    separator=","
-                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                    separator="," 
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold"
+                    style={currentTheme !== 'default' ? { color: theme.text } : {}}
                   />
                 )}
               />
@@ -170,13 +180,14 @@ const inventoryCounts = {
         <Col xs={12} sm={8} md={8}>
           <Card
             title={
-              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi "
+                style={currentTheme !== 'default' ? { color: theme.text } : {}}>
                 <CheckCircleOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> On Stock
               </span>
             }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
-            style={{ textAlign: 'center' }}
+            style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
              <Statistic
@@ -185,8 +196,9 @@ const inventoryCounts = {
                   <CountUp
                     end={Number(value)}
                     duration={2}
-                    separator=","
-                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                    separator="," 
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold"
+                    style={currentTheme !== 'default' ? { color: theme.text } : {}}
                   />
                 )}
               />
@@ -196,13 +208,14 @@ const inventoryCounts = {
         <Col xs={12} sm={8} md={8}>
           <Card
             title={
-              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi "
+                style={currentTheme !== 'default' ? { color: theme.text } : {}}>
                 <TruckOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Deployed
               </span>
             }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
-            style={{ textAlign: 'center' }}
+            style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
               <Statistic
@@ -211,8 +224,9 @@ const inventoryCounts = {
                   <CountUp
                     end={Number(value)}
                     duration={2}
-                    separator=","
-                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                    separator="," 
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold"
+                    style={currentTheme !== 'default' ? { color: theme.text } : {}}
                   />
                 )}
               />
@@ -222,13 +236,14 @@ const inventoryCounts = {
         <Col xs={12} sm={8} md={8}>
           <Card
             title={
-              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi ">
+              <span className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi "
+                style={currentTheme !== 'default' ? { color: theme.text } : {}}>
                 <ToolOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> For Repair
               </span>
             }
             bordered={false}
             className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
-            style={{ textAlign: 'center' }}
+            style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
                < Statistic
@@ -237,8 +252,9 @@ const inventoryCounts = {
                   <CountUp
                     end={Number(value)}
                     duration={2}
-                    separator=","
-                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold text-black"
+                    separator="," 
+                    className="text-lgi xs:text-base sm:text-xl md:text-2xl lg:text-3xl font-bold"
+                    style={currentTheme !== 'default' ? { color: theme.text } : {}}
                   />
                 )}
               />

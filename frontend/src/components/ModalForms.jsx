@@ -63,7 +63,7 @@ const ModalForms = ({
           <Button
             type="primary"
             onClick={() => setIsEditingSecurityQuestion(true)}
-            className='w-auto flex justify-self-end mt-5'
+            className='w-auto flex justify-self-end mt-5 custom-button'
           >
             Change Security Question
           </Button>
@@ -74,7 +74,7 @@ const ModalForms = ({
           <Button
             type="primary"
             onClick={() => setIsEditingSecurityQuestion(true)}
-            className='w-auto flex justify-self-end mt-5'
+            className='w-auto flex justify-self-end mt-5 custom-button'
           >
             Add Security Question
           </Button>
@@ -111,17 +111,20 @@ const ModalForms = ({
       >
         <Input.Password placeholder="Enter your answer" />
       </Form.Item>
-      <Button type="primary" htmlType="submit" style={{ marginRight: 10 }}>
-        Save
-      </Button>
+      <div             className='w-auto flex justify-self-end mt-5'>
       <Button
         onClick={() => {
           securityQuestionForm.resetFields(); // Reset fields without closing
           setIsEditingSecurityQuestion(false); // Exit editing mode
         }}
+        className='custom-button-cancel'
       >
         Cancel
       </Button>
+      <Button type="primary" htmlType="submit" className='custom-button ml-2'>
+        Save
+      </Button>
+      </div>
     </Form>
   )}
 </Modal>
@@ -258,7 +261,7 @@ const ModalForms = ({
                 <Select.Option value="guest">Guest</Select.Option>
               </Select>
             </Form.Item>
-            <Button type="primary" htmlType="submit" className='flex justify-self-end'>
+            <Button type="primary" htmlType="submit" className='flex justify-self-end custom-button'>
               Update Role
             </Button>
           </Form>

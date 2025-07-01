@@ -18,13 +18,16 @@ import { useUserAuthStore } from '../store/user/useAuth';
 import { useGuestAuthStore } from '../store/guest/useAuth';
 import { logoutUser } from '../services/api/logout';
 import { useActivity } from '../utils/ActivityContext';
+import { useTheme } from '../utils/ThemeContext';
 import SINSSILogo from "../../assets/SINSSI_LOGO-removebg-preview.png";
 import { LazyImage, preloadImages } from '../utils/imageHelpers.jsx';
+import { checkTokenValidity } from '../services/api/checkTokenValidity';
 
 const { Sider } = Layout;
 
 const MainLayout = () => {
   const initialCollapsedState = JSON.parse(localStorage.getItem('sidebarCollapsed')) || false;
+  const { theme } = useTheme();
 
   const [collapsed, setCollapsed] = useState(initialCollapsedState);
   const [loading, setLoading] = useState(true);
@@ -99,7 +102,13 @@ const MainLayout = () => {
         // Clear all storages and cookies
         sessionStorage.clear();
         localStorage.clear();
-        Cookies.remove("authToken", { path: '/' });
+        // Remove all user-specific authToken cookies
+        const allCookies = Cookies.get();
+        Object.keys(allCookies).forEach((cookieName) => {
+          if (cookieName.startsWith('authToken_')) {
+            Cookies.remove(cookieName, { path: '/' });
+          }
+        });
         
         localStorage.setItem("logout", JSON.stringify({ token: adminAuth.token || userAuth.token || guestAuth.token, time: Date.now() }));
         navigate("/login", { replace: true });
@@ -131,45 +140,71 @@ const MainLayout = () => {
   };
 
   useEffect(() => {
-    const checkCookiePresence = async () => {
+    const checkToken = async () => {
       const username =
         adminAuth?.userData?.username ||
         userAuth?.userData?.username ||
         guestAuth?.userData?.username;
-    
+
       if (!username) return;
-    
-      const tokenCookie = Cookies.get(`authToken_${username}`);
-      
-      if (!tokenCookie) {
+
+      const token = Cookies.get(`authToken_${username}`);
+      if (!token) {
         message.warning("Your session has expired or was removed. You have been logged out.", 3);
-    
-        setLoading(true); // ✅ Trigger your loading screen
-    
+        setLoading(true);
         setTimeout(async () => {
           logUserActivity(username, "Logout", `User ${username} was automatically logged out due to missing auth cookie.`);
-    
           const role = adminAuth.token ? "admin" : userAuth.token ? "user" : guestAuth.token ? "guest" : null;
           if (role) await logoutUser(role);
-    
           adminAuth.reset();
           userAuth.reset();
           guestAuth.reset();
           sessionStorage.clear();
           localStorage.clear();
-          Cookies.remove("authToken", { path: '/' });
-    
-          navigate("/login", { replace: true }); // ✅ Delayed so loading screen is seen
-        }, 1000); // short delay to allow spinner to render
+          const allCookies = Cookies.get();
+          Object.keys(allCookies).forEach((cookieName) => {
+            if (cookieName.startsWith('authToken_')) {
+              Cookies.remove(cookieName, { path: '/' });
+            }
+          });
+          navigate("/login", { replace: true });
+        }, 1000);
+        return;
+      }
+
+      try {
+        const data = await checkTokenValidity(token);
+        if (!data.success) {
+          throw new Error('Invalid token');
+        }
+      } catch (error) {
+        message.warning("You have been logged out because your account was accessed from another device.", 3);
+        setLoading(true);
+        setTimeout(async () => {
+          logUserActivity(username, "Logout", `User ${username} was automatically logged out due to invalid token.`);
+          const role = adminAuth.token ? "admin" : userAuth.token ? "user" : guestAuth.token ? "guest" : null;
+          if (role) await logoutUser(role);
+          adminAuth.reset();
+          userAuth.reset();
+          guestAuth.reset();
+          sessionStorage.clear();
+          localStorage.clear();
+          const allCookies = Cookies.get();
+          Object.keys(allCookies).forEach((cookieName) => {
+            if (cookieName.startsWith('authToken_')) {
+              Cookies.remove(cookieName, { path: '/' });
+            }
+          });
+          navigate("/login", { replace: true });
+        }, 1000);
       }
     };
-  
-    checkCookiePresence(); // Run once on load
-  
-    const interval = setInterval(checkCookiePresence, 15000); // Then every 15 seconds
-  
+
+    checkToken(); // Run once on load
+    const interval = setInterval(checkToken, 15000); // Then every 15 seconds
     return () => clearInterval(interval);
-  }, [adminAuth, userAuth, guestAuth, navigate, logUserActivity]);  
+  }, [adminAuth, userAuth, guestAuth, navigate, logUserActivity]);
+
   
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -199,7 +234,12 @@ const MainLayout = () => {
             guestAuth.reset();
             sessionStorage.clear();
             localStorage.clear();
-            Cookies.remove("authToken", { path: '/' });
+            const allCookies = Cookies.get();
+            Object.keys(allCookies).forEach((cookieName) => {
+              if (cookieName.startsWith('authToken_')) {
+                Cookies.remove(cookieName, { path: '/' });
+              }
+            });
             navigate("/login", { replace: true });
           }
         } catch (error) {
@@ -239,7 +279,7 @@ const MainLayout = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-honeydew">
+      <div className="flex flex-col items-center justify-center h-screen" style={{ backgroundColor: theme.background }}>
         <LazyImage
           className="h-[183px] w-[171px] object-cover mb-4 logo-bounce"
           src={SINSSILogo}
@@ -248,14 +288,14 @@ const MainLayout = () => {
           height={183}
         />
         <Spin size="large" />
-        <p className="mt-4 text-darkslategray-200">Loading...</p>
+        <p className="mt-4" style={{ color: theme.text }}>Loading...</p>
       </div>
     );
   }
 
   return (
     <Suspense fallback={
-      <div className="flex flex-col items-center justify-center h-screen bg-honeydew">
+      <div className="flex flex-col items-center justify-center h-screen" style={{ backgroundColor: theme.background }}>
         <LazyImage
           className="h-[183px] w-[171px] object-cover mb-4 logo-bounce"
           src={SINSSILogo}
@@ -264,17 +304,17 @@ const MainLayout = () => {
           height={183}
         />
         <Spin size="large" />
-        <p className="mt-4 text-darkslategray-200">Loading...</p>
+        <p className="mt-4" style={{ color: theme.text }}>Loading...</p>
       </div>
     }>
-      <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+      <Layout style={{ minHeight: '100vh', backgroundColor: theme.background }}>
         <NoticeModal />
         <Drawer
           placement="top"
           open={showMobileMenu}
           onClose={() => setShowMobileMenu(false)}
           style={{
-            backgroundColor: '#0C9B4B',
+            backgroundColor: theme.sider,
             width: 'auto',
             height: 'auto',
           }}
@@ -287,10 +327,9 @@ const MainLayout = () => {
                   width={20}
                   height={23}
                 />
-                {!collapsed && (
                   <span
                     style={{
-                      color: '#072C1C',
+                      color: theme.text,
                       fontSize: '22px',
                       fontWeight: '600',
                       marginLeft: '8px',
@@ -299,12 +338,14 @@ const MainLayout = () => {
                   >
                     MIMS
                   </span>
-                )}
               </div>
           <Menu
-            className='bg-inherit w-auto text-black justify-self-center'
+            className='bg-inherit w-auto justify-self-center custom-menu'
             mode="vertical"
-            style={{border: 'none'}}
+            style={{
+              border: 'none',
+              backgroundColor: 'transparent'
+            }}
             selectedKeys={[current]}
             onClick={(e) => {
               setShowMobileMenu(false);
@@ -326,7 +367,7 @@ const MainLayout = () => {
           collapsed={collapsed}
           onCollapse={setCollapsed}
           style={{
-            backgroundColor: '#0C9B4B',
+            backgroundColor: theme.sider,
             position: 'sticky',
             top: 0,
             zIndex: 1000,
@@ -348,7 +389,7 @@ const MainLayout = () => {
                 {!collapsed && (
                   <span
                     style={{
-                      color: '#072C1C',
+                      color: theme.text,
                       fontSize: '32px',
                       fontWeight: '600',
                       marginLeft: '8px',
@@ -361,7 +402,7 @@ const MainLayout = () => {
               </div>
               <div style={{ marginTop: '36px' }}>
                 <MenuOutlined
-                  style={{ color: '#072C1C', fontSize: '20px', cursor: 'pointer' }}
+                  style={{ color: theme.text, fontSize: '20px', cursor: 'pointer' }}
                   onClick={() => setCollapsed(!collapsed)}
                 />
               </div>
@@ -371,7 +412,12 @@ const MainLayout = () => {
               theme="light"
               mode="inline"
               className="custom-menu"
-              style={{ backgroundColor: '#0C9B4B', marginTop: '22px', color: '#072C1C' }}
+              style={{ 
+                backgroundColor: theme.sider, 
+                marginTop: '22px', 
+                color: theme.menuItem,
+                border: 'none'
+              }}
               selectedKeys={[current]}
               onClick={onClick}
               items={[
@@ -394,7 +440,7 @@ const MainLayout = () => {
               padding: '10px',
               overflowY: 'auto',
               overflowX: 'auto',
-              backgroundColor: '#EAF4E2',
+              backgroundColor: theme.background,
             }}
           >
             <Outlet />
@@ -408,6 +454,8 @@ const MainLayout = () => {
           onCancel={handleModalCancel}
           okText="Yes, Logout"
           cancelText="Cancel"
+          okButtonProps={{ className: 'custom-button' }}
+          cancelButtonProps={{ className: 'custom-button-cancel' }}
           centered
         >
           <p>Are you sure you want to log out?</p>

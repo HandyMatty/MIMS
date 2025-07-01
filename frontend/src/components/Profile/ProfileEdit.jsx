@@ -8,6 +8,7 @@ import { fetchProfileData, updateProfileData } from '../../services/api/getUserD
 import { beforeUpload } from '../../utils/imageHelpers';
 import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
+import { useTheme } from '../../utils/ThemeContext';
 
 const { Title, Text } = Typography;
 
@@ -29,6 +30,13 @@ const ProfileEdit = () => {
   const { logUserNotification } = useNotification();
 
   const [authUsername, setAuthUsername] = useState('');
+
+  const { theme, currentTheme } = useTheme();
+
+  // Button hover state for theme
+  const [avatarBtnHover, setAvatarBtnHover] = useState(false);
+  const [cancelBtnHover, setCancelBtnHover] = useState(false);
+  const [mainBtnHover, setMainBtnHover] = useState(false);
 
   const getAuthToken = useCallback(() => {
     for (const key of STORAGE_KEYS) {
@@ -151,15 +159,16 @@ const ProfileEdit = () => {
   };
 
   return (
-    <Card className="flex flex-col w-auto bg-[#A8E1C5] rounded-3xl shadow p-6 border-none">
+    <Card className="flex flex-col w-auto bg-[#a7f3d0] rounded-3xl shadow p-6 border-none"
+      style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}>
       {/* Avatar Section */}
       <div className="flex flex-col justify-center items-center mt-4">
         {imageUrl && (
           <Image src={imageUrl} alt="avatar" width={100} height={100} style={{ borderRadius: '50%', objectFit: 'cover' }} />
         )}
-          <Text className="text-green-600 mt-2 ">Active</Text>
-          <Divider style={{borderColor: '#072C1C'}}><Title level={4} 
-          className="text-neutral-700">{username}</Title></Divider>
+          <Text className={currentTheme === 'default' ? 'text-green-600 mt-2 ' : 'mt-2'} style={currentTheme !== 'default' ? { color: theme.text } : {}}>Active</Text>
+          <Divider style={currentTheme !== 'default' ? {borderColor: theme.text} : {borderColor: '#072C1C'}}><Title level={4} 
+          className="text-neutral-700" style={currentTheme !== 'default' ? { color: theme.text } : {}}>{username}</Title></Divider>
       </div>
       <div className='flex justify-center'>
       <ImgCrop rotationSlider>
@@ -173,7 +182,19 @@ const ProfileEdit = () => {
           accept="image/*"
           headers={{ Authorization: `Bearer ${Cookies.get(`authToken_${authUsername}`)}` }}
           >
-          <Button type="primary" icon={loading ? <LoadingOutlined /> : <PlusOutlined />} className="w-full mt-4 bg-lime-200 text-green-950">
+          <Button
+            type="primary"
+            icon={loading ? <LoadingOutlined /> : <PlusOutlined />}
+            className="w-full bg-lime-200 text-green-950"
+            style={currentTheme !== 'default' ? {
+              background: avatarBtnHover ? theme.text : theme.textLight,
+              color: avatarBtnHover ? theme.componentBackground : theme.text,
+              border: 'none',
+              transition: 'background 0.2s, color 0.2s'
+            } : {}}
+            onMouseEnter={currentTheme !== 'default' ? () => setAvatarBtnHover(true) : undefined}
+            onMouseLeave={currentTheme !== 'default' ? () => setAvatarBtnHover(false) : undefined}
+          >
             {loading ? 'Uploading...' : 'Change Avatar'}
           </Button>
         </Upload>
@@ -183,29 +204,37 @@ const ProfileEdit = () => {
       {/* Profile Info */}
       <div className="flex flex-col gap-5 mt-8">
         {['Username', 'Department'].map((label) => (
-          <div key={label} className="flex flex-col justify-center items-center gap-1">
-            <Text className='font-bold' >{label}:</Text>
+          <div key={label} className="flex flex-col justify-center items-center gap-1"
+            style={currentTheme !== 'default' ? { background: theme.componentBackground} : {}}>
+            <Text className='font-bold' style={currentTheme !== 'default' ? { color: theme.text } : {}}>{label}:</Text>
             {isEditable ? (
               label === 'Department' ? (
               <Select
-                className='w-auto bg-emerald-200 transparent-select'
+                className='w-auto transparent-select'
                 value={department}
                 onChange={setDepartment}
                 options={DEPARTMENT_OPTIONS.map(opt => ({ value: opt, label: opt }))}
                 placeholder="Select department"
+                style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : { background: '#a7f3d0' }}
+                dropdownStyle={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}
                 />
                 ) : (
               <Input
-                className="w-auto flex justify-center items-center bg-emerald-200 border-black"
+                className="w-auto flex justify-center items-center border-black"
                 value={label === 'Username' ? newUsername : department}
                 onChange={(e) => label === 'Username' ? setNewUsername(e.target.value) : setDepartment(e.target.value)}
                 placeholder={`Enter your ${label.toLowerCase()}`}
+                style={currentTheme !== 'default' ? { background: 'white', color: theme.text } : { background: 'white' }}
               />
                 )
             ) : (
-              <Descriptions><Descriptions.Item 
-              className='flex justify-center items-center'>{label === 'Username' ? username : department}
-              </Descriptions.Item></Descriptions>
+              <Descriptions>
+                <Descriptions.Item
+                  className='flex justify-center items-center'
+                  style={currentTheme !== 'default' ? { color: theme.text, background: theme.componentBackground } : {}}>
+                  {label === 'Username' ? username : department}
+                </Descriptions.Item>
+              </Descriptions>
             )}
           </div>
         ))}
@@ -213,9 +242,36 @@ const ProfileEdit = () => {
 
       <div className="flex justify-center w-auto wrap mt-8">
         {isEditable && (
-          <Button type="default" className="bg-red-500 text-white mr-4 w-auto" onClick={handleCancel}>Cancel</Button>
+          <Button
+            type="default"
+            className="bg-red-500 text-white mr-4 w-auto"
+            onClick={handleCancel}
+            style={currentTheme !== 'default' ? {
+              background: cancelBtnHover ? theme.textLight : theme.text,
+              color: cancelBtnHover ? theme.text : theme.textLight,
+              border: 'none',
+              transition: 'background 0.2s, color 0.2s'
+            } : {}}
+            onMouseEnter={currentTheme !== 'default' ? () => setCancelBtnHover(true) : undefined}
+            onMouseLeave={currentTheme !== 'default' ? () => setCancelBtnHover(false) : undefined}
+          >
+            Cancel
+          </Button>
         )}
-        <Button type="primary" className="bg-lime-200 text-green-950 w-auto" onClick={handleEdit} disabled={isSaving}>
+        <Button
+          type="primary"
+          className="bg-lime-200 text-green-950 w-auto"
+          onClick={handleEdit}
+          disabled={isSaving}
+          style={currentTheme !== 'default' ? {
+            background: mainBtnHover ? theme.text : theme.textLight,
+            color: mainBtnHover ? theme.textLight : theme.text,
+            border: 'none',
+            transition: 'background 0.2s, color 0.2s'
+          } : {}}
+          onMouseEnter={currentTheme !== 'default' ? () => setMainBtnHover(true) : undefined}
+          onMouseLeave={currentTheme !== 'default' ? () => setMainBtnHover(false) : undefined}
+        >
           {isEditable ? (isSaving ? 'Saving...' : 'Save') : 'Edit'}
         </Button>
       </div>

@@ -36,10 +36,15 @@ export const deleteItems = async (ids) => {
 
 export const updateItem = async (itemData) => {
   try {
+    console.log("Sending update data:", itemData);
     const response = await axiosAuth.post("/update_item.php", itemData);
-    return response.data; // Return the success message or item data
+    return response.data;
   } catch (error) {
     console.error("Update item API Error:", error);
+    if (error.response) {
+      console.error("Response data:", error.response.data);
+      console.error("Response status:", error.response.status);
+    }
     throw error;
   }
 };

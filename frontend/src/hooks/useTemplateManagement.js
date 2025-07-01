@@ -7,7 +7,6 @@ import { useActivity } from '../utils/ActivityContext';
 import { useNotification } from '../utils/NotificationContext';
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
-import Cookies from 'js-cookie';
 
 const useTemplateManagement = (onTemplateSelect) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -23,24 +22,6 @@ const useTemplateManagement = (onTemplateSelect) => {
   const adminAuth = useAdminAuthStore();
   const userAuth = useUserAuthStore();
 
-  const getCurrentUser = () => {
-    const isAdmin = adminAuth.token && adminAuth.userData;
-    const isUser = userAuth.token && userAuth.userData;
-
-    if (isAdmin) return adminAuth.userData;
-    if (isUser) return userAuth.userData;
-
-    // If no auth store has user data, try cookies
-    const username = Cookies.get('username');
-    const userId = Cookies.get('user_id');
-    if (username && userId) {
-      return { username, id: userId };
-    }
-
-    return null;
-  };
-
-  // Load user templates
   useEffect(() => {
     loadTemplates();
   }, [refreshTrigger]);
@@ -71,7 +52,7 @@ const useTemplateManagement = (onTemplateSelect) => {
       return;
     }
     setSelectedCategory(category);
-    setSelectedType(null); // Clear type when category changes
+    setSelectedType(null);
   };
 
   const handleTypeChange = (type) => {
@@ -107,29 +88,16 @@ const useTemplateManagement = (onTemplateSelect) => {
   };
 
   const handleEdit = (template) => {
-    const currentUser = getCurrentUser();
-    if (!currentUser) {
-      message.error('User not authenticated');
-      return;
-    }
-
-    // Check if current user is the creator of the template
-    if (currentUser.username !== template.created_by) {
-      message.error('You can only edit templates that you created');
-      return;
-    }
-
-    // Parse location to determine if it's Head Office
-    const isHeadOffice = template.location.includes('Head Office');
-    const department = isHeadOffice ? template.location.split(' - ')[1] : null;
-    
     setEditingTemplate(template);
     form.setFieldsValue({
       ...template,
-      locationType: isHeadOffice ? 'Head Office' : 'Other',
-      department: department,
-      location: isHeadOffice ? null : template.location,
-      // Convert string dates to dayjs objects only if they exist
+      locationType: template.location.includes('Head Office') ? 'Head Office' : 'Other',
+      department: template.location.includes('Head Office') 
+        ? template.location.split(' - ')[1] 
+        : null,
+      location: template.location.includes('Head Office') 
+        ? null 
+        : template.location,
       purchaseDate: template.purchaseDate ? dayjs(template.purchaseDate) : undefined,
       issuedDate: template.issuedDate ? dayjs(template.issuedDate) : undefined
     });
@@ -137,36 +105,20 @@ const useTemplateManagement = (onTemplateSelect) => {
   };
 
   const handleDelete = async (template) => {
-    const currentUser = getCurrentUser();
-    if (!currentUser) {
-      message.error('User not authenticated');
-      return;
-    }
-
-    // Check if current user is the creator of the template
-    if (currentUser.username !== template.created_by) {
-      message.error('You can only delete templates that you created');
-      return;
-    }
-
     try {
       const response = await deleteTemplate(template.id);
       if (response.success) {
         message.success('Template deleted successfully');
-        // Update local state immediately
         setUserTemplates(prev => prev.filter(t => t.id !== template.id));
-        // Clear selection if the deleted template was selected
         if (selectedType === template.template_name) {
           setSelectedCategory(null);
           setSelectedType(null);
           onTemplateSelect(null);
         }
-        // Trigger refresh
         setRefreshTrigger(prev => prev + 1);
 
-        // Log activity and notification
         await logUserActivity(
-          currentUser.username,
+          adminAuth.userData.username,
           'Template Deleted',
           `Template "${template.template_name}" has been deleted.`
         );
@@ -185,31 +137,16 @@ const useTemplateManagement = (onTemplateSelect) => {
   };
 
   const handleEditSubmit = async (values) => {
-    const currentUser = getCurrentUser();
-    if (!currentUser) {
-      message.error('User not authenticated');
-      return;
-    }
-
-    // Check if current user is the creator of the template
-    if (currentUser.username !== editingTemplate.created_by) {
-      message.error('You can only edit templates that you created');
-      return;
-    }
-
     try {
-      // Format the location based on locationType
       const formattedValues = {
         ...values,
         location: values.locationType === 'Head Office' 
           ? `Head Office - ${values.department}`
           : values.location,
-        // Format dates if they exist
         purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null,
         issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null
       };
 
-      // Remove locationType and department as they're not in the database schema
       delete formattedValues.locationType;
       delete formattedValues.department;
 
@@ -217,13 +154,11 @@ const useTemplateManagement = (onTemplateSelect) => {
       if (response.success) {
         message.success('Template updated successfully');
         setIsEditModalVisible(false);
-        // Update local state immediately
         setUserTemplates(prev => prev.map(t => 
           t.id === editingTemplate.id 
             ? { ...t, ...formattedValues }
             : t
         ));
-        // Update selection if the edited template was selected
         if (selectedType === editingTemplate.template_name) {
           const updatedTemplate = {
             ...editingTemplate,
@@ -235,12 +170,10 @@ const useTemplateManagement = (onTemplateSelect) => {
           };
           onTemplateSelect(updatedTemplate);
         }
-        // Trigger refresh
         setRefreshTrigger(prev => prev + 1);
 
-        // Log activity and notification
         await logUserActivity(
-          currentUser.username,
+          adminAuth.userData.username,
           'Template Updated',
           `Template "${values.template_name}" has been updated.`
         );
@@ -258,6 +191,12 @@ const useTemplateManagement = (onTemplateSelect) => {
     }
   };
 
+  const getCurrentUser = () => {
+    if (adminAuth.token && adminAuth.userData) return adminAuth.userData;
+    if (userAuth.token && userAuth.userData) return userAuth.userData;
+    return null;
+  };
+
   return {
     selectedCategory,
     selectedType,
@@ -272,7 +211,8 @@ const useTemplateManagement = (onTemplateSelect) => {
     handleEdit,
     handleDelete,
     handleEditSubmit,
-    setIsEditModalVisible
+    setIsEditModalVisible,
+    getCurrentUser
   };
 };
 

@@ -5,6 +5,7 @@ import { useActivity } from '../utils/ActivityContext';
 import { useNotification } from '../utils/NotificationContext';
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
+import dayjs from 'dayjs';
 
 export const useInventoryTable = () => {
   const { message } = App.useApp();
@@ -32,25 +33,31 @@ export const useInventoryTable = () => {
   const isUser = !!userUserData;
   const userRole = isAdmin ? 'admin' : isUser ? 'user' : 'guest';
 
+  // Extract the initial load logic
+  const resetAndReloadTable = async () => {
+    setIsLoading(true);
+    setSearchText('');
+    setSortOrder('newest');
+    setSorterConfig({ field: 'id', order: 'descend' });
+    setCurrentPage(1);
+    setPageSize(10);
+    setSelectedRowKeys([]);
+    setActiveTab('default');
+    try {
+      const data = await getInventoryData();
+      setDataSource(data);
+    } catch (error) {
+      message.error('Failed to load inventory data.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchInventoryData = async () => {
-      setIsLoading(true);
-      try {
-        const data = await getInventoryData();
-        if (Array.isArray(data)) {
-          setDataSource(data);
-        } else {
-          console.error("Received invalid data:", data);
-          message.error('Failed to load inventory data.');
-        }
-      } catch (error) {
-        message.error('Failed to load inventory data.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchInventoryData();
+    resetAndReloadTable();
   }, []);
+
+  const handleRefresh = resetAndReloadTable;
 
   const filteredData = Array.isArray(dataSource)
     ? dataSource.filter(item =>
@@ -128,14 +135,14 @@ export const useInventoryTable = () => {
   const handleRedistributeItem = async (payload) => {
     setIsLoading(true);
     try {
-      await redistributeItem(payload);
-      message.success('Item redistributed successfully.');
+      const response = await redistributeItem(payload);
+      message.success(`Item redistributed successfully! New Item ID: ${response.new_item_id}`);
       const updatedData = await getInventoryData();
       setDataSource(updatedData);
       setIsRedistributeModalVisible(false);
       setRedistributeItemData(null);
-      await logUserActivity(username, "Inventory", `Redistributed item with ID: ${payload.id}`);
-      await logUserNotification("Inventory Update", `You redistributed an item with ID: ${payload.id}`);
+      await logUserActivity(username, "Inventory", `Redistributed item with ID: ${payload.id} to new item ID: ${response.new_item_id}`);
+      await logUserNotification("Inventory Update", `You redistributed an item with ID: ${payload.id} to new item ID: ${response.new_item_id}`);
     } catch (error) {
       const backendMessage = error?.response?.data?.message || error.message || '';
       if (backendMessage.toLowerCase().includes('quantity') && backendMessage.includes('1')) {
@@ -149,11 +156,17 @@ export const useInventoryTable = () => {
     }
   };
 
-  const handleEditItem = async (updatedItem) => {
-    const original = editingItem;
+  const handleEditItem = async (updatedItem, originalItem = null) => {
+    const original = originalItem || editingItem;
     const hasChanges = Object.keys(updatedItem).some((key) => {
       const updatedValue = updatedItem[key];
       const originalValue = original[key];
+      
+      if (key === 'issuedDate' || key === 'purchaseDate') {
+        const originalDate = originalValue ? dayjs(originalValue).format('YYYY-MM-DD') : null;
+        return updatedValue !== originalDate;
+      }
+      
       if (typeof updatedValue === "string") {
         return updatedValue.trim() !== (originalValue || "").trim();
       }
@@ -165,7 +178,7 @@ export const useInventoryTable = () => {
     }
     setIsLoading(true);
     try {
-      const response = await updateItem({ ...updatedItem, id: editingItem?.id });
+      const response = await updateItem({ ...updatedItem, id: updatedItem?.id || editingItem?.id });
       if (response.message === "Item updated successfully") {
         const updatedData = await getInventoryData();
         setDataSource(updatedData);
@@ -178,7 +191,11 @@ export const useInventoryTable = () => {
       }
     } catch (error) {
       console.error("Error updating item:", error);
-      message.error("Failed to update item. Please try again.");
+      if (error.response && error.response.data && error.response.data.message) {
+        message.error(`Failed to update item: ${error.response.data.message}`);
+      } else {
+        message.error("Failed to update item. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -214,17 +231,11 @@ export const useInventoryTable = () => {
   };
 
   const handleTabChange = (key) => {
+    // Remove focus from any focused element before switching tabs
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
     setActiveTab(key);
-  };
-
-  const handleReset = () => {
-    setSearchText('');
-    setSortOrder('newest');
-    setSorterConfig({ field: 'id', order: 'descend' });
-    setCurrentPage(1);
-    setPageSize(10);
-    setSelectedRowKeys([]);
-    setActiveTab('default');
   };
 
   const rowSelection = isAdmin
@@ -281,7 +292,7 @@ export const useInventoryTable = () => {
     handleEditItem,
     handleBatchDelete,
     handleTabChange,
-    handleReset,
+    handleRefresh,
     rowSelection,
   };
 };

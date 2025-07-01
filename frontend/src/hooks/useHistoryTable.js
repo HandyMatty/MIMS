@@ -72,19 +72,34 @@ const searchableColumns = {
   ],
 };
 
-  useEffect(() => {
-    const fetchHistoryData = async () => {
-      try {
-        const data = await getHistory();
-        setHistoryData(data);
-      } catch (error) {
-        console.error("Error fetching history data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHistoryData();
+  const refreshHistory = useCallback(async () => {
+    setLoading(true);
+    // Reset all states to default before fetching
+    setSearchTerms({ added: "", updated: "", deleted: "" });
+    setCurrentPages({ added: 1, updated: 1, deleted: 1 });
+    setPageSizes({ added: 10, updated: 10, deleted: 10 });
+    setSorterConfigs({
+      added: { field: null, order: null },
+      updated: { field: null, order: null },
+      deleted: { field: null, order: null },
+    });
+    setSearchColumns({ added: 'all', updated: 'all', deleted: 'all' });
+    setFilterActive({ added: false, updated: false, deleted: false });
+    setLocalFilteredData({ added: [], updated: [], deleted: [] });
+
+    try {
+      const data = await getHistory();
+      setHistoryData(data);
+    } catch (error) {
+      console.error("Error fetching history data:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    refreshHistory();
+  }, [refreshHistory]);
 
   // Memoized filter and sort function
   const filterAndSortData = useCallback((data, searchTerm, sorterConfig, searchColumn) => {
@@ -274,5 +289,6 @@ const searchableColumns = {
     handleTableChange,
     showModal,
     resetAllFilters,
+    refreshHistory,
   };
 };

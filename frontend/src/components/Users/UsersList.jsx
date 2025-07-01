@@ -75,7 +75,7 @@ const UsersList = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 'auto',
+      width: '100px',
       responsive: ['sm'],
       sorter: (a, b) => a.id - b.id,
       className: 'text-xs overflow-auto',
@@ -84,7 +84,7 @@ const UsersList = () => {
       title: 'Username',
       dataIndex: 'username',
       key: 'username',
-      width: 'auto',
+      width: '120px',
       className: 'text-xs overflow-auto',
       sorter: (a, b) => a.username.localeCompare(b.username),
     },
@@ -92,7 +92,7 @@ const UsersList = () => {
       title: 'Department',
       dataIndex: 'department',
       key: 'department',
-      width: 'auto',
+      width: '140px',
       className: 'text-xs overflow-auto text-wrap',
       sorter: (a, b) => a.department.localeCompare(b.department),
       render: (department, record) => (
@@ -116,7 +116,7 @@ const UsersList = () => {
       key: 'role',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
-      width: 'auto',
+      width: '120px',
       render: (role) => (
         <Tag color={role === 'admin' ? 'blue' : role === 'user' ? 'green' : 'orange'}>
           {role}
@@ -128,7 +128,7 @@ const UsersList = () => {
       dataIndex: 'status',
       key: 'status',
       responsive: ['sm'],
-      width: 'auto',
+      width: '120px',
       className: 'text-xs overflow-auto',
       render: (status) => <Tag color={status === 'Active' ? 'green' : 'red'}>{status}</Tag>,
     },
@@ -136,7 +136,7 @@ const UsersList = () => {
       title: 'Actions',
       key: 'actions',
       className: 'text-xs overflow-auto',
-      width: 'auto',
+      width: '120px',
       render: (_, record) => (
         <div>
           <Tooltip title="Reset Password">
@@ -211,8 +211,9 @@ const UsersList = () => {
         </Tooltip>
         <Tooltip title="Delete">
           <Button
+            type="link"
             icon={<DeleteOutlined />}
-            type="text"
+            danger
             disabled={selectedRowKeys.length === 0}
             onClick={handleBatchDelete}
           />

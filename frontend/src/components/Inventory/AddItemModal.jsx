@@ -1,27 +1,34 @@
-import { useState, useRef } from 'react';
-import { Modal, Form, Input, Select, Button, DatePicker, App, Row, Col } from 'antd';
-import { PlusCircleOutlined, SaveOutlined } from '@ant-design/icons';
+import { useState, useRef, useEffect } from 'react';
+import { Modal, Form, Tabs, Typography, App } from 'antd';
+import { PlusCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import dayjs from 'dayjs';
-import AddItemTypeTemplate from './AddItemTypeTemplate';
 import { saveTemplate } from '../../services/api/saveTemplate';
 import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
 import { useAdminAuthStore } from '../../store/admin/useAuth';
 import { useUserAuthStore } from '../../store/user/useAuth';
 import Cookies from 'js-cookie';
+import NewItemForm from './NewItemForm';
+import StockItemsTable from './StockItemsTable';
+import StockItemForm from './StockItemForm';
+import SaveTemplateModal from './SaveTemplateModal';
 
-const { Option } = Select;
+const { Title } = Typography;
 
-const AddItemModal = ({ visible, onClose, onAdd }) => {
+const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem, loading }) => {
   const [form] = Form.useForm();
   const [isHeadOffice, setIsHeadOffice] = useState(false);
   const [hasSerialNumber, setHasSerialNumber] = useState(false);
   const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
   const [templateName, setTemplateName] = useState('');
-  const { message: messageApi } = App.useApp();
   const [lastAddedItem, setLastAddedItem] = useState(null);
+  const [onStockItems, setOnStockItems] = useState([]);
+  const [selectedStockItem, setSelectedStockItem] = useState(null);
+  const [activeTab, setActiveTab] = useState('new');
+  const [searchText, setSearchText] = useState('');
   const templateRef = useRef(null);
+  const { message: messageApi } = App.useApp();
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
   const adminAuth = useAdminAuthStore();
@@ -44,9 +51,71 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
     return null;
   };
 
+  useEffect(() => {
+    if (visible) {
+      fetchOnStockItems();
+    }
+  }, [visible]);
+
+  const fetchOnStockItems = async () => {
+    try {
+      const inventory = await getInventoryData();
+      const onStock = inventory.filter(item => item.status === 'On Stock');
+      setOnStockItems(onStock);
+    } catch (error) {
+      console.error('Error fetching on stock items:', error);
+    }
+  };
+
+  const handleStockItemSelect = (item) => {
+    // Only populate form if we're in the stock tab
+    if (activeTab !== 'stock') {
+      setActiveTab('stock');
+    }
+    
+    setSelectedStockItem(item);
+    
+    if (item.action === 'redistribute') {
+      // For redistribute, set quantity to 1 and show original quantity
+      form.setFieldsValue({
+        type: item.type,
+        brand: item.brand,
+        originalQuantity: item.quantity,
+        quantity: 1,
+        condition: item.condition,
+        status: item.status,
+        remarks: item.remarks,
+        locationType: item.location.includes('Head Office') ? 'Head Office' : 'Other',
+        department: item.location.includes('Head Office') ? item.location.split(' - ')[1] : undefined,
+        location: item.location.includes('Head Office') ? undefined : item.location,
+        issuedDate: item.issuedDate ? dayjs(item.issuedDate) : undefined,
+        purchaseDate: item.purchaseDate ? dayjs(item.purchaseDate) : undefined,
+        serialNumber: item.serialNumber
+      });
+    } else {
+      // For edit, keep the original quantity
+      form.setFieldsValue({
+        type: item.type,
+        brand: item.brand,
+        quantity: item.quantity,
+        condition: item.condition,
+        status: item.status,
+        remarks: item.remarks,
+        locationType: item.location.includes('Head Office') ? 'Head Office' : 'Other',
+        department: item.location.includes('Head Office') ? item.location.split(' - ')[1] : undefined,
+        location: item.location.includes('Head Office') ? undefined : item.location,
+        issuedDate: item.issuedDate ? dayjs(item.issuedDate) : undefined,
+        purchaseDate: item.purchaseDate ? dayjs(item.purchaseDate) : undefined,
+        serialNumber: item.serialNumber
+      });
+    }
+    
+    setIsHeadOffice(item.location.includes('Head Office'));
+    setHasSerialNumber(!!item.serialNumber);
+  };
+
   const handleTemplateSelect = (template) => {
     if (template) {
-
       form.setFieldsValue({
         ...template,
         locationType: template.locationType || (template.location.includes('Head Office') ? 'Head Office' : 'Other'),
@@ -72,7 +141,7 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
       
       const existingInventory = await getInventoryData();
     
-      if (values.serialNumber) {
+      if (values.serialNumber && (!selectedStockItem || values.serialNumber !== selectedStockItem.serialNumber)) {
         const serialExists = existingInventory.some(item => item.serialNumber === values.serialNumber);
         if (serialExists) {
           messageApi.error("Serial number already exists. Please use a unique serial number.");
@@ -84,32 +153,90 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
         ? `Head Office - ${values.department}`
         : values.location;
 
-      const itemData = {
-        type: values.type,
-        brand: values.brand,
-        quantity: hasSerialNumber ? 1 : Math.max(1, values.quantity || 1),
-        serialNumber: values.serialNumber,
-        issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null, 
-        purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, 
-        condition: values.condition,
-        location: formattedLocation,
-        status: values.status,
-        remarks: values.remarks || null,
-      };
+      if (selectedStockItem) {
+        if (selectedStockItem.action === 'redistribute') {
+          // Handle redistribute logic
+          const currentItem = existingInventory.find(invItem => invItem.id === selectedStockItem.id);
+          
+          if (!currentItem) {
+            messageApi.error('Item not found in inventory.');
+            return;
+          }
 
-      onAdd(itemData);
-      setLastAddedItem(values);
-      
-      // Check if the template is from user templates
-      const result = templateRef.current?.handleTypeChange?.(values.type);
-      if (result && !result.isUserTemplate) {
-        setShowSaveTemplateModal(true);
+          if (currentItem.quantity === 1) {
+            messageApi.warning('Cannot redistribute item with quantity of 1.');
+            return;
+          }
+
+          if (!values.quantity || values.quantity <= 0 || values.quantity >= currentItem.quantity) {
+            messageApi.error('New quantity must be greater than 0 and less than existing quantity.');
+            return;
+          }
+
+          const payload = {
+            id: currentItem.id,
+            newQuantity: values.quantity,
+            newLocation: formattedLocation,
+            issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null,
+            condition: values.condition,
+            status: values.status,
+            remarks: values.remarks?.trim() || null,
+          };
+
+          await onRedistribute(payload);
+          
+          await fetchOnStockItems();
+          setSelectedStockItem(null);
+          form.resetFields();
+        } else {
+          // Handle edit logic
+          const itemData = {
+            id: selectedStockItem.id,
+            type: values.type,
+            brand: values.brand,
+            quantity: hasSerialNumber ? 1 : Math.max(1, values.quantity || 1),
+            serialNumber: values.serialNumber || '',
+            issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null, 
+            purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, 
+            condition: values.condition,
+            location: formattedLocation,
+            status: values.status,
+            remarks: values.remarks || '',
+          };
+
+          await handleEditItem(itemData, selectedStockItem);
+          
+          await fetchOnStockItems();
+          setSelectedStockItem(null);
+          form.resetFields();
+        }
+      } else {
+        // Handle new item logic
+        const itemData = {
+          type: values.type,
+          brand: values.brand,
+          quantity: hasSerialNumber ? 1 : Math.max(1, values.quantity || 1),
+          serialNumber: values.serialNumber,
+          issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null, 
+          purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, 
+          condition: values.condition,
+          location: formattedLocation,
+          status: values.status,
+          remarks: values.remarks || null,
+        };
+
+        await onAdd(itemData);
+        setLastAddedItem(values);
+        const result = templateRef.current?.handleTypeChange?.(values.type);
+        if (result && !result.isUserTemplate) {
+          setShowSaveTemplateModal(true);
+        }
+        form.resetFields();
+        onClose(); 
       }
-      
-      form.resetFields();
-      onClose();
     } catch (error) {
       console.error(error);
+      messageApi.error('Failed to save item');
     }
   };
 
@@ -135,7 +262,6 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
       quantity: values.quantity || 1,
       location: isHeadOffice ? `Head Office - ${values.department}` : values.location,
       remarks: values.remarks || '',
-      created_by: currentUser.username,
       serialNumber: values.serialNumber || null,
       purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null,
       issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null
@@ -172,8 +298,11 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
   };
 
   const handleClose = () => {
-    form.resetFields();
-    setHasSerialNumber(false);
+    form.resetFields(); 
+    setHasSerialNumber(false); 
+    setSelectedStockItem(null);
+    setSearchText('');
+    setActiveTab('new');
     onClose();
   };
 
@@ -188,226 +317,115 @@ const AddItemModal = ({ visible, onClose, onAdd }) => {
     }
   };
 
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    if (key === 'new') {
+      // Clear form and reset state when switching to New Item tab
+      form.resetFields();
+      setSelectedStockItem(null);
+      setHasSerialNumber(false);
+      setIsHeadOffice(false);
+    }
+  };
+
   return (
     <>
       <Modal
-        title="Add New Item"
+        title={
+          <div className="text-center">
+            <Title level={3} className="mb-0 font-semibold">
+              Inventory Management
+            </Title>
+            <p className="text-sm mt-1 opacity-75">Add, edit, and manage your inventory items</p>
+          </div>
+        }
         open={visible}
         onCancel={handleClose}
         footer={null}
-        width={900}
+        width={1400}
+        styles={{
+          body: { padding: 0 },
+          header: { 
+            borderBottom: '1px solid #f0f0f0',
+            padding: '24px 24px 16px 24px',
+            background: 'var(--theme-card-head-bg, #5fe7a7)',
+            borderRadius: '12px 12px 0 0'
+          },
+          content: { borderRadius: '12px', overflow: 'hidden' }
+        }}
       >
-        <Form
-          form={form}
-          onFinish={handleSubmit}
-          layout="vertical"
-          initialValues={{
-            quantity: 1,
-          }}
-        >
-          <AddItemTypeTemplate 
-            ref={templateRef}
-            onTemplateSelect={handleTemplateSelect} 
-          />
-
-          <Row gutter={16}>
-            {/* LEFT COLUMN */}
-            <Col span={12}>
-              <Form.Item
-                label="Type"
-                name="type"
-                rules={[{ required: true, message: 'Please select the item type!' }]} >
-                <Select>
-                  <Option value="AVR">AVR</Option>
-                  <Option value="Battery">Battery</Option>
-                  <Option value="Biometrics">Biometrics</Option>
-                  <Option value="Camera">Camera</Option>
-                  <Option value="CCTV">CCTV</Option>
-                  <Option value="Charger">Charger</Option>
-                  <Option value="Guard Tour Chips">Guard Tour Chips</Option>
-                  <Option value="Guard Tour System">Guard Tour System</Option>
-                  <Option value="Headset">Headset</Option>
-                  <Option value="Keyboard">Keyboard</Option>
-                  <Option value="Laptop">Laptop</Option>
-                  <Option value="Megaphone">Megaphone</Option>
-                  <Option value="WIFI-Mesh">WIFI-Mesh</Option>
-                  <Option value="Metal Detector">Metal Detector</Option>
-                  <Option value="Microphone">Microphone</Option>
-                  <Option value="Modem">Modem</Option>
-                  <Option value="Monitor">Monitor</Option>
-                  <Option value="Mouse">Mouse</Option>
-                  <Option value="Others">Others</Option>
-                  <Option value="Pedestal">Pedestal</Option>
-                  <Option value="Podium">Podium</Option>
-                  <Option value="Printer">Printer</Option>
-                  <Option value="Radio">Radio</Option>
-                  <Option value="Router">Router</Option>
-                  <Option value="Search Stick">Search Stick</Option>
-                  <Option value="Searchlight">Searchlight</Option>
-                  <Option value="Smartphone">Smartphone</Option>
-                  <Option value="Speaker">Speaker</Option>
-                  <Option value="Switch">Switch</Option>
-                  <Option value="System Unit">System Unit</Option>
-                  <Option value="Under Chassis">Under Chassis</Option>
-                  <Option value="UPS">UPS</Option>
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                label="Brand"
-                name="brand"
-                rules={[{ required: true, message: 'Please input the brand!' }]} >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                label="Remarks"
-                name="remarks" >
-                <Input.TextArea />
-              </Form.Item>
-
-              <Form.Item
-                label="Serial Number"
-                name="serialNumber" >
-                <Input onChange={handleSerialChange} />
-              </Form.Item>
-
-              {!hasSerialNumber && (
-                <Form.Item
-                  label="Quantity"
-                  name="quantity"
-                  rules={[{ required: true, message: 'Please input the quantity!' }]}
-                >
-                  <Input type="number" min={1} />
-                </Form.Item>
-              )}
-
-              <Form.Item 
-                label="Issued Date" 
-                name="issuedDate"
-                tooltip="Optional - Leave empty if not issued yet"
-              >
-                <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-
-            {/* RIGHT COLUMN */}
-            <Col span={12}>
-              <Form.Item
-                label="Purchased Date"
-                name="purchaseDate"
-                rules={[{ required: true, message: 'Please select the purchase date!' }]} >
-                <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
-              </Form.Item>
-
-              <Form.Item
-                label="Condition"
-                name="condition"
-                rules={[{ required: true, message: 'Please select the condition!' }]} >
-                <Select>
-                  <Option value="Brand New">Brand New</Option>
-                  <Option value="Good Condition">Good Condition</Option>
-                  <Option value="Defective">Defective</Option>
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                label="Detachment/Office"
-                name="locationType"
-                rules={[{ required: true, message: 'Please select a location!' }]}
-              >
-                <Select
-                  onChange={(value) => setIsHeadOffice(value === 'Head Office')}
-                >
-                  <Option value="Head Office">Head Office</Option>
-                  <Option value="Other">Other (Specify Below)</Option>
-                </Select>
-              </Form.Item>
-
-              {isHeadOffice && (
-                <Form.Item
-                  label="Department (Head Office)"
-                  name="department"
-                  rules={[{ required: true, message: 'Please select a department!' }]}
-                >
-                  <Select>
-                    <Option value="SOD">SOD</Option>
-                    <Option value="CID">CID</Option>
-                    <Option value="GAD">GAD</Option>
-                    <Option value="HRD">HRD</Option>
-                    <Option value="AFD">AFD</Option>
-                    <Option value="EOD">EOD</Option>
-                    <Option value="BDO">BDO</Option>
-                  </Select>
-                </Form.Item>
-              )}
-
-              {!isHeadOffice && (
-                <Form.Item
-                  label="Specific Location"
-                  name="location"
-                  rules={[{ required: true, message: 'Please input a location!' }]}
-                >
-                  <Input />
-                </Form.Item>
-              )}
-
-              <Form.Item
-                label="Status"
-                name="status"
-                rules={[{ required: true, message: 'Please select the status!' }]} >
-                <Select>
-                  <Option value="On Stock">On Stock</Option>
-                  <Option value="Deployed">Deployed</Option>
-                  <Option value="For Repair">For Repair</Option>
-                </Select>
-              </Form.Item>
-
-              <Form.Item>
-                <Row justify="center">
-                  <Col>
-                    <Button type="primary" htmlType="submit" icon={<PlusCircleOutlined />}>
-                      Add Item
-                    </Button>
-                  </Col>
-                </Row>
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
+        <Tabs 
+          activeKey={activeTab} 
+          onChange={handleTabChange}
+          items={[
+            {
+              key: 'new',
+              label: (
+                <div className="flex items-center p-2">
+                  <PlusCircleOutlined />
+                  <span className="font-medium">New Item</span>
+                </div>
+              ),
+              children: (
+                <NewItemForm
+                  form={form}
+                  onFinish={handleSubmit}
+                  loading={loading}
+                  templateRef={templateRef}
+                  onTemplateSelect={handleTemplateSelect}
+                  isHeadOffice={isHeadOffice}
+                  setIsHeadOffice={setIsHeadOffice}
+                  hasSerialNumber={hasSerialNumber}
+                  handleSerialChange={handleSerialChange}
+                  selectedStockItem={selectedStockItem}
+                />
+              )
+            },
+            {
+              key: 'stock',
+              label: (
+                <div className="flex items-center p-2">
+                  <SearchOutlined />
+                  <span className="font-medium">On Stock Items</span>
+                </div>
+              ),
+              children: (
+                <>
+                  <StockItemsTable
+                    onStockItems={onStockItems}
+                    searchText={searchText}
+                    setSearchText={setSearchText}
+                    fetchOnStockItems={fetchOnStockItems}
+                    loading={loading}
+                    handleStockItemSelect={handleStockItemSelect}
+                  />
+                  
+                  {selectedStockItem && (
+                    <StockItemForm
+                      form={form}
+                      onFinish={handleSubmit}
+                      loading={loading}
+                      selectedStockItem={selectedStockItem}
+                      isHeadOffice={isHeadOffice}
+                      setIsHeadOffice={setIsHeadOffice}
+                      hasSerialNumber={hasSerialNumber}
+                      handleSerialChange={handleSerialChange}
+                    />
+                  )}
+                </>
+              )
+            }
+          ]}
+        />
       </Modal>
 
-      <Modal
-        title="Save as Template"
-        open={showSaveTemplateModal}
+      <SaveTemplateModal
+        visible={showSaveTemplateModal}
         onCancel={() => setShowSaveTemplateModal(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setShowSaveTemplateModal(false)}>
-            Cancel
-          </Button>,
-          <Button 
-            key="save" 
-            type="primary" 
-            onClick={handleSaveTemplate}
-            icon={<SaveOutlined />}
-          >
-            Save Template
-          </Button>
-        ]}
-      >
-        <p>Would you like to save this item as a template for future use?</p>
-        <Form.Item
-          label="Template Name"
-          required
-          tooltip="Enter a unique name for this template"
-        >
-          <Input
-            value={templateName}
-            onChange={(e) => setTemplateName(e.target.value)}
-            placeholder="Enter template name"
-          />
-        </Form.Item>
-      </Modal>
+        onSave={handleSaveTemplate}
+        templateName={templateName}
+        setTemplateName={setTemplateName}
+      />
     </>
   );
 };

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Card, Button, Select, Input, Form, message, Typography, Descriptions, Divider } from 'antd';
+import { Card, Button, Select, Input, Form, message, Descriptions, Divider } from 'antd';
 import Cookies from 'js-cookie';
 import { fetchSecurityQuestion, updateSecurityQuestion } from '../../services/api/fetchSecurityQuestion';
 import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
+import { useTheme } from '../../utils/ThemeContext';
 
 const SecurityQuestion = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -12,7 +13,9 @@ const SecurityQuestion = () => {
   const [loading, setLoading] = useState(false);
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
-  const { Text } = Typography;
+  const { theme, currentTheme } = useTheme();
+  const [cancelBtnHover, setCancelBtnHover] = useState(false);
+  const [submitBtnHover, setSubmitBtnHover] = useState(false);
 
   const securityQuestions = [
     'What is your mother\'s maiden name?',
@@ -96,9 +99,10 @@ const SecurityQuestion = () => {
   };
 
   return (
-    <Card className="flex flex-col w-full bg-[#A8E1C5] rounded-3xl shadow p-6 border-none">
+    <Card className="flex flex-col w-full bg-[#a7f3d0] rounded-3xl shadow p-6 border-none"
+      style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}>
       <div className="flex justify-center mb-4">
-        <Divider style={{borderColor: '#072C1C'}} className="text-xl font-semibold">Security Question</Divider>
+        <Divider style={currentTheme !== 'default' ? {borderColor: theme.text} : {borderColor: '#072C1C'}} className="text-xl font-semibold">Security Question</Divider>
       </div>
       {isEditing ? (
         <Form form={form} onFinish={handleSubmit} initialValues={securityData}>
@@ -107,9 +111,13 @@ const SecurityQuestion = () => {
             label="Select a Security Question"
             rules={[{ required: true, message: 'Please select a security question!' }]}
           >
-            <Select placeholder="Select a security question">
+            <Select
+              placeholder="Select a security question"
+              style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}
+              dropdownStyle={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}
+            >
               {securityQuestions.map((question, index) => (
-                <Select.Option key={index} value={question}>
+                <Select.Option key={index} value={question} style={currentTheme !== 'default' ? { background: 'white', color: theme.text } : {}}>
                   {question}
                 </Select.Option>
               ))}
@@ -120,30 +128,59 @@ const SecurityQuestion = () => {
             label="Security Answer"
             rules={[{ required: true, message: 'Please provide an answer!' }]}
           >
-            <Input.Password placeholder="Enter your answer" />
+            <Input.Password placeholder="Enter your answer" style={currentTheme !== 'default' ? { background: 'white', color: theme.text } : {}} />
           </Form.Item>
           <div className="flex justify-center">
-            <Button onClick={() => setIsEditing(false)} className="bg-red-500 text-white mr-2">
+            <Button onClick={() => setIsEditing(false)} className="bg-red-500 text-white mr-2"
+              style={currentTheme !== 'default' ? {
+                background: cancelBtnHover ? theme.textLight : theme.text,
+                color: cancelBtnHover ? theme.text : theme.textLight,
+                border: 'none',
+                transition: 'background 0.2s, color 0.2s'
+              } : {}}
+              onMouseEnter={currentTheme !== 'default' ? () => setCancelBtnHover(true) : undefined}
+              onMouseLeave={currentTheme !== 'default' ? () => setCancelBtnHover(false) : undefined}
+            >
               Cancel
             </Button>
-            <Button type="primary" htmlType="submit" loading={loading} className="bg-lime-200 text-green-950 ml-2">
+            <Button type="primary" htmlType="submit" loading={loading} className="bg-lime-200 text-green-950 ml-2"
+              style={currentTheme !== 'default' ? {
+                background: submitBtnHover ? theme.text : theme.textLight,
+                color: submitBtnHover ? theme.textLight : theme.text,
+                border: 'none',
+                transition: 'background 0.2s, color 0.2s'
+              } : {}}
+              onMouseEnter={currentTheme !== 'default' ? () => setSubmitBtnHover(true) : undefined}
+              onMouseLeave={currentTheme !== 'default' ? () => setSubmitBtnHover(false) : undefined}
+            >
               Submit
             </Button>
           </div>
         </Form>
       ) : (
         <Descriptions column={1} layout="horizontal" bordered className='text-nowrap overflow-auto w-auto'>
-          <Descriptions.Item label="Current Security Question">
+          <Descriptions.Item label="Current Security Question"
+            style={currentTheme !== 'default' ? { color: theme.text, background: theme.componentBackground } : {}}>
             {securityData.question || 'Not set'}
           </Descriptions.Item>
-          <Descriptions.Item label="Security Answer">
+          <Descriptions.Item label="Security Answer"
+            style={currentTheme !== 'default' ? { color: theme.text, background: theme.componentBackground } : {}}>
             {securityData.answer ? '********' : '********'}
           </Descriptions.Item>
         </Descriptions>
       )}
       {!isEditing && (
         <div className="flex justify-center mt-4">
-          <Button type="primary" onClick={() => setIsEditing(true)} className="bg-lime-200 text-green-950">
+          <Button type="primary" onClick={() => setIsEditing(true)} className="bg-lime-200 text-green-950"
+            style={currentTheme !== 'default' ? {
+              background: submitBtnHover ? theme.text : theme.textLight,
+              color: submitBtnHover ? theme.textLight : theme.text,
+              border: 'none',
+              transition: 'background 0.2s, color 0.2s'
+            } : {}}
+            onMouseEnter={currentTheme !== 'default' ? () => setSubmitBtnHover(true) : undefined}
+            onMouseLeave={currentTheme !== 'default' ? () => setSubmitBtnHover(false) : undefined}
+          >
             Edit
           </Button>
         </div>

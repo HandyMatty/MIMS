@@ -1,0 +1,28 @@
+/* Container styles for Graph */
+.graph-container {
+  /* Theme variables with default values */
+  --tooltip-bg: #072C1C;
+  --tooltip-text: #d4e09a;
+}
+
+/* Tooltip styles for Graph */
+.g2-tooltip {
+  background-color: var(--tooltip-bg, #072C1C) !important;
+  color: var(--tooltip-text, #d4e09a) !important;
+  border-radius: 5px !important;
+  padding: 10px !important;
+  font-size: 14px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.g2-tooltip-title {
+  color: var(--tooltip-text, #d4e09a) !important;
+}
+
+.g2-tooltip-list-item {
+  color: var(--tooltip-text, #d4e09a) !important;
+}
+
+.g2-tooltip-list-item-value {
+  color: var(--tooltip-text, #d4e09a) !important;
+} 

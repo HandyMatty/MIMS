@@ -23,30 +23,31 @@ const QrCodeTable = ({ onItemSelect }) => {
   const [filterActive, setFilterActive] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 639 });
 
-  useEffect(() => {
-    const fetchInventoryData = async () => {
-      try {
-        const fetchedData = await getInventoryData();
-        if (Array.isArray(fetchedData)) {
-          const sortedFetchedData = [...fetchedData].sort((a, b) => b.id - a.id);
-          setData(sortedFetchedData);
+  const fetchInventoryData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const fetchedData = await getInventoryData();
+      if (Array.isArray(fetchedData)) {
+        const sortedFetchedData = [...fetchedData].sort((a, b) => b.id - a.id);
+        setData(sortedFetchedData);
 
-          if (sortedFetchedData.length > 0 && !qrDetails) {
-            onItemSelect(sortedFetchedData[0]);
-            setQrDetails(sortedFetchedData[0]);
-          }
-        } else {
-          console.error('Received invalid data:', fetchedData);
+        if (sortedFetchedData.length > 0 && !qrDetails) {
+          onItemSelect(sortedFetchedData[0]);
+          setQrDetails(sortedFetchedData[0]);
         }
-      } catch (error) {
-        console.error('Failed to load inventory data:', error);
-      } finally {
-        setLoading(false);
+      } else {
+        console.error('Received invalid data:', fetchedData);
       }
-    };
-
-    fetchInventoryData();
+    } catch (error) {
+      console.error('Failed to load inventory data:', error);
+    } finally {
+      setLoading(false);
+    }
   }, [onItemSelect, qrDetails]);
+
+  useEffect(() => {
+    fetchInventoryData();
+  }, [fetchInventoryData]);
 
   const searchableColumns = useMemo(() => [
     { key: 'all', label: 'All Columns' },
@@ -130,6 +131,15 @@ const QrCodeTable = ({ onItemSelect }) => {
     setFilterActive(false);
   }, []);
 
+  const handleRefresh = () => {
+    setSearchText('');
+    setSortOrder('newest');
+    setCurrentPage(1);
+    setSearchColumn('all');
+    setFilterActive(false);
+    fetchInventoryData();
+  };
+
   const handleSortOrderChange = useCallback((value) => {
     setSortOrder(value.toLowerCase());
     setCurrentPage(1);
@@ -165,7 +175,7 @@ const QrCodeTable = ({ onItemSelect }) => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 sm:mb-0">
           <Dropdown 
-            className='bg-[#a7f3d0] border border-black sm:block hidden'
+            className='theme-aware-dropdown-btn border border-black sm:block hidden'
             menu={{ 
               items: menuItems,
               onClick: ({key}) => handleColumnChange(key),
@@ -177,7 +187,7 @@ const QrCodeTable = ({ onItemSelect }) => {
             >
               <Space className="text-xs w-auto align-middle">
                 {searchableColumns.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                <DownOutlined size='small' />
+                <DownOutlined />
               </Space>
             </Button>
           </Dropdown>
@@ -192,22 +202,21 @@ const QrCodeTable = ({ onItemSelect }) => {
           <div className="flex gap-2 w-auto justify-center">
           <Select
             defaultValue="Newest"
-            suffixIcon={<DownOutlined />}
             className="w-auto text-xs transparent-select mt-1"
             size="small"
             onChange={handleSortOrderChange}
           >
-            <Option value="newest"><span className="text-xs">Newest</span></Option>
-            <Option value="oldest"><span className="text-xs">Oldest</span></Option>
+            <Option value="Newest"><span className="text-xs">Newest</span></Option>
+            <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
           </Select>
         <Button 
-          onClick={resetAll}
-          className="custom-button mt-1"
+          onClick={handleRefresh}
+          className="custom-button mt-1 text-xs"
           type="default"
           size="small"
           icon={<ReloadOutlined />}
         >
-          <span className="text-xs">Reset</span>
+          <span className="text-xs">Refresh</span>
         </Button>
         </div>
       </div>

@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Table, Typography, Pagination, Card, message, Select } from 'antd';
+import { useState, useEffect, useCallback } from 'react';
+import { Table, Typography, Pagination, message, Select, Button } from 'antd';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import QrCodeModal from '../../components/QrCode/QrCodeModal';
 import { getDashboardTableColumns } from './DashboardTableColumns';
 import { useMediaQuery } from 'react-responsive';
+import { useTheme } from '../../utils/ThemeContext';
+import { ReloadOutlined, PrinterOutlined } from '@ant-design/icons';
+import { handlePrint as printUtilsHandlePrint } from '../../utils/printUtils';
 
 const { Option } = Select;
 
@@ -16,22 +19,43 @@ const DashboardTable = ({ searchText }) => {
   const [sortOrder, setSortOrder] = useState('newest');
   const [sorterConfig, setSorterConfig] = useState({ field: 'id', order: 'descend' });
   const [loading, setLoading] = useState(true);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const isMobile = useMediaQuery({ maxWidth: 639 });
+  const { theme, currentTheme } = useTheme();
 
   // Fetch inventory data
-  useEffect(() => {
-    const fetchInventoryData = async () => {
-      try {
-        const data = await getInventoryData();
-        setDataSource(data);
-      } catch (error) {
-        message.error('Failed to load inventory data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchInventoryData();
+  const fetchInventoryData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getInventoryData();
+      setDataSource(data);
+    } catch (error) {
+      message.error('Failed to load inventory data.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchInventoryData();
+  }, [fetchInventoryData]);
+
+  const handleRefresh = () => {
+    setCurrentPage(1);
+    setSortOrder('newest');
+    setSorterConfig({ field: 'id', order: 'descend' });
+    setSelectedRowKeys([]);
+    fetchInventoryData();
+  };
+
+  const handlePrint = () => {
+    const selectedItems = dataSource.filter(item => selectedRowKeys.includes(item.id));
+    if (selectedItems.length > 0) {
+      printUtilsHandlePrint(selectedItems);
+    } else {
+      message.warning('Please select items to print.');
+    }
+  };
 
   // Filter the data based on the search text
   const filteredData = Array.isArray(dataSource)
@@ -82,7 +106,8 @@ const DashboardTable = ({ searchText }) => {
   };
 
   return (
-    <Card className="w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none">
+    <div className="w-full h-full mx-auto bg-[#a7f3d0] rounded-xl shadow border-none p-8"
+      style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
         <Select
           defaultValue="Newest"
@@ -97,10 +122,31 @@ const DashboardTable = ({ searchText }) => {
             <span className="text-xs sm:text-sm text-black">Oldest</span>
           </Option>
         </Select>
+        <Button
+          onClick={handleRefresh}
+          icon={<ReloadOutlined />}
+          size='small'
+          className="custom-button text-xs"
+        >
+          Refresh
+        </Button>
+        <Button
+          onClick={handlePrint}
+          icon={<PrinterOutlined />}
+          size='small'
+          className="custom-button text-xs"
+          disabled={selectedRowKeys.length === 0}
+        >
+          Print Selected
+        </Button>
       </div>
 
       <div className="w-auto overflow-x-auto">
         <Table
+          rowSelection={{
+            selectedRowKeys,
+            onChange: (keys) => setSelectedRowKeys(keys),
+          }}
           columns={getDashboardTableColumns(handleQrCodeClick, searchText)}
           dataSource={sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
           pagination={false}
@@ -144,7 +190,7 @@ const DashboardTable = ({ searchText }) => {
 
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-center sm:justify-between mt-7 sm:mt-10 space-y-2 sm:space-y-0">
         <Typography.Text className="w-full text-xs text-nowrap text-center sm:text-left overflow-auto"
-          style={{ color: '#072C1C' }}>
+          style={currentTheme !== 'default' ? { color: theme.text } : { color: '#072C1C' }}>
           Showing data of {totalEntries > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}
           {Math.min(currentPage * pageSize, totalEntries)} of {totalEntries} entries
         </Typography.Text>
@@ -167,7 +213,7 @@ const DashboardTable = ({ searchText }) => {
         onClose={() => setIsModalVisible(false)}
         qrDetails={qrDetails}
       />
-    </Card>
+    </div>
   );
 };
 

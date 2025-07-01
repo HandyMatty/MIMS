@@ -603,7 +603,7 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
     handleEdit,
     handleDelete,
     handleEditSubmit,
-    setIsEditModalVisible
+    setIsEditModalVisible,
   } = useTemplateManagement(onTemplateSelect);
 
   const adminAuth = useAdminAuthStore();
@@ -647,6 +647,7 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
         description="Select a category and type to quickly fill item details, or choose No Template to use your own values"
         type="info"
         showIcon
+        className="theme-aware-alert"
       />
       <Row gutter={16}>
         <Col span={12}>
