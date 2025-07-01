@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Layout, Badge, Modal, Spin, Tooltip } from 'antd';
 import { BellOutlined, UserOutlined, CalendarOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -8,9 +8,7 @@ import { useGuestAuthStore } from '../store/guest/useAuth';
 import { useNotification } from '../utils/NotificationContext';
 import { useTheme } from '../utils/ThemeContext';
 import ThemeToggle from './common/ThemeToggle';
-
-// Dynamic import for Menu (optional, for demonstration)
-const DynamicMenu = React.lazy(() => import('antd/es/menu'));
+import { Menu } from 'antd';
 
 const { Header } = Layout;
 
@@ -131,7 +129,7 @@ const HeaderBar = ({ onMobileMenuClick }) => {
         />
         {/* Profile icon (desktop & mobile) */}
         <Suspense fallback={<Spin size="small" />}>
-          <DynamicMenu
+          <Menu
             onClick={onClick}
             selectedKeys={[location.pathname]}
             mode="horizontal"
@@ -145,7 +143,7 @@ const HeaderBar = ({ onMobileMenuClick }) => {
       <div style={{ display: 'flex', alignItems: 'center', paddingRight: '20px', gap: '8px' }}>
         <ThemeToggle />
         <Suspense fallback={<Spin size="small" />}>
-          <DynamicMenu
+          <Menu
             onClick={onClick}
             selectedKeys={[location.pathname]}
             mode="horizontal"

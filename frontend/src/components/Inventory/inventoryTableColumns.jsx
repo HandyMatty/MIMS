@@ -159,7 +159,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
             sorter: (a, b) => {
               const dateA = new Date(a.issuedDate);
               const dateB = new Date(b.issuedDate);
-              return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+              return sortOrder === 'Newest' ? dateB - dateA : dateA - dateB;
             },
             render: (date) => <HighlightText text={(!date || date === '0000-00-00') ? 'NO DATE' : date} searchTerm={searchTerm} />,
           },
@@ -174,7 +174,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
             sorter: (a, b) => {
               const dateA = new Date(a.purchaseDate);
               const dateB = new Date(b.purchaseDate);
-              return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+              return sortOrder === 'Newest' ? dateB - dateA : dateA - dateB;
             },
             render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
           },
@@ -192,7 +192,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
             sorter: (a, b) => {
               const dateA = new Date(a.issuedDate);
               const dateB = new Date(b.issuedDate);
-              return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+              return sortOrder === 'Newest' ? dateB - dateA : dateA - dateB;
             },
             render: (date) => <HighlightText text={(!date || date === '0000-00-00') ? 'NO DATE' : date} searchTerm={searchTerm} />,
           },
@@ -209,7 +209,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
             sorter: (a, b) => {
               const dateA = new Date(a.purchaseDate);
               const dateB = new Date(b.purchaseDate);
-              return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+              return sortOrder === 'Newest' ? dateB - dateA : dateA - dateB;
             },
             render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
           },

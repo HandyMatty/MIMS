@@ -174,7 +174,7 @@ const ProfileEdit = () => {
       <ImgCrop rotationSlider>
         <Upload
           name="avatar"
-          action="http://localhost/Sentinel-MIMS/backend/api/upload.php"
+          action="https://sentinelphils.com/Sentinel-MIMS/backend/api/upload.php"
           showUploadList={false}
           beforeUpload={beforeUpload}
           onChange={handleChange}

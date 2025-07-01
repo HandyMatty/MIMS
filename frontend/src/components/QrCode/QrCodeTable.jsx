@@ -11,7 +11,7 @@ const { Option } = Select;
 
 const QrCodeTable = ({ onItemSelect }) => {
   const [searchText, setSearchText] = useState('');
-  const [sortOrder, setSortOrder] = useState('newest');
+  const [sortOrder, setSortOrder] = useState('Newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
@@ -21,6 +21,7 @@ const QrCodeTable = ({ onItemSelect }) => {
   const [searchColumn, setSearchColumn] = useState('all');
   const [localFilteredData, setLocalFilteredData] = useState([]);
   const [filterActive, setFilterActive] = useState(false);
+  const [filteredInfo, setFilteredInfo] = useState({});
   const isMobile = useMediaQuery({ maxWidth: 639 });
 
   const fetchInventoryData = useCallback(async () => {
@@ -28,12 +29,10 @@ const QrCodeTable = ({ onItemSelect }) => {
     try {
       const fetchedData = await getInventoryData();
       if (Array.isArray(fetchedData)) {
-        const sortedFetchedData = [...fetchedData].sort((a, b) => b.id - a.id);
-        setData(sortedFetchedData);
-
-        if (sortedFetchedData.length > 0 && !qrDetails) {
-          onItemSelect(sortedFetchedData[0]);
-          setQrDetails(sortedFetchedData[0]);
+        setData(fetchedData);
+        if (fetchedData.length > 0 && !qrDetails) {
+          onItemSelect(fetchedData[0]);
+          setQrDetails(fetchedData[0]);
         }
       } else {
         console.error('Received invalid data:', fetchedData);
@@ -64,24 +63,6 @@ const QrCodeTable = ({ onItemSelect }) => {
     { key: 'condition', label: 'Condition' },
   ], []);
 
-  // Memoize filtered data
-  const filteredData = useMemo(() => {
-    if (!filterActive) return data;
-    return localFilteredData;
-  }, [filterActive, localFilteredData, data]);
-
-  // Memoize sorted data
-  const sortedData = useMemo(() => {
-    return [...filteredData].sort((a, b) => {
-      if (sortOrder === 'newest') {
-        return b.id - a.id;
-      } else if (sortOrder === 'oldest') {
-        return a.id - b.id;
-      }
-      return 0;
-    });
-  }, [filteredData, sortOrder]);
-
   // Debounced search handler
   const debouncedSearch = useCallback(
     debounce((value) => {
@@ -89,11 +70,9 @@ const QrCodeTable = ({ onItemSelect }) => {
         setFilterActive(false);
         return;
       }
-      
       setFilterActive(true);
       const filtered = data.filter(item => {
         if (!item) return false;
-        
         if (searchColumn === 'all') {
           for (const key in item) {
             const cellValue = item[key];
@@ -107,7 +86,6 @@ const QrCodeTable = ({ onItemSelect }) => {
           return cellValue && String(cellValue).toLowerCase().includes(value.toLowerCase());
         }
       });
-      
       setLocalFilteredData(filtered);
     }, 300),
     [data, searchColumn]
@@ -123,32 +101,32 @@ const QrCodeTable = ({ onItemSelect }) => {
     setSearchColumn(column);
   }, []);
 
-  const resetAll = useCallback(() => {
-    setSearchText('');
-    setSortOrder('newest');
-    setCurrentPage(1);
-    setSearchColumn('all');
-    setFilterActive(false);
-  }, []);
-
   const handleRefresh = () => {
     setSearchText('');
-    setSortOrder('newest');
+    setSortOrder('Newest');
     setCurrentPage(1);
+    setPageSize(10);
     setSearchColumn('all');
     setFilterActive(false);
+    setLocalFilteredData([]);
+    setFilteredInfo({});
     fetchInventoryData();
   };
 
-  const handleSortOrderChange = useCallback((value) => {
-    setSortOrder(value.toLowerCase());
+  const handleSortOrderChange = (value) => {
+    setSortOrder(value);
     setCurrentPage(1);
-  }, []);
-  
-  const handlePageChange = useCallback((page, pageSize) => {
+  };
+
+  const handlePageChange = (page, pageSize) => {
     setCurrentPage(page);
     setPageSize(pageSize);
-  }, []);
+  };
+
+  const handleTableChange = (pagination, filters, sorterObj) => {
+    setFilteredInfo(filters);
+    setCurrentPage(1); // Reset to first page when filters change
+  };
 
   const handleQrCodeClick = useCallback((item) => {
     setQrDetails(item);
@@ -160,7 +138,23 @@ const QrCodeTable = ({ onItemSelect }) => {
     setQrDetails(item);
   }, [onItemSelect]);
 
-  const totalEntries = filteredData.length;
+  // Filtering logic for Condition and Status
+  const filteredData = useMemo(() => {
+    let result = filterActive ? localFilteredData : data;
+    if (filteredInfo.condition && filteredInfo.condition.length > 0) {
+      result = result.filter(item => filteredInfo.condition.includes(item.condition));
+    }
+    if (filteredInfo.status && filteredInfo.status.length > 0) {
+      result = result.filter(item => filteredInfo.status.includes(item.status));
+    }
+    return result;
+  }, [filterActive, localFilteredData, data, filteredInfo]);
+
+  // Apply Newest/Oldest select sort in-memory before paginating
+  const sortedBySelect = useMemo(() => {
+    const sorted = [...filteredData].sort((a, b) => Number(a.id) - Number(b.id));
+    return sortOrder === 'Newest' ? sorted.reverse() : sorted;
+  }, [filteredData, sortOrder]);
 
   // Memoize menu items
   const menuItems = useMemo(() => 
@@ -199,9 +193,9 @@ const QrCodeTable = ({ onItemSelect }) => {
             onChange={handleSearch}
           />
         </div>
-          <div className="flex gap-2 w-auto justify-center">
+        <div className="flex gap-2 w-auto justify-center">
           <Select
-            defaultValue="Newest"
+            value={sortOrder}
             className="w-auto text-xs transparent-select mt-1"
             size="small"
             onChange={handleSortOrderChange}
@@ -209,61 +203,61 @@ const QrCodeTable = ({ onItemSelect }) => {
             <Option value="Newest"><span className="text-xs">Newest</span></Option>
             <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
           </Select>
-        <Button 
-          onClick={handleRefresh}
-          className="custom-button mt-1 text-xs"
-          type="default"
-          size="small"
-          icon={<ReloadOutlined />}
-        >
-          <span className="text-xs">Refresh</span>
-        </Button>
+          <Button 
+            onClick={handleRefresh}
+            className="custom-button mt-1 text-xs"
+            type="default"
+            size="small"
+            icon={<ReloadOutlined />}
+          >
+            <span className="text-xs">Refresh</span>
+          </Button>
         </div>
       </div>
 
-      <div className="w-auto overflow-x-auto">
-        <Table
-          rowKey="id"
-          columns={getColumns(handleQrCodeClick, searchText)}
-          dataSource={sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
-          pagination={false}
-          bordered
-          onRow={(record) => ({
-            onClick: () => handleRowClick(record),
-          })}
-          scroll={{ x: 'max-content', y: 600 }} 
-          loading={loading}
-          responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
-          expandable={ isMobile ? {
-            expandedRowRender: (record) => (
-              <div className="text-xs space-y-1">
-                <div><b>ID:</b> {record.id}</div>
-                <div><b>Type:</b> {record.type}</div>
-                <div><b>Brand:</b> {record.brand}</div>
-                <div><b>Quantity:</b> {record.quantity}</div>
-                <div><b>Remarks:</b> {record.remarks}</div>
-                <div><b>Serial Number:</b> {record.serialNumber}</div>
-                <div><b>Issued Date:</b> {record.issuedDate}</div>
-                <div><b>Purchased Date:</b> {record.purchaseDate}</div>
-                <div><b>Condition:</b> {record.condition}</div>
-                <div><b>Location:</b> {record.location}</div>
-                <div><b>Status:</b> {record.status}</div>
-              </div>
-            ),
-            rowExpandable: () => true,
-          } : undefined}
-        />
-      </div>
+      <Table
+        rowKey="id"
+        columns={getColumns(handleQrCodeClick, searchText, undefined, filteredInfo)}
+        dataSource={sortedBySelect.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+        pagination={false}
+        bordered
+        sortDirections={['descend', 'ascend']}
+        onChange={handleTableChange}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record),
+        })}
+        scroll={{ x: 'max-content', y: 600 }}
+        loading={loading}
+        responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
+        expandable={ isMobile ? {
+          expandedRowRender: (record) => (
+            <div className="text-xs space-y-1">
+              <div><b>ID:</b> {record.id}</div>
+              <div><b>Type:</b> {record.type}</div>
+              <div><b>Brand:</b> {record.brand}</div>
+              <div><b>Quantity:</b> {record.quantity}</div>
+              <div><b>Remarks:</b> {record.remarks}</div>
+              <div><b>Serial Number:</b> {record.serialNumber}</div>
+              <div><b>Issued Date:</b> {record.issuedDate}</div>
+              <div><b>Purchased Date:</b> {record.purchaseDate}</div>
+              <div><b>Condition:</b> {record.condition}</div>
+              <div><b>Location:</b> {record.location}</div>
+              <div><b>Status:</b> {record.status}</div>
+            </div>
+          ),
+          rowExpandable: () => true,
+        } : undefined}
+      />
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-5 space-y-2 sm:space-y-0">
         <Typography.Text style={{ color: '#072C1C' }} className="w-full text-xs text-wrap text-center sm:text-left">
-          Showing data of {totalEntries > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}
-          {Math.min(currentPage * pageSize, totalEntries)} of {totalEntries} entries
+          Showing data of {sortedBySelect.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}
+          {Math.min(currentPage * pageSize, sortedBySelect.length)} of {sortedBySelect.length} entries
         </Typography.Text>
         <div className="w-full flex justify-center sm:justify-end">
           <Pagination
             current={currentPage}
             pageSize={pageSize}
-            total={totalEntries}
+            total={sortedBySelect.length}
             showSizeChanger
             pageSizeOptions={['10', '20', '30', '50', '100', '200', '500', '1000', '2000']}
             onChange={handlePageChange}

@@ -1,7 +1,7 @@
 import React from 'react';
 
-const Login = React.lazy(() => import("./Login/Login"));
-const ForgotPassword = React.lazy(() => import("./Login/ForgotPassword"));
+import Login from "./Login/Login";
+import ForgotPassword from "./Login/ForgotPassword";
 const Dashboard = React.lazy(() => import("./Dashboard"));
 const InventoryPage = React.lazy(() => import("./InventoryPage"));
 const History = React.lazy(() => import("./History"));

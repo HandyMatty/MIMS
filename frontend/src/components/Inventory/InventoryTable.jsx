@@ -151,6 +151,7 @@ const InventoryTable = () => {
     setFilterActive(false);
     setLocalFilteredData([]);
     setTableKey(prev => prev + 1);
+    handleSortOrderChange('Newest');
     handleRefresh();
   };
 
@@ -290,7 +291,7 @@ const InventoryTable = () => {
                         </Tooltip>
                       )}
                       <Select
-                        defaultValue="Newest"
+                        value={sortOrder}
                         className="w-auto text-xs transparent-select"
                         onChange={handleSortOrderChange}
                         size="small"

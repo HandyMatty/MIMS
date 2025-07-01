@@ -16,7 +16,7 @@ const DashboardTable = ({ searchText }) => {
   const [pageSize, setPageSize] = useState(10);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [qrDetails, setQrDetails] = useState(null);
-  const [sortOrder, setSortOrder] = useState('newest');
+  const [sortOrder, setSortOrder] = useState('Newest');
   const [sorterConfig, setSorterConfig] = useState({ field: 'id', order: 'descend' });
   const [loading, setLoading] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -42,8 +42,9 @@ const DashboardTable = ({ searchText }) => {
 
   const handleRefresh = () => {
     setCurrentPage(1);
-    setSortOrder('newest');
+    setSortOrder('Newest');
     setSorterConfig({ field: 'id', order: 'descend' });
+    handleSortOrderChange('Newest');
     setSelectedRowKeys([]);
     fetchInventoryData();
   };
@@ -88,11 +89,13 @@ const DashboardTable = ({ searchText }) => {
   };
 
   const handleSortOrderChange = (value) => {
-    setSortOrder(value.toLowerCase());
-    const order = value.toLowerCase() === 'newest' ? 'descend' : 'ascend';
+    const normalizedValue = value === 'Oldest' ? 'Oldest' : 'Newest';
+    setSortOrder(normalizedValue);
+    const order = normalizedValue === 'Newest' ? 'descend' : 'ascend';
     setSorterConfig({ field: 'id', order });
     setCurrentPage(1);
   };
+
 
   const handleQrCodeClick = (item) => {
     setQrDetails(item);
@@ -110,16 +113,17 @@ const DashboardTable = ({ searchText }) => {
       style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
         <Select
+          value={sortOrder}
           defaultValue="Newest"
           className="w-full sm:w-auto transparent-select"
           onChange={handleSortOrderChange}
           size='small'
         >
           <Option value="Newest">
-            <span className="text-xs sm:text-sm text-black">Newest</span>
+            <span className="text-xs text-black">Newest</span>
           </Option>
           <Option value="Oldest">
-            <span className="text-xs sm:text-sm text-black">Oldest</span>
+            <span className="text-xs text-black">Oldest</span>
           </Option>
         </Select>
         <Button

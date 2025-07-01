@@ -69,7 +69,14 @@ if (!password_verify($password, $hashed_password)) {
     ");
     $upd->bind_param("isi", $login_attempts, $new_lockout, $id);
     $upd->execute();
-    echo json_encode(['success' => false, 'message' => 'Incorrect password']);
+    $attempts_left = max(0, $max_attempts - $login_attempts);
+    $message = 'Incorrect password.';
+    if ($attempts_left > 0) {
+        $message .= " You have $attempts_left attempt" . ($attempts_left > 1 ? 's' : '') . " remaining.";
+    } else {
+        $message .= " Your account is now locked for " . ($lockout_time / 60) . " minutes.";
+    }
+    echo json_encode(['success' => false, 'message' => $message]);
     exit;
 }
 

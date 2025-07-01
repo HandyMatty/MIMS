@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 export const useInventoryTable = () => {
   const { message } = App.useApp();
   const [searchText, setSearchText] = useState('');
-  const [sortOrder, setSortOrder] = useState('newest');
+  const [sortOrder, setSortOrder] = useState('Newest');
   const [sorterConfig, setSorterConfig] = useState({ field: 'id', order: 'descend' });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -37,12 +37,11 @@ export const useInventoryTable = () => {
   const resetAndReloadTable = async () => {
     setIsLoading(true);
     setSearchText('');
-    setSortOrder('newest');
+    setSortOrder('Newest');
     setSorterConfig({ field: 'id', order: 'descend' });
     setCurrentPage(1);
     setPageSize(10);
     setSelectedRowKeys([]);
-    setActiveTab('default');
     try {
       const data = await getInventoryData();
       setDataSource(data);
@@ -89,8 +88,10 @@ export const useInventoryTable = () => {
   };
 
   const handleSortOrderChange = (value) => {
-    setSortOrder(value.toLowerCase());
-    const order = value.toLowerCase() === 'newest' ? 'descend' : 'ascend';
+    // Accepts either 'Newest' or 'Oldest' (with capital N and O)
+    const normalizedValue = value === 'Oldest' ? 'Oldest' : 'Newest';
+    setSortOrder(normalizedValue);
+    const order = normalizedValue === 'Newest' ? 'descend' : 'ascend';
     setSorterConfig({ field: 'id', order });
     setCurrentPage(1);
   };

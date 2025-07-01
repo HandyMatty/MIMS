@@ -1,11 +1,11 @@
-import React, { Suspense, useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Row, Col, Typography, Divider, Spin } from 'antd';
 import SINSSILogo from "../../../assets/SINSSI_LOGO-removebg-preview.png";
 import { LazyImage, preloadImages } from '../../utils/imageHelpers.jsx';
+import ProfileEdit from '../../components/Profile/ProfileEdit';
+import ChangePasswordForm from '../../components/Profile/ChangePasswordForm';
+import SecurityQuestion from '../../components/Profile/SecurityQuestion';
 
-const ProfileEdit = React.lazy(() => import('../../components/Profile/ProfileEdit'));
-const ChangePasswordForm = React.lazy(() => import('../../components/Profile/ChangePasswordForm'));
-const SecurityQuestion = React.lazy(() => import('../../components/Profile/SecurityQuestion'));
 
 const { Title } = Typography;
 

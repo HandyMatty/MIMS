@@ -47,7 +47,7 @@ export const getConditionTag = (condition, searchTerm = '') => {
 };
 
 // Export the columns function
-export const getColumns = (handleQrCodeClick, searchTerm = '') => [
+export const getColumns = (handleQrCodeClick, searchTerm = '', sorter = {}, filteredInfo = {}) => [
   {
     title: 'QR Code',
     dataIndex: 'qrCode',
@@ -70,7 +70,7 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
     align: 'center',
     className: 'text-xs overflow-auto',
     width: '120px',
-    sorter: (a, b) => a.id.localeCompare(b.id),
+    sorter: (a, b) => Number(a.id) - Number(b.id),
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },
   {
@@ -173,7 +173,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
       { text: 'Good Condition', value: 'Good Condition' },
       { text: 'Defective', value: 'Defective' },
     ],
-    onFilter: (value, record) => record.condition.includes(value),
+    filteredValue: filteredInfo.condition || null,
+    onFilter: (value, record) => record.condition === value,
   },
   {
     title: 'Detachment/Office',
@@ -199,6 +200,7 @@ export const getColumns = (handleQrCodeClick, searchTerm = '') => [
       { text: 'For Repair', value: 'For Repair' },
       { text: 'Deployed', value: 'Deployed' },
     ],
-    onFilter: (value, record) => record.status.includes(value),
+    filteredValue: filteredInfo.status || null,
+    onFilter: (value, record) => record.status === value,
   },
 ];
