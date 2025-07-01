@@ -1,13 +1,15 @@
-import React, { useEffect, useState, Suspense } from 'react';
-import { Layout, Badge, Modal, Spin } from 'antd';
+import React, { Suspense } from 'react';
+import { Layout, Badge, Modal, Spin, Tooltip } from 'antd';
 import { BellOutlined, UserOutlined, CalendarOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminAuthStore } from '../store/admin/useAuth';
 import { useUserAuthStore } from '../store/user/useAuth';
+import { useGuestAuthStore } from '../store/guest/useAuth';
 import { useNotification } from '../utils/NotificationContext';
 import { useTheme } from '../utils/ThemeContext';
 import ThemeToggle from './common/ThemeToggle';
 
+// Dynamic import for Menu (optional, for demonstration)
 const DynamicMenu = React.lazy(() => import('antd/es/menu'));
 
 const { Header } = Layout;
@@ -19,11 +21,13 @@ const HeaderBar = ({ onMobileMenuClick }) => {
 
   const adminAuth = useAdminAuthStore();
   const userAuth = useUserAuthStore();
+  const guestAuth = useGuestAuthStore();
 
   const { notifications } = useNotification();
 
   const isAdmin = !!(adminAuth.token && adminAuth.userData);
   const isUser = !!(userAuth.token && userAuth.userData);
+  const isGuest = !!(guestAuth.token && guestAuth.userData);
 
   const guestFallback = !isAdmin && !isUser;
   const unreadNotifications = guestFallback ? 0 : notifications.filter((notif) => !notif.read).length;
@@ -64,6 +68,7 @@ const HeaderBar = ({ onMobileMenuClick }) => {
     {
       key: '/profile',
       icon: (
+      <Tooltip title="Profile" >
         <div
           className={`custom-avatar-icon ${
             location.pathname === '/admin/profile' || location.pathname === '/user/profile' ? 'active' : ''
@@ -71,32 +76,37 @@ const HeaderBar = ({ onMobileMenuClick }) => {
         >
           <UserOutlined />
         </div>
+      </Tooltip>
       ),
     },
     {
       key: '/calendar',
       icon: (
+      <Tooltip title="Calendar">
         <div
           className={`custom-avatar-icon ${
-            location.pathname === '/admin/calendar' || location.pathname === '/user/calendar' || location.pathname === '/guest/calendar' ? 'active' : ''
+            location.pathname === '/admin/calendar' || location.pathname === '/user/calendar' ? 'active' : ''
           }`}
         >
           <CalendarOutlined />
         </div>
+      </Tooltip>
       ),
     },
     {
       key: '/notifications',
       icon: (
+      <Tooltip title="Notifications">
         <Badge count={unreadNotifications} offset={[-11, 12]} size="small" showZero={false}>
           <div
             className={`custom-avatar-icon ${
-              location.pathname === '/admin/notifications' || location.pathname === '/user/notifications' || location.pathname === '/guest/notifications' ? 'active' : ''
+              location.pathname === '/admin/notifications' || location.pathname === '/user/notifications' ? 'active' : ''
             }`}
           >
             <BellOutlined />
           </div>
         </Badge>
+      </Tooltip>
       ),
     },
   ];

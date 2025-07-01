@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dropdown, Button } from 'antd';
+import { Dropdown, Button, Tooltip } from 'antd';
 import { BgColorsOutlined } from '@ant-design/icons';
 import { useTheme } from '../../utils/ThemeContext';
 
@@ -32,6 +32,7 @@ const ThemeToggle = () => {
   }));
 
   return (
+  <Tooltip title="Themes" >
     <Dropdown
       menu={{
         items,
@@ -60,6 +61,7 @@ const ThemeToggle = () => {
         title="Change Theme"
       />
     </Dropdown>
+  </Tooltip>
   );
 };
 
