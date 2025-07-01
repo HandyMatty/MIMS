@@ -286,6 +286,27 @@ const useUsersList = () => {
     }
   };
 
+  const refreshUsers = async () => {
+    setLoading(true);
+    // Reset all states to default before fetching
+    setSearchText('');
+    setCurrentPage(1);
+    setPageSize(5);
+    setSelectedRowKeys([]);
+    setFilteredData([]);
+
+    try {
+      const data = await fetchUsersData();
+      setUsers(data.users);
+      setFilteredData(data.users);
+    } catch (error) {
+      console.error('Error fetching users data:', error);
+      message.error('Failed to refresh users data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     users,
     setUsers,
@@ -325,6 +346,7 @@ const useUsersList = () => {
     handleSecurityQuestion,
     handleChangeSecurityQuestion,
     handleDepartmentUpdate,
+    refreshUsers,
   };
 };
 

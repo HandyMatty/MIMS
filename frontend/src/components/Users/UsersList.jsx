@@ -16,6 +16,7 @@ import {
   LockOutlined,
   EditOutlined,
   SecurityScanOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import ModalForms from '../ModalForms';
 import useUsersList from '../../hooks/useUsersList'; // Adjust the path if needed
@@ -68,6 +69,7 @@ const UsersList = () => {
     handleRoleUpdate,
     handleChangeSecurityQuestion,
     handleDepartmentUpdate,
+    refreshUsers,
   } = useUsersList();
 
   const columns = [
@@ -216,6 +218,15 @@ const UsersList = () => {
             danger
             disabled={selectedRowKeys.length === 0}
             onClick={handleBatchDelete}
+          />
+        </Tooltip>
+        <Tooltip title="Refresh">
+          <Button
+            type="text"
+            icon={<ReloadOutlined />}
+            onClick={refreshUsers}
+            className="w-auto text-xs"
+            size='small'
           />
         </Tooltip>
       </div>

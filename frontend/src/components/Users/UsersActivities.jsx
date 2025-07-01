@@ -112,11 +112,26 @@ const debouncedSearch = useCallback(
     setSearchColumn(column);
   };
 
-  const resetAll = () => {
+  const refreshActivities = async () => {
+    setLoading(true);
+    // Reset all states to default before fetching
     setSearchText('');
     setCurrentPage(1);
+    setPageSize(5);
     setSearchColumn('all');
     setFilterActive(false);
+    setLocalFilteredData([]);
+    setError(null);
+
+    try {
+      const data = await fetchActivitiesApi();
+      setActivities(data);
+    } catch (err) {
+      console.error("Error fetching activities:", err);
+      setError("Failed to load activities.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredData = filterActive ? localFilteredData : activities;
@@ -222,13 +237,13 @@ const debouncedSearch = useCallback(
         </div>
        <div className="flex gap-2 w-auto justify-center">
         <Button 
-          onClick={resetAll}
+          onClick={refreshActivities}
           className="custom-button w-auto text-xs"
           type="default"
           size="small"
           icon={<ReloadOutlined />}
         >
-          Reset
+          Refresh
         </Button>
         </div>
       </div>
