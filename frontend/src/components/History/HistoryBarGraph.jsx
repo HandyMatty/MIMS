@@ -44,7 +44,7 @@ const HistoryBarGraph = ({ searchText }) => {
 
         const formattedData = Object.entries(typeCounts)
           .map(([labelName, value]) => ({ labelName, value }))
-          .sort((a, b) => a.labelName.localeCompare(b.labelName)); // ✅ Sort alphabetically
+          .sort((a, b) => a.labelName.localeCompare(b.labelName));
 
         setBarData(formattedData);
       } catch (error) {
@@ -114,7 +114,10 @@ const HistoryBarGraph = ({ searchText }) => {
     },
     scale: {
       y: {
-        domain: [0, Math.max(...barData.map(d => d.value || 0), 1000)],
+        domain: [0, (() => {
+          const maxValue = Math.max(...barData.map(d => d.value || 0), 0);
+          return maxValue === 0 ? 1000 : Math.ceil(maxValue / 1000) * 1000;
+        })()],
       },
       color: {
         range: COLORS,
