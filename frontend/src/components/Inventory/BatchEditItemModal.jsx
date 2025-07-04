@@ -402,7 +402,7 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
             return hasChanges(record, originalRows[index]) ? 'bg-blue-50' : '';
           }}
         />
-        <div className="text-xs text-gray-500 mt-2">* Required fields: Type, Brand, Qty, Condition, Status, Detachment/Office</div>
+        <div className="text-xs text-gray-500 mt-2">* Required fields: Type, Brand, Qty, Purchased Date, Condition, Status, Detachment/Office</div>
       </Modal>
     </>
   );
