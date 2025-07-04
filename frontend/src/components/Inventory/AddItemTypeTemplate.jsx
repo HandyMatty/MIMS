@@ -18,7 +18,6 @@ const HEAD_OFFICE_DEPARTMENTS = {
   'BDO': 'BDO'
 };
 
-// Export the templates for use in the hook
 export const itemTemplates = {
   'IT Equipment': {
     'System Unit': {
@@ -456,7 +455,6 @@ export const itemTemplates = {
   }
 };
 
-// Add specific location templates
 export const specificLocationTemplates = {
   'CCEAP Pampanga DC': {
     'System Unit': {
@@ -594,9 +592,7 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
     selectedType,
     userTemplates,
     isEditModalVisible,
-    editingTemplate,
     form,
-    refreshTrigger,
     setRefreshTrigger,
     handleCategoryChange,
     handleTypeChange,
@@ -616,7 +612,6 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
     if (isAdmin) return adminAuth.userData;
     if (isUser) return userAuth.userData;
 
-    // If no auth store has user data, try cookies
     const username = Cookies.get('username');
     const userId = Cookies.get('user_id');
     if (username && userId) {
@@ -631,13 +626,11 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
     return currentUser && currentUser.username === template.created_by;
   };
 
-  // Expose the refresh trigger to parent component
   useImperativeHandle(ref, () => ({
     setRefreshTrigger,
     handleTypeChange
   }));
 
-  // Sort categories alphabetically
   const sortedCategories = Object.keys(itemTemplates).sort();
 
   return (
@@ -647,7 +640,7 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
         description="Select a category and type to quickly fill item details, or choose No Template to use your own values"
         type="info"
         showIcon
-        className="theme-aware-alert"
+        className="theme-aware-alert text-xs"
       />
       <Row gutter={16}>
         <Col span={12}>
@@ -735,7 +728,6 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
       </Row>
       <Divider style={{ margin: '16px 0' }} />
 
-      {/* Edit Template Modal */}
       <Modal
         title="Edit Template"
         open={isEditModalVisible}
@@ -749,7 +741,6 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
           layout="vertical"
         >
           <Row gutter={16}>
-            {/* LEFT COLUMN */}
             <Col span={12}>
               <Form.Item
                 name="template_name"
@@ -827,7 +818,6 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
               </Form.Item>
             </Col>
 
-            {/* RIGHT COLUMN */}
             <Col span={12}>
               <Form.Item
                 name="condition"

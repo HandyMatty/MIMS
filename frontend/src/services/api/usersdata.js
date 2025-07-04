@@ -1,17 +1,15 @@
 import { axiosAuth } from "../axios"; // Assuming axios is properly set up
 
-// Fetch users data without token
 export const fetchUsersData = async () => {
   try {
-    const response = await axiosAuth.get("/users.php"); // Adjust the endpoint as needed
-    return response.data; // Assuming the response contains the users in 'users' key
+    const response = await axiosAuth.get("/users.php"); 
+    return response.data; 
   } catch (error) {
     console.error("Fetch users data API Error:", error);
     throw error;
   }
 };
 
-// Add a new user
 export const addUser = async (userData) => {
   try {
     const response = await axiosAuth.post("/users_add.php", userData);
@@ -22,7 +20,6 @@ export const addUser = async (userData) => {
   }
 };
 
-// Delete selected users
 export const deleteUsers = async (userIds) => {
   try {
     const response = await axiosAuth.post("/users_delete.php", { userIds });
@@ -33,7 +30,6 @@ export const deleteUsers = async (userIds) => {
   }
 };
 
-// Fetch user statistics
 export const fetchUsersStatistics = async () => {
   try {
     const response = await axiosAuth.get("/getUsersStatistics.php"); 
@@ -44,7 +40,6 @@ export const fetchUsersStatistics = async () => {
   }
 };
 
-// Fetch security question
 export const getSecurityQuestion = async (userId) => {
   try {
     const response = await axiosAuth.get(`/updateSecurityQuestion.php?userId=${userId}`);
@@ -55,7 +50,6 @@ export const getSecurityQuestion = async (userId) => {
   }
 };
 
-// Update security question and answer
 export const updateSecurityQuestion = async (userId, securityQuestion, securityAnswer) => {
   try {
     const response = await axiosAuth.post("/updateSecurityQuestion.php", {
@@ -70,7 +64,6 @@ export const updateSecurityQuestion = async (userId, securityQuestion, securityA
   }
 };
 
-// API to update role
 export const updateRole = async (userId, role) => {
   try {
     const response = await axiosAuth.post("/update_role.php", {
@@ -84,7 +77,6 @@ export const updateRole = async (userId, role) => {
   }
 };
 
-// Update user department
 export const updateDepartment = async (userId, department) => {
   try {
     console.log('Sending update request:', { userId, department });

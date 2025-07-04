@@ -32,7 +32,6 @@ const Login = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // Preload critical images
     preloadImages([SINSSILogo, vectors]);
   }, []);
 
@@ -57,8 +56,7 @@ const Login = () => {
           description: 'You have successfully logged in. Enjoy your session!',
           placement: 'topRight',
         });
-        // Note: the mutate function (useLoginAuth hook) saves the auth info
-        // and calls navigate() to redirect the user.
+
       } else {
         message.error(response.message || 'Login failed. Please check your credentials.');
       }
@@ -79,7 +77,6 @@ const Login = () => {
       </div>
     }>
       <div className="relative flex flex-col items-center justify-center h-screen bg-honeydew overflow-hidden">
-        {/* Background Vector Image */}
         <LazyImage
           className="absolute bottom-0 left-0 w-full h-auto object-cover z-0"
           style={{ maxHeight: '100vh' }}
@@ -87,7 +84,6 @@ const Login = () => {
           alt="vector bg"
         />
 
-        {/* Login Container */}
         <div className="relative z-10 w-auto h-auto sm:w-full sm:h-full flex items-center justify-center">
           <div className="w-full max-w-5xl">
             <main className="flex flex-col items-center justify-center h-full p-4">

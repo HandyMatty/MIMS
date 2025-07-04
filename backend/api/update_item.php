@@ -2,10 +2,8 @@
 include('cors.php');
 include('database.php');
 
-// Get the POST data
 $data = json_decode(file_get_contents("php://input"), true);
 
-// Assign and sanitize input
 $id = $data['id'];
 $type = htmlspecialchars($data['type']);
 $brand = htmlspecialchars($data['brand']);
@@ -18,7 +16,6 @@ $status = htmlspecialchars($data['status']);
 $remarks = htmlspecialchars($data['remarks']);
 $quantity = intval($data['quantity']);
 
-// Fetch the existing item details
 $query = "SELECT * FROM inventory WHERE id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $id);
@@ -33,24 +30,18 @@ if (!$existingItem) {
     exit();
 }
 
-// Format the purchase dates as YYYYMMDD for easy comparison
 $inputPurchaseDateFormatted = date("Ymd", strtotime($purchaseDate));
 $existingPurchaseDateFormatted = date("Ymd", strtotime($existingItem['purchase_date']));
 
-// Determine whether to update the item ID
 $existingIdStartsWithDate = str_starts_with((string)$existingItem['id'], $inputPurchaseDateFormatted);
 
-// Check if existing ID uses 4-digit counter after the date
 $needsIdFormatFix = !preg_match('/^' . $inputPurchaseDateFormatted . '\d{4}$/', $existingItem['id']);
 
 if ($inputPurchaseDateFormatted === $existingPurchaseDateFormatted && $existingIdStartsWithDate && !$needsIdFormatFix) {
-    // Keep current ID
     $newItemId = $existingItem['id'];
 } else {
-    // Regenerate ID
     $purchaseDateFormatted = $inputPurchaseDateFormatted;
 
-    // Get the latest item with this date prefix
     $query = "SELECT id FROM inventory WHERE id LIKE ? ORDER BY id DESC LIMIT 1";
     $stmt = $conn->prepare($query);
     $likeParam = $purchaseDateFormatted . "%";
@@ -91,7 +82,6 @@ if (!empty($serialNumber) && $isNewFormat) {
     }
     $stmt->close();
 }
-// Prepare to log changes if any field has been updated
 $changes = [];
 if ($existingItem['id'] !== $newItemId) $changes['Item ID'] = ["old" => $existingItem['id'], "new" => $newItemId];
 if ($existingItem['type'] !== $type) $changes['Type'] = ["old" => $existingItem['type'], "new" => $type];
@@ -122,7 +112,6 @@ $history_stmt->bind_param("isss", $id, $fieldChanged, $oldValues, $newValues);
 $history_stmt->execute();
 $history_stmt->close();
 
-// Update the item in the inventory table using the determined item id
 $update_stmt = $conn->prepare("
     UPDATE inventory 
     SET id = ?, type = ?, brand = ?, serial_number = ?, issued_date = ?, purchase_date = ?, `condition` = ?, location = ?, status = ?, remarks = ?, quantity = ?

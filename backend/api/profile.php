@@ -8,7 +8,6 @@ $headers = getallheaders();
 if (isset($headers['Authorization'])) {
     $token = str_replace('Bearer ', '', $headers['Authorization']);
 
-    // Updated SQL query to return a default avatar if none is set
     $stmt = $conn->prepare("
         SELECT username, department, 
         COALESCE(avatar, 'http://localhost/Sentinel-MIMS/backend/uploads/avatars/default-avatar.png') AS avatar 

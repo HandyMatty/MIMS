@@ -33,7 +33,6 @@ export const useInventoryTable = () => {
   const isUser = !!userUserData;
   const userRole = isAdmin ? 'admin' : isUser ? 'user' : 'guest';
 
-  // Extract the initial load logic
   const resetAndReloadTable = async () => {
     setIsLoading(true);
     setSearchText('');
@@ -88,7 +87,6 @@ export const useInventoryTable = () => {
   };
 
   const handleSortOrderChange = (value) => {
-    // Accepts either 'Newest' or 'Oldest' (with capital N and O)
     const normalizedValue = value === 'Oldest' ? 'Oldest' : 'Newest';
     setSortOrder(normalizedValue);
     const order = normalizedValue === 'Newest' ? 'descend' : 'ascend';
@@ -167,14 +165,18 @@ export const useInventoryTable = () => {
         const originalDate = originalValue ? dayjs(originalValue).format('YYYY-MM-DD') : null;
         return updatedValue !== originalDate;
       }
-      
+      if (key === 'quantity') {
+        const updatedQty = Number(updatedValue);
+        const originalQty = Number(originalValue);
+        return updatedQty !== originalQty;
+      }
       if (typeof updatedValue === "string") {
         return updatedValue.trim() !== (originalValue || "").trim();
       }
       return updatedValue !== originalValue;
     });
     if (!hasChanges) {
-      message.info("No changes detected.");
+      message.error("No changes detected.");
       return;
     }
     setIsLoading(true);
@@ -232,14 +234,13 @@ export const useInventoryTable = () => {
   };
 
   const handleTabChange = (key) => {
-    // Remove focus from any focused element before switching tabs
     if (document.activeElement) {
       document.activeElement.blur();
     }
     setActiveTab(key);
   };
 
-  const rowSelection = isAdmin
+  const rowSelection = (isAdmin || userRole === 'user')
     ? {
         selectedRowKeys,
         onChange: setSelectedRowKeys,

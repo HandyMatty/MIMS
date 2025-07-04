@@ -2,7 +2,6 @@
 include('cors.php');
 include('database.php');
 
-// Get the POST data
 $data = json_decode(file_get_contents("php://input"), true);
 
 $template_name = htmlspecialchars($data['template_name']);
@@ -18,7 +17,6 @@ $serial_number = htmlspecialchars($data['serialNumber'] ?? null);
 $purchase_date = htmlspecialchars($data['purchaseDate'] ?? null);
 $issued_date = !empty($data['issuedDate']) ? htmlspecialchars($data['issuedDate']) : null;
 
-// Check if template name already exists
 $checkQuery = "SELECT COUNT(*) FROM saved_templates WHERE template_name = ?";
 $checkStmt = $conn->prepare($checkQuery);
 $checkStmt->bind_param("s", $template_name);
@@ -33,7 +31,6 @@ if ($templateCount > 0) {
     exit;
 }
 
-// Insert into saved_templates
 $stmt = $conn->prepare("INSERT INTO saved_templates (
     template_name, type, brand, `condition`, status, quantity, 
     location, remarks, created_by, serial_number, purchase_date, issued_date

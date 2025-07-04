@@ -102,7 +102,7 @@ export const getColumns = (handleQrCodeClick, searchTerm = '', sorter = {}, filt
     align: 'center',
     className: 'text-xs overflow-auto text-wrap',
     responsive: ['sm'],
-    width: '70px',
+    width: '80px',
     sorter: (a, b) => a.quantity - b.quantity,
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },

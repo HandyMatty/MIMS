@@ -2,7 +2,6 @@
 include('cors.php');
 include('database.php');
 
-// Get the template ID from the URL
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 if (!$id) {
@@ -14,7 +13,6 @@ if (!$id) {
     exit;
 }
 
-// Delete the template
 $stmt = $conn->prepare("DELETE FROM saved_templates WHERE id = ?");
 $stmt->bind_param("i", $id);
 

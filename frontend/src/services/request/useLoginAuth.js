@@ -23,7 +23,6 @@ const useLoginAuth = () => {
     setError(null);
 
     try {
-      // Clear expired cookies if necessary
       checkAndClearExpiredCookies();
 
       const response = await loginApi({ username, password, rememberMe });
@@ -31,24 +30,19 @@ const useLoginAuth = () => {
       if (response.success) {
         const { token, role } = response;
 
-        // Prepare auth data
         const authData = JSON.stringify({ userData: { username, role }, token });
 
-        // Store data in sessionStorage **always**
         sessionStorage.setItem(`${role}Auth`, authData);
 
-        // Store data in localStorage **always**
         localStorage.setItem(`${role}Auth`, authData);
 
-        // Store the auth token in cookies (expiration varies)
         Cookies.set(`authToken_${username}`, token, {
-          expires: rememberMe ? 7 : 1, // 7 days if checked, 1 day if not
+          expires: rememberMe ? 7 : 1, 
           secure: window.location.protocol === 'https:',
           sameSite: 'Lax',
           path: '/'
         });
 
-        // Set global state & navigate based on role
         if (role === 'admin') {
           setAdminUserData({ username });
           setAdminRole(role);
@@ -81,12 +75,10 @@ const useLoginAuth = () => {
     }
   };
 
-  // Clears expired authentication cookies
   const checkAndClearExpiredCookies = () => {
     const allCookies = Cookies.get();
     Object.keys(allCookies).forEach((cookieName) => {
       if (cookieName.startsWith('authToken_') && !allCookies[cookieName]) {
-        // Remove specific auth data based on role
         ['adminAuth', 'userAuth', 'guestAuth'].forEach((key) => {
           localStorage.removeItem(key);
           sessionStorage.removeItem(key);

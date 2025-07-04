@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, QRCode, Descriptions, Card } from 'antd';
+import { Button, QRCode, Descriptions, Card, Space } from 'antd';
 import { downloadAsPng, downloadAsSvg, printQrCode } from '../../utils/qrCodeUtils';
 import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
@@ -70,7 +70,7 @@ const QrCodeGenerator = ({ itemDetails }) => {
     const isSelected = selectedFormat === format;
     if (currentTheme === 'default') {
       return {
-        backgroundColor: isSelected ? '#d9f99d' : '#EAF4E2', // default colors
+        backgroundColor: isSelected ? '#d9f99d' : '#EAF4E2',
         color: '#072C1C',
       };
     }
@@ -102,8 +102,10 @@ const QrCodeGenerator = ({ itemDetails }) => {
               bordered
               column={1}
               size="small"
-              labelStyle={currentTheme !== 'default' ? { fontWeight: 'bold', color: theme.text, width: 'auto' } : { fontWeight: 'bold', color: '#072C1C', width: 'auto' }}
-              contentStyle={currentTheme !== 'default' ? { color: theme.text } : { color: '#072C1C' }}
+              styles={{
+                label: currentTheme !== 'default' ? { fontWeight: 'bold', color: theme.text, width: 'auto' } : { fontWeight: 'bold', color: '#072C1C', width: 'auto' },
+                content: currentTheme !== 'default' ? { color: theme.text } : { color: '#072C1C' }
+              }}
             >
               {Object.entries(itemData)
                 .filter(([label]) => !(label === "quantity" && itemData["Serial Number"] !== "N/A"))
@@ -156,10 +158,9 @@ const QrCodeGenerator = ({ itemDetails }) => {
             />
           </div>
 
-          {/* Format Selection */}
           <div className="flex flex-col items-center">
             <div className="font-bold text-sm mb-2" style={currentTheme !== 'default' ? { color: theme.text } : { color: '#072C1C' }}>Image format:</div>
-            <Button.Group>
+            <Space.Compact>
               <Button
                 type="primary"
                 onClick={() => setSelectedFormat('PNG')}
@@ -176,10 +177,9 @@ const QrCodeGenerator = ({ itemDetails }) => {
               >
                 SVG
               </Button>
-            </Button.Group>
+            </Space.Compact>
           </div>
 
-          {/* Download Button */}
           <Button
             onClick={() => handleDownload(selectedFormat)}
             className="qr-action-btn shadow-md text-base sm:text-lg"
@@ -190,7 +190,6 @@ const QrCodeGenerator = ({ itemDetails }) => {
             Download {selectedFormat}
           </Button>
 
-          {/* Print Button */}
           <Button
             onClick={handlePrint}
             className="qr-action-btn shadow-md text-base sm:text-lg"

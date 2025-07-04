@@ -18,7 +18,6 @@ const Notifications = lazy (() => import('../../pages/Header/Notifications'));
 const UserRoutes = () => {
   const isUserAuthenticated = useUserAuthStore(state => state.isAuthenticated);
 
-  // Preload the logo image
   useEffect(() => {
     preloadImages([SINSSILogo]);
   }, []);
@@ -38,7 +37,6 @@ const UserRoutes = () => {
       </div>
     }>
       <Routes>
-        {/* Protected Routes */}
         <Route element={<Auth store={useUserAuthStore} redirect="/login" />}>
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -51,7 +49,6 @@ const UserRoutes = () => {
           </Route>
         </Route>
 
-        {/* Fallback redirect if route is invalid */}
         <Route
           path="*"
           element={

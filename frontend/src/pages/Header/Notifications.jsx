@@ -27,7 +27,6 @@ const Notifications = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  // Button hover states
   const [markAllHover, setMarkAllHover] = useState(false);
   const [emptyHover, setEmptyHover] = useState(false);
   const [markBtnHover, setMarkBtnHover] = useState({});
@@ -58,7 +57,6 @@ const Notifications = () => {
     currentPage * pageSize
   );
 
-  // Theme-based styles
   const pageStyle = currentTheme !== 'default' ? { background: theme.background, minHeight: '100vh' } : {};
   const cardStyle = currentTheme !== 'default' ? { width: '100%', background: theme.componentBackground, border: 'none', color: theme.text } : { width: '100%', background: '#eaf4e2', border: 'none' };
   const textStyle = currentTheme !== 'default' ? { color: theme.text } : {};

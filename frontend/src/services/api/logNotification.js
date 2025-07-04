@@ -1,6 +1,5 @@
-import { axiosAuth } from "../axios";  // Import axios instance for authentication
+import { axiosAuth } from "../axios";  
 
-// Function to log notifications
 export const logNotification = async (username, message, details) => {
   try {
     const response = await axiosAuth.post('/logNotification.php', {

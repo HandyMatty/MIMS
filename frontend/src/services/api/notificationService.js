@@ -1,6 +1,5 @@
-import { axiosAuth } from "../axios";  // Import axios instance for authentication
+import { axiosAuth } from "../axios"; 
 
-// Function to get notifications for the user
 export const getNotifications = async (username) => {
   try {
     const response = await axiosAuth.post('/getNotifications.php', {
@@ -8,7 +7,7 @@ export const getNotifications = async (username) => {
     });
 
     if (response.data.success) {
-      return { success: true, notifications: response.data.notifications };  // Assuming the API returns an array of notifications
+      return { success: true, notifications: response.data.notifications };  
     } else {
       console.error('Failed to fetch notifications:', response.data.message);
       return { success: false, message: response.data.message };

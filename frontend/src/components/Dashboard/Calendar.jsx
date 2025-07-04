@@ -3,25 +3,23 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import { Calendar, Col, Radio, Row, Select, Typography, Modal, Button, List, Avatar, Tooltip } from 'antd';
 import dayLocaleData from 'dayjs/plugin/localeData';
-import { fetchEvents } from '../../services/api/eventService'; // Import your API function
-import './customCalendarStyles.css'; // Import your custom styles
+import { fetchEvents } from '../../services/api/eventService';
+import './customCalendarStyles.css';
 import { useTheme } from '../../utils/ThemeContext';
 
-// Extend dayjs to use locale data
 dayjs.extend(dayLocaleData);
 
 const AntCalendar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [events, setEvents] = useState([]);
-  const [groupedEvents, setGroupedEvents] = useState({}); // Grouped events by month for year view
-  const [allEvents, setAllEvents] = useState([]); // State to store all events
-  const [selectedMonth, setSelectedMonth] = useState(null); // State to track the selected month
-  const [selectedYear, setSelectedYear] = useState(null); // State to track the selected year
-  const [viewType, setViewType] = useState('month'); // State for the current view (month/year)
+  const [groupedEvents, setGroupedEvents] = useState({});
+  const [allEvents, setAllEvents] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [viewType, setViewType] = useState('month');
   const { theme, currentTheme } = useTheme();
 
-  // Fetch all events on component mount
   useEffect(() => {
     const fetchAllEvents = async () => {
       try {
@@ -35,7 +33,6 @@ const AntCalendar = () => {
     fetchAllEvents();
   }, []);
 
-  // Function to fetch events for the selected date
   const fetchEventsForDate = (date) => {
     const dateEvents = allEvents.filter(
       (event) => event.event_date === date.format('YYYY-MM-DD')
@@ -43,49 +40,43 @@ const AntCalendar = () => {
     setEvents(dateEvents);
   };
 
-  // Function to fetch events for the selected month
   const fetchEventsForMonth = (month, year) => {
     const monthEvents = allEvents.filter((event) => {
-      const eventDate = dayjs(event.event_date); // Parse event date
-      return eventDate.month() === month && eventDate.year() === year; // Match month and year
+      const eventDate = dayjs(event.event_date);
+      return eventDate.month() === month && eventDate.year() === year;
     });
-    setEvents(monthEvents); // Set all events for the month
+    setEvents(monthEvents);
   };
 
-  // Function to fetch events for the entire year
   const fetchEventsForYear = (year) => {
     const yearEvents = allEvents.filter((event) => {
-      const eventDate = dayjs(event.event_date); // Parse event date
-      return eventDate.year() === year; // Match the year
+      const eventDate = dayjs(event.event_date);
+      return eventDate.year() === year;
     });
-    setEvents(yearEvents); // Set all events for the year
+    setEvents(yearEvents);
   };
 
-  // Fetch events for a specific year and group them by month
   const fetchAndGroupEventsByYear = (year) => {
     const yearEvents = allEvents.filter((event) => {
       const eventDate = dayjs(event.event_date);
       return eventDate.year() === year;
     });
 
-    // Group events by month
     const grouped = yearEvents.reduce((acc, event) => {
-      const month = dayjs(event.event_date).month(); // Get month index (0-11)
+      const month = dayjs(event.event_date).month();
       if (!acc[month]) acc[month] = [];
       acc[month].push(event);
       return acc;
     }, {});
 
     setGroupedEvents(grouped);
-    setEvents(yearEvents); // Save all year events for the modal
+    setEvents(yearEvents);
   };
 
-  // Handle date click
   const onDateClick = (date) => {
     fetchEventsForDate(date);
     setSelectedDate(date);
   
-    // Ensure selectedYear is set when a date is clicked
     const selectedYear = date.year();
     const selectedMonth = date.month();
     setSelectedYear(selectedYear);
@@ -94,37 +85,33 @@ const AntCalendar = () => {
     const hasEvents = allEvents.some(
       (event) => event.event_date === date.format('YYYY-MM-DD')
     );
-    setIsModalOpen(hasEvents); // Open modal only if there are events
+    setIsModalOpen(hasEvents);
   };  
 
-  // Handle month select
   const onMonthSelect = (newMonth, currentYear) => {
     setSelectedMonth(newMonth);
     setSelectedYear(currentYear);
-    fetchEventsForMonth(newMonth, currentYear); // Fetch all events for the month and year
+    fetchEventsForMonth(newMonth, currentYear);
     const hasEvents = allEvents.some((event) => {
       const eventDate = dayjs(event.event_date);
       return eventDate.month() === newMonth && eventDate.year() === currentYear;
     });
-    setIsModalOpen(hasEvents); // Open modal only if there are events
+    setIsModalOpen(hasEvents);
   };
 
-  // Handle year select
   const onYearSelect = (newYear) => {
     setSelectedYear(newYear);
-    setSelectedMonth(null); // Reset month selection when a new year is selected
-    fetchAndGroupEventsByYear(newYear); // Fetch and group events for the year
-    setIsModalOpen(true); // Automatically open the modal
+    setSelectedMonth(null);
+    fetchAndGroupEventsByYear(newYear);
+    setIsModalOpen(true);
   };
 
-  // Handle modal close
   const handleModalClose = () => {
     setIsModalOpen(false);
     setEvents([]);
     setGroupedEvents({});
   };
 
-  // Function to render tooltips on dates
   const cellRender = (date) => {
     const dateKey = date.format('YYYY-MM-DD');
     const dateEvents = allEvents.filter((event) => event.event_date === dateKey);
@@ -145,24 +132,21 @@ const AntCalendar = () => {
     return null;
   };
 
-  // Handle panel change (for switching between views like month/year)
   const onPanelChange = (value, mode) => {
     const currentMonth = value.month();
     const currentYear = value.year();
 
     if (mode === "month" && viewType === "month") {
-      // When in "Month" view, fetch events for the selected month
       setSelectedMonth(currentMonth);
       setSelectedYear(currentYear);
       fetchEventsForMonth(currentMonth, currentYear);
     } else if (mode === "year" && viewType === "year") {
-      // When in "Year" view, fetch events for the entire year
       setSelectedYear(currentYear);
-      fetchEventsForYear(currentYear); // Fetch events for the whole year
+      fetchEventsForYear(currentYear);
     }
   };
 
-  // Render content for the modal when in "Year" view
+
   const renderYearViewModalContent = () => {
     return Object.keys(groupedEvents).map((month) => (
       <div key={month}>
@@ -200,9 +184,9 @@ const AntCalendar = () => {
           '--calendar-border': theme.border,
           '--calendar-radio-checked-bg': theme.primary || theme.text,
           '--calendar-cell-hover-bg': theme.primary ? `${theme.primary}33` : `${theme.text}33`,
-          '--calendar-selected-bg': theme.primary || theme.text,
+          '--calendar-selected-bg': theme.primary || theme.textLight,
           '--calendar-selected-text': theme.componentBackground,
-          '--calendar-today-bg': theme.primary ? theme.primary : theme.text,
+          '--calendar-today-bg': theme.primary ? theme.primary : theme.textLight,
           '--calendar-today-text': theme.componentBackground,
           background: theme.componentBackground,
         })
@@ -287,12 +271,11 @@ const AntCalendar = () => {
         onPanelChange={onPanelChange}
       />
 
-      {/* Modal for displaying events */}
       <Modal
         title={
           viewType === 'year'
-            ? `Events in ${selectedYear || dayjs().year()}` // Fallback to current year if selectedYear is null
-            : `Events in ${selectedMonth !== null ? dayjs().month(selectedMonth).year(selectedYear).format('MMMM YYYY') : 'Select Month'}` // Add fallback logic for month and year
+            ? `Events in ${selectedYear || dayjs().year()}`
+            : `Events in ${selectedMonth !== null ? dayjs().month(selectedMonth).year(selectedYear).format('MMMM YYYY') : 'Select Month'}`
         }
         open={isModalOpen}
         onCancel={handleModalClose}

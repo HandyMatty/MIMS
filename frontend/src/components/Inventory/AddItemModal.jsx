@@ -41,7 +41,6 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
     if (isAdmin) return adminAuth.userData;
     if (isUser) return userAuth.userData;
 
-    // If no auth store has user data, try cookies
     const username = Cookies.get('username');
     const userId = Cookies.get('user_id');
     if (username && userId) {
@@ -68,7 +67,6 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
   };
 
   const handleStockItemSelect = (item) => {
-    // Only populate form if we're in the stock tab
     if (activeTab !== 'stock') {
       setActiveTab('stock');
     }
@@ -76,7 +74,6 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
     setSelectedStockItem(item);
     
     if (item.action === 'redistribute') {
-      // For redistribute, set quantity to 1 and show original quantity
       form.setFieldsValue({
         type: item.type,
         brand: item.brand,
@@ -93,7 +90,6 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
         serialNumber: item.serialNumber
       });
     } else {
-      // For edit, keep the original quantity
       form.setFieldsValue({
         type: item.type,
         brand: item.brand,
@@ -155,7 +151,6 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
 
       if (selectedStockItem) {
         if (selectedStockItem.action === 'redistribute') {
-          // Handle redistribute logic
           const currentItem = existingInventory.find(invItem => invItem.id === selectedStockItem.id);
           
           if (!currentItem) {
@@ -189,12 +184,11 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
           setSelectedStockItem(null);
           form.resetFields();
         } else {
-          // Handle edit logic
           const itemData = {
             id: selectedStockItem.id,
             type: values.type,
             brand: values.brand,
-            quantity: hasSerialNumber ? 1 : Math.max(1, values.quantity || 1),
+            quantity: values.quantity,
             serialNumber: values.serialNumber || '',
             issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null, 
             purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, 
@@ -211,11 +205,10 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
           form.resetFields();
         }
       } else {
-        // Handle new item logic
         const itemData = {
           type: values.type,
           brand: values.brand,
-          quantity: hasSerialNumber ? 1 : Math.max(1, values.quantity || 1),
+          quantity: values.quantity,
           serialNumber: values.serialNumber,
           issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null, 
           purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, 
@@ -310,9 +303,7 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
     const value = e.target.value.trim();
     setHasSerialNumber(value !== '');
   
-    if (value !== '') {
-      form.setFieldsValue({ quantity: 1 });
-    } else {
+    if (value === '') {
       form.setFieldsValue({ quantity: 1 });
     }
   };
@@ -320,7 +311,6 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
   const handleTabChange = (key) => {
     setActiveTab(key);
     if (key === 'new') {
-      // Clear form and reset state when switching to New Item tab
       form.resetFields();
       setSelectedStockItem(null);
       setHasSerialNumber(false);
@@ -331,6 +321,7 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
   return (
     <>
       <Modal
+        className='overflow-hidden'
         title={
           <div className="text-center">
             <Title level={3} className="mb-0 font-semibold">
@@ -357,13 +348,15 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
         <Tabs 
           activeKey={activeTab} 
           onChange={handleTabChange}
+          type="card"
+          tabBarGutter={1}
           items={[
             {
               key: 'new',
               label: (
-                <div className="flex items-center p-2">
+                <div className="flex items-center">
                   <PlusCircleOutlined />
-                  <span className="font-medium">New Item</span>
+                  <span className="font-medium text-xs">New Item</span>
                 </div>
               ),
               children: (
@@ -384,9 +377,9 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
             {
               key: 'stock',
               label: (
-                <div className="flex items-center p-2">
+                <div className="flex items-center">
                   <SearchOutlined />
-                  <span className="font-medium">On Stock Items</span>
+                  <span className="font-medium text-xs">On Stock Items</span>
                 </div>
               ),
               children: (

@@ -1,5 +1,9 @@
-import { Table, Input, Button, Tag, Space, Tooltip, Card } from 'antd';
+import { Table, Input, Button, Tag, Space, Tooltip, Card, Typography, Pagination } from 'antd';
 import { SearchOutlined, ReloadOutlined, CopyFilled, EditFilled } from '@ant-design/icons';
+import { useMediaQuery } from 'react-responsive';
+import { useState } from 'react';
+
+const { Text } = Typography;
 
 const StockItemsTable = ({ 
   onStockItems, 
@@ -9,11 +13,17 @@ const StockItemsTable = ({
   loading, 
   handleStockItemSelect 
 }) => {
+  const isMobile = useMediaQuery({ maxWidth: 639 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
   const filteredStockItems = onStockItems.filter(item => 
     Object.values(item).some(val => 
       String(val).toLowerCase().includes(searchText.toLowerCase())
     )
   );
+
+  const paginatedData = filteredStockItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const stockColumns = [
     {
@@ -28,14 +38,14 @@ const StockItemsTable = ({
       dataIndex: 'type',
       key: 'type',
       width: '20%',
-      render: (text) => <span className="font-medium">{text}</span>
+      render: (text) => <span className="font-medium text-xs">{text}</span>
     },
     {
       title: 'Brand',
       dataIndex: 'brand',
       key: 'brand',
       width: '20%',
-      render: (text) => <span className="font-medium">{text}</span>
+      render: (text) => <span className="font-medium text-xs">{text}</span>
     },
     {
       title: 'Quantity',
@@ -43,7 +53,7 @@ const StockItemsTable = ({
       key: 'quantity',
       width: '15%',
       render: (text) => (
-        <Tag color={text > 5 ? 'green' : text > 1 ? 'orange' : 'red'}>
+        <Tag color={text > 5 ? 'green' : text > 1 ? 'orange' : 'red'} className="text-xs">
           {text}
         </Tag>
       )
@@ -55,7 +65,7 @@ const StockItemsTable = ({
       width: '20%',
       render: (text) => (
         <Tooltip title={text}>
-          <span className="truncate block max-w-[200px]">{text}</span>
+          <span className="truncate block max-w-[200px] text-xs">{text}</span>
         </Tooltip>
       )
     },
@@ -92,41 +102,80 @@ const StockItemsTable = ({
 
   return (
     <Card className="shadow-lg border-0 mb-2">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-4">
+      <div className={isMobile ? "flex flex-col gap-2 mb-4" : "flex justify-between items-center mb-4"}>
+        <div className={isMobile ? "w-full" : "flex items-center gap-4"}>
           <Input
             placeholder="Search items..."
             prefix={<SearchOutlined />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            style={{ width: 300 }}
+            style={isMobile ? { width: '100%' } : { width: 300 }}
             allowClear
             size="small"
+            className="text-xs"
           />
         </div>
         <Button
-        type='primary'
+          type='primary'
           icon={<ReloadOutlined />}
           onClick={fetchOnStockItems}
           size="small"
-          style={{backgroundColor: 'var(--theme-card-head-bg, #a7f3d0)', color: 'black'}}
+          style={isMobile ? { width: '100%', marginTop: 0, backgroundColor: 'var(--theme-card-head-bg, #a7f3d0)', color: 'black' } : { backgroundColor: 'var(--theme-card-head-bg, #a7f3d0)', color: 'black' }}
+          className="text-xs custom-button"
         >
           Refresh
         </Button>
       </div>
       <Table
-        dataSource={filteredStockItems}
+        bordered
+        dataSource={paginatedData}
         columns={stockColumns}
         rowKey="id"
-        size="middle"
-        pagination={{ 
-          pageSize: 5,
-          showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`
-        }}
-        scroll={{ y: 400 }}
+        size="small"
+        pagination={false}
+        scroll={isMobile ? { x: 'max-content', y: 400 } : { y: 400 }}
         loading={loading}
+        className="text-xs"
+        expandable={isMobile ? {
+          expandedRowRender: (record) => (
+            <div className="text-xs space-y-1">
+              <div><b>ID:</b> {record.id}</div>
+              <div><b>Type:</b> {record.type}</div>
+              <div><b>Brand:</b> {record.brand}</div>
+              <div><b>Quantity:</b> {record.quantity}</div>
+              <div><b>Location:</b> {record.location}</div>
+              <div><b>Remarks:</b> {record.remarks}</div>
+              <div><b>Serial Number:</b> {record.serialNumber}</div>
+              <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>
+              <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>
+              <div><b>Condition:</b> {record.condition}</div>
+              <div><b>Status:</b> {record.status}</div>
+            </div>
+          ),
+          rowExpandable: () => true,
+        } : undefined}
       />
+      <div className="flex flex-col items-center mt-4 space-y-2">
+        <Text className="w-full text-xs text-center" style={{ color: '#072C1C' }}>
+          Showing {filteredStockItems.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to {Math.min(currentPage * pageSize, filteredStockItems.length)} of {filteredStockItems.length} entries
+        </Text>
+        <div className="w-full flex justify-center">
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredStockItems.length}
+            showSizeChanger
+            size="small"
+            responsive
+            pageSizeOptions={['5', '10', '15']}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            className="text-xs"
+          />
+        </div>
+      </div>
     </Card>
   );
 };

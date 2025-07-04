@@ -77,7 +77,6 @@ const Calendar = () => {
             <Title level={3} style={currentTheme !== 'default' ? { color: theme.text } : {}}>CALENDAR</Title>
           </Divider>
         </div>
-        {/* Legend Section */}
         <Row gutter={[16, 8]} className="mb-2 justify-center"
          >
           <Col xs={12} sm={6} md={3}>
@@ -127,7 +126,6 @@ const Calendar = () => {
               />
             )}
           />
-          {/* Modal for adding events */}
           <EventModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}

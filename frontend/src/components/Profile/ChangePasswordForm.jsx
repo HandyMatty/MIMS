@@ -27,7 +27,7 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
 
   const handleSave = async () => {
     try {
-      const values = await form.validateFields(); // Validate inputs
+      const values = await form.validateFields();
       const { currentPassword, newPassword } = values;
 
       if (currentPassword === newPassword) {
@@ -35,7 +35,6 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
         return;
       }
 
-      // Determine the current user's username and token
       const username = adminAuth.userData?.username || userAuth.userData?.username;
       if (!username) {
         message.error('User not authenticated!');
@@ -54,9 +53,9 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
 
       if (response.success) {
         message.success('Password changed successfully!');
-        form.resetFields(); // Clear inputs
-        setIsVisible(false); // Close the form
-        onClose(); // Trigger onClose if provided
+        form.resetFields();
+        setIsVisible(false);
+        onClose();
         logUserActivity(username, 'Password', `This user changed password`);
         logUserNotification( 'Password Update', 'Your password was successfully updated.' )
       } else {
@@ -70,8 +69,8 @@ const ChangePasswordForm = ({ onClose = () => {} }) => {
   };
 
   const handleCancel = () => {
-    form.resetFields(); // Clear inputs
-    setIsVisible(false); // Hide the form
+    form.resetFields();
+    setIsVisible(false);
   };
 
   return (

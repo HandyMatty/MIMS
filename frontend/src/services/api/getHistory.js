@@ -1,8 +1,8 @@
-import { axiosAuth } from "../axios"; // Assuming axios is set up correctly
+import { axiosAuth } from "../axios";
 
 export const getHistory = async () => {
   try {
-    const response = await axiosAuth.get('/getHistory.php'); // Fetch history from PHP endpoint
+    const response = await axiosAuth.get('/getHistory.php');
     return response.data;
 } catch (error) {
   console.error("Error fetching history:", error);

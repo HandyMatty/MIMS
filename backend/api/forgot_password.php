@@ -5,7 +5,6 @@ include('database.php');
 $response = array('success' => false, 'message' => 'Invalid request');
 $data = json_decode(file_get_contents('php://input'), true);
 
-// Handle fetching security question
 if (isset($data['username']) && !isset($data['security_answer']) && !isset($data['newPassword'])) {
     $username = $data['username'];
 
@@ -29,7 +28,6 @@ if (isset($data['username']) && !isset($data['security_answer']) && !isset($data
     $stmt->close();
 }
 
-// Handle validating security answer and updating password
 else if (isset($data['username'], $data['security_answer'], $data['newPassword'])) {
     $username = $data['username'];
     $security_answer = $data['security_answer'];
@@ -44,11 +42,9 @@ else if (isset($data['username'], $data['security_answer'], $data['newPassword']
         $stmt->bind_result($storedAnswer);
         $stmt->fetch();
 
-        // Verify the security answer
         if (password_verify($security_answer, $storedAnswer)) {
             $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
-            // Update the user's password
             $updateStmt = $conn->prepare("UPDATE users SET password = ? WHERE username = ?");
             $updateStmt->bind_param("ss", $hashedNewPassword, $username);
             if ($updateStmt->execute()) {

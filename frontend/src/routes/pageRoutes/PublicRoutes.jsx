@@ -7,7 +7,7 @@ import { useGuestAuthStore } from '../../store/guest/useAuth';
 const PublicRoutes = () => {
   const isAdminAuthenticated = useAdminAuthStore(state => state.isAuthenticated);
   const isUserAuthenticated = useUserAuthStore(state => state.isAuthenticated);
-  const isGuestAuthenticated = useGuestAuthStore(state => state.isAuthenticated); // Check guest auth
+  const isGuestAuthenticated = useGuestAuthStore(state => state.isAuthenticated); 
 
   return (
     <Routes>

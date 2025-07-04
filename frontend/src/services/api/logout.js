@@ -18,10 +18,8 @@ export const logoutUser = async (role) => {
 
     const token = authData.state.token;
 
-    // Send logout request to the server
     await axiosAuth.post("/logout.php", {}, { headers: { Authorization: `Bearer ${token}` } });
 
-    // Clear stored data regardless of response
     clearAuthData(role, authData.state.username);
 
     return { success: true };
@@ -32,17 +30,15 @@ export const logoutUser = async (role) => {
 };
 
 
-// ✅ Clear all storage and cookies
 const clearAuthData = (role, username) => {
-  sessionStorage.clear(); // Clear sessionStorage completely
-  localStorage.clear();   // Clear localStorage completely
+  sessionStorage.clear(); 
+  localStorage.clear();  
 
   if (username) {
-    Cookies.remove(`authToken_${username}`, { path: '/' }); // Remove user-specific cookie
+    Cookies.remove(`authToken_${username}`, { path: '/' }); 
   }
-  Cookies.remove("authToken", { path: '/' }); // Remove global auth token cookie
+  Cookies.remove("authToken", { path: '/' }); 
 
-  // Reset Zustand stores
   if (role === "admin") useAdminAuthStore.getState().reset();
   if (role === "user") useUserAuthStore.getState().reset();
   if (role === "guest") useGuestAuthStore.getState().reset();

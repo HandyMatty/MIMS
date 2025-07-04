@@ -12,7 +12,6 @@ if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
 
 $token = $matches[1];
 
-// Find the user by token
 $stmt = $conn->prepare("SELECT id, username FROM users WHERE token = ?");
 $stmt->bind_param("s", $token);
 $stmt->execute();
@@ -27,7 +26,6 @@ $stmt->bind_result($id, $username);
 $stmt->fetch();
 $stmt->close();
 
-// Invalidate session and reset lockout
 $upd = $conn->prepare("
     UPDATE users
     SET token            = NULL,
@@ -41,7 +39,6 @@ $upd->bind_param("i", $id);
 $upd->execute();
 $upd->close();
 
-// Remove the auth-token cookie
 setcookie("authToken_{$username}", '', time() - 3600, '/', '', true, false);
 
 echo json_encode(['success' => true, 'message' => 'Logged out successfully']);

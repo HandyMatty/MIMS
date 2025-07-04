@@ -2,11 +2,9 @@
 include('cors.php');  
 include('database.php');
 
-// Get Authorization header
 $headers = getallheaders();
 $token = str_replace('Bearer ', '', $headers['Authorization'] ?? '');
 
-// Validate token and get user ID and role
 $stmt = $conn->prepare("SELECT id, role FROM users WHERE token = ?");
 $stmt->bind_param("s", $token);
 $stmt->execute();
@@ -19,7 +17,6 @@ if ($stmt->num_rows === 1) {
     $data = json_decode(file_get_contents("php://input"), true);
     $eventId = $data['id'];
 
-    // Check if the user is the event owner or an admin
     $eventCheckStmt = $conn->prepare("SELECT user_id FROM calendar_events WHERE id = ?");
     $eventCheckStmt->bind_param("i", $eventId);
     $eventCheckStmt->execute();
@@ -30,7 +27,6 @@ if ($stmt->num_rows === 1) {
         $eventCheckStmt->fetch();
 
         if ($role === 'admin' || $eventOwnerId === $userId) {
-            // Perform the delete operation
             $stmtDelete = $conn->prepare("DELETE FROM calendar_events WHERE id = ?");
             $stmtDelete->bind_param("i", $eventId);
             

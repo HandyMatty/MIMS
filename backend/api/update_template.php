@@ -2,7 +2,6 @@
 include('cors.php');
 include('database.php');
 
-// Get the template ID from the URL
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 if (!$id) {
@@ -11,10 +10,8 @@ if (!$id) {
     exit;
 }
 
-// Get the PUT data
 $data = json_decode(file_get_contents("php://input"), true);
 
-// Validate required fields
 $required_fields = ['template_name', 'type', 'brand', 'condition', 'status', 'location'];
 foreach ($required_fields as $field) {
     if (!isset($data[$field]) || empty($data[$field])) {
@@ -24,7 +21,6 @@ foreach ($required_fields as $field) {
     }
 }
 
-// Sanitize input
 $template_name = htmlspecialchars($data['template_name']);
 $type = htmlspecialchars($data['type']);
 $brand = htmlspecialchars($data['brand']);
@@ -37,7 +33,6 @@ $serial_number = htmlspecialchars($data['serialNumber'] ?? null);
 $purchase_date = htmlspecialchars($data['purchaseDate'] ?? null);
 $issued_date = htmlspecialchars($data['issuedDate'] ?? null);
 
-// Check if template name already exists (excluding current template)
 $checkQuery = "SELECT COUNT(*) FROM saved_templates WHERE template_name = ? AND id != ?";
 $checkStmt = $conn->prepare($checkQuery);
 $checkStmt->bind_param("si", $template_name, $id);
@@ -52,7 +47,6 @@ if ($templateCount > 0) {
     exit;
 }
 
-// Update the template
 $stmt = $conn->prepare("UPDATE saved_templates 
     SET template_name = ?, 
         type = ?, 

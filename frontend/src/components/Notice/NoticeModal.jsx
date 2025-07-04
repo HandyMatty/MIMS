@@ -3,7 +3,6 @@ import { useState, memo, useCallback } from 'react';
 
 const { Title, Text, Paragraph } = Typography;
 
-// Memoize the contact information section
 const ContactInfo = memo(() => (
   <Paragraph>
     <Text strong>Contact Information:</Text><br />
@@ -28,7 +27,7 @@ const ContactInfo = memo(() => (
 ContactInfo.displayName = 'ContactInfo';
 
 const NoticeModal = () => {
-  const [isVisible, setIsVisible] = useState(true); // Set to true by default
+  const [isVisible, setIsVisible] = useState(true);
 
   const handleOk = useCallback(() => {
     setIsVisible(false);
@@ -47,7 +46,7 @@ const NoticeModal = () => {
       closable={false}
       maskClosable={false}
       centered
-      destroyOnClose
+      destroyOnHidden
     >
       <Title level={4}>Welcome to the System!</Title>
 

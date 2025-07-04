@@ -31,7 +31,6 @@ const useTemplateManagement = (onTemplateSelect) => {
       const response = await getTemplates();
       if (response.success) {
         setUserTemplates(response.templates);
-        // Reset selection if needed
         if (selectedCategory === 'User Templates') {
           setSelectedCategory(null);
           setSelectedType(null);

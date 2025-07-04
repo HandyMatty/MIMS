@@ -123,7 +123,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         dataIndex: 'quantity',
         key: 'quantity',
         align: 'center',
-        width: '70px',
+        width: '80px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
         sorter: (a, b) => a.quantity - b.quantity,
@@ -166,7 +166,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         key: "purchase_date",
         align: "center",
         sorter: true,
-        width: '110px',
+        width: '120px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
         render: (text) => <HighlightText text={text} searchTerm={searchTerm} />

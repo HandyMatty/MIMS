@@ -1,6 +1,6 @@
 import { Badge, Button, Tooltip, Avatar, message } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { deleteEvent } from '../../services/api/eventService'; // Import the deleteEvent API function
+import { deleteEvent } from '../../services/api/eventService';
 import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
 
@@ -12,12 +12,10 @@ const EventList = ({ currentDate, info, events, showModal, isAdmin, currentUser,
     const dateKey = currentDate.format('YYYY-MM-DD');
     const listData = events[dateKey] || [];
 
-    // Handle event deletion
     const handleDeleteEvent = (eventItem) => {
       deleteEvent(eventItem.id)
         .then((response) => {
           if (response.success) {
-            // Remove the deleted event from the state directly
             setEvents((prevEvents) => {
               const updatedEvents = { ...prevEvents };
               const updatedList = updatedEvents[dateKey].filter((e) => e.id !== eventItem.id);
@@ -27,11 +25,10 @@ const EventList = ({ currentDate, info, events, showModal, isAdmin, currentUser,
 
             message.success('Event deleted successfully!');
 
-            // Log user activity with event details
             logUserActivity(
-              currentUser?.username || 'Unknown User', // Use the current user's username
+              currentUser?.username || 'Unknown User',
               'Event',
-              `Deleted an event: "${eventItem.content}"` // Log the event description
+              `Deleted an event: "${eventItem.content}"` 
             );
             logUserNotification ( 'Event Deleted',
               `Deleted an event: "${eventItem.content}"`);

@@ -6,6 +6,6 @@ export const forgotPasswordApi = async (payload) => {
     return response.data;
   } catch (error) {
     console.error('Forgot Password API Error:', error);
-    throw error; // Propagate the error to the caller
+    throw error;
   }
 };

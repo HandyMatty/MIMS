@@ -1,30 +1,43 @@
 import { useInventoryTable } from '../../hooks/useInventoryTable';
-import { Table, Select, Input, Button, Typography, Pagination, Tooltip, Card, Tabs, Dropdown, Space } from 'antd';
-import { SearchOutlined, ReloadOutlined, DownOutlined, FilterOutlined, ControlOutlined, DeleteOutlined, PrinterOutlined } from '@ant-design/icons';
+import { Table, Select, Input, Button, Typography, Pagination, Tooltip, Card, Tabs, Dropdown, Space, App } from 'antd';
+import { SearchOutlined, ReloadOutlined, DownOutlined, FilterOutlined, ControlOutlined, DeleteOutlined, PrinterOutlined, ToolOutlined } from '@ant-design/icons';
 import AddItemModal from './AddItemModal'; 
 import EditItemModal from './EditItemModal';
 import RedistributeItemModal from './RedistributeItemModal';
+import BatchAddItemModal from './BatchAddItemModal';
+import BatchEditItemModal from './BatchEditItemModal';
+import BatchItemPickerModal from './BatchItemPickerModal';
+import BatchDeleteItemModal from './BatchDeleteItemModal';
+import BatchPrintItemModal from './BatchPrintItemModal';
 import { columns } from './inventoryTableColumns';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import debounce from 'lodash/debounce';
 import { useMediaQuery } from 'react-responsive';
 import { handlePrint as printUtilsHandlePrint } from '../../utils/printUtils';
+import batchEditItems from '../../services/api/batchEditItems';
+import batchAddItems from '../../services/api/batchAddItems';
+import batchDeleteItems from '../../services/api/batchDeleteItems';
 
 const { Option } = Select;
 
-const tabOptions = [
-  { key: 'default', label: 'Default' },
-  { key: 'issuedDate', label: 'Issued Date' },
-  { key: 'purchaseDate', label: 'Purchased Date' },
-];
 
 const InventoryTable = () => {
+  const { message } = App.useApp();
   const [tableKey, setTableKey] = useState(0);
   const [searchColumn, setSearchColumn] = useState('all');
   const [localFilteredData, setLocalFilteredData] = useState([]);
   const [filterActive, setFilterActive] = useState(false);
-  const [mobileTab, setMobileTab] = useState('default');
+  const [mobileTab] = useState('default');
   const isMobile = useMediaQuery({ maxWidth: 639 });
+  const [isBatchAddModalVisible, setIsBatchAddModalVisible] = useState(false);
+  const [isBatchEditModalVisible, setIsBatchEditModalVisible] = useState(false);
+  const [batchEditLoading, setBatchEditLoading] = useState(false);
+  const [isBatchItemPickerVisible, setIsBatchItemPickerVisible] = useState(false);
+  const [batchEditSelectedItems, setBatchEditSelectedItems] = useState([]);
+  const [isBatchDeleteModalVisible, setIsBatchDeleteModalVisible] = useState(false);
+  const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
+  const [isBatchPrintModalVisible, setIsBatchPrintModalVisible] = useState(false);
+  const [batchPrintLoading, setBatchPrintLoading] = useState(false);
 
   const {
     searchText,
@@ -55,18 +68,25 @@ const InventoryTable = () => {
     handleAddItem,
     handleEdit,
     handleEditItem,
-    handleBatchDelete,
     handleTabChange,
     rowSelection,
     dataSource,
     selectedRowKeys,
+    setSelectedRowKeys,
     handleRefresh,
   } = useInventoryTable();
+
+  useEffect(() => {
+    if (!isBatchEditModalVisible) {
+      setSelectedRowKeys([]);
+    }
+  }, [isBatchEditModalVisible, setSelectedRowKeys]);
 
   const handlePrint = () => {
     const selectedItems = dataSource.filter(item => selectedRowKeys.includes(item.id));
     if (selectedItems.length > 0) {
       printUtilsHandlePrint(selectedItems);
+      setSelectedRowKeys([]);
     }
   };
 
@@ -133,7 +153,7 @@ const InventoryTable = () => {
     });
   }, [activeTab, mobileTab, isMobile]);
 
-  const getColumnMenu = (tab) => ({
+  const getColumnMenu = () => ({
     items: searchableColumnsForTab.map(column => ({
       key: column.key,
       label: (
@@ -155,6 +175,96 @@ const InventoryTable = () => {
     handleRefresh();
   };
 
+  const handleBatchEdit = async (items) => {
+    setBatchEditLoading(true);
+    try {
+      await batchEditItems(items);
+      setIsBatchEditModalVisible(false);
+      setBatchEditSelectedItems([]);
+      handleFullRefresh();
+    } catch (e) {
+    } finally {
+      setBatchEditLoading(false);
+    }
+  };
+
+  const handleBatchAdd = async (items) => {
+    try {
+
+      const response = await batchAddItems(items);
+      if (response && response.results) {
+        const successCount = response.results.filter(r => r.success).length;
+        if (successCount > 0) {
+          message.success('Batch add completed successfully!');
+        } else {
+          message.error('Batch add failed.');
+        }
+      } else {
+        message.error('Batch add failed.');
+      }
+      setIsBatchAddModalVisible(false);
+      handleFullRefresh();
+    } catch (e) {
+      message.error('Batch add failed.');
+    } finally {
+    }
+  };
+
+  const handleBatchDelete = async (items) => {
+    setBatchDeleteLoading(true);
+    try {
+      const ids = items.map(item => item.id);
+      const response = await batchDeleteItems(ids);
+      if (response && response.results) {
+        const successCount = response.results.filter(r => r.success).length;
+        if (successCount > 0) {
+          message.success(`${successCount} item(s) deleted successfully!`);
+        } else {
+          message.error('Batch delete failed.');
+        }
+      } else {
+        message.error('Batch delete failed.');
+      }
+      setIsBatchDeleteModalVisible(false);
+      handleFullRefresh();
+    } catch (e) {
+      message.error('Batch delete failed.');
+    } finally {
+      setBatchDeleteLoading(false);
+    }
+  };
+
+  const handleBatchPrint = async (items) => {
+    setBatchPrintLoading(true);
+    try {
+      printUtilsHandlePrint(items);
+      setIsBatchPrintModalVisible(false);
+    } catch (e) {
+      message.error('Batch print failed.');
+    } finally {
+      setBatchPrintLoading(false);
+    }
+  };
+
+  const handleBatchMenuClick = ({ key }) => {
+    if (key === 'batchAdd') {
+      setIsBatchAddModalVisible(true);
+    } else if (key === 'batchEdit') {
+      setIsBatchItemPickerVisible(true);
+    } else if (key === 'batchDelete') {
+      setIsBatchDeleteModalVisible(true);
+    } else if (key === 'batchPrint') {
+      setIsBatchPrintModalVisible(true);
+    }
+  };
+
+  const batchMenuItems = [
+    { key: 'batchAdd', label: 'Batch Add' },
+    { key: 'batchEdit', label: <span style={{color: 'blue'}}>Batch Edit</span> },
+    { key: 'batchDelete', label: <span style={{ color: 'red' }}>Batch Delete</span>, danger: true },
+    { key: 'batchPrint', label: <span style={{ color: 'green' }}>Batch Print</span> },
+  ];
+
   return (
     <Card
       title={
@@ -164,61 +274,7 @@ const InventoryTable = () => {
       }
       className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none"
     >
-      <div className="block sm:hidden mb-4">
-        <Select
-          value={mobileTab}
-          onChange={setMobileTab}
-          className="w-full transparent-select"
-          size="small"
-        >
-          {tabOptions.map(tab => (
-            <Option key={tab.key} value={tab.key}>
-              <span className='text-xs'>{tab.label}</span>
-            </Option>
-          ))}
-        </Select>
-        <div className="w-auto overflow-x-auto mt-4">
-          <Table
-            key={tableKey}
-            rowSelection={rowSelection}
-            rowKey="id"
-            dataSource={filteredData}
-            columns={columns(handleEdit, handleRedistribute, sortOrder, userRole, mobileTab, searchText)}
-            pagination={false}
-            bordered
-            onChange={handleTableChange}
-            scroll={{ x: "max-content", y: 600 }}
-            loading={isLoading}
-            responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
-            expandable={{
-              expandedRowRender: (record) => (
-                <div className="text-xs space-y-1">
-                  <div><b>ID:</b> {record.id}</div>
-                  <div><b>Type:</b> {record.type}</div>
-                  <div><b>Brand:</b> {record.brand}</div>
-                  <div><b>Quantity:</b> {record.quantity}</div>
-                  <div><b>Remarks:</b> {record.remarks}</div>
-                  <div><b>Serial Number:</b> {record.serialNumber}</div>
-                  {mobileTab === 'issuedDate' && <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>}
-                  {mobileTab === 'purchaseDate' && <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>}
-                  {mobileTab === 'default' && (
-                    <>
-                      <div><b>Issued Date:</b> {record.issuedDate || 'NO DATE'}</div>
-                      <div><b>Purchased Date:</b> {record.purchaseDate || 'NO DATE'}</div>
-                    </>
-                  )}
-                  <div><b>Condition:</b> {record.condition}</div>
-                  <div><b>Detachment/Office:</b> {record.location}</div>
-                  <div><b>Status:</b> {record.status}</div>
-                </div>
-              ),
-              rowExpandable: () => true,
-            }}
-            className="text-xs"
-          />
-        </div>
-      </div>
-      <div className="hidden sm:block">
+      <div className="overflow-auto">
         <Tabs
           defaultActiveKey="default"
           activeKey={activeTab}
@@ -233,51 +289,71 @@ const InventoryTable = () => {
               children: (
                 <>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
-                    <Dropdown menu={getColumnMenu('default')} trigger={['click']} className="border-black text-xs sm:block hidden theme-aware-dropdown-btn">
-                    <Button 
-                    type="text"
-                        className="flex items-center"
-                  >
-                    <FilterOutlined className="text-xs" />
-                        <Space>
-                          {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                        </Space>
-                        <DownOutlined className='align-middle ml-1' />
-                      </Button>
-                    </Dropdown>
-                    <Input
-                      placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
-                      prefix={<SearchOutlined />}
-                      value={searchText}
-                      onChange={handleSearch}
-                      className="ml-1 w-auto sm:w-auto border-black text-xs"
-                      suffix={
-                        searchText ? (
-                          <Button
-                            type="text"
-                            size="small"
-                            onClick={() => {
-                              setSearchText('');
-                              setFilterActive(false);
-                            }}
-                            className="text-xs"
-                          >
-                            ×
-                          </Button>
-                        ) : null
-                      }
-                    />
-                    <div className="flex items-center gap-2">
+                    <div className={isMobile ? "flex flex-row flex-wrap gap-1 mb-2" : "flex items-center gap-2"}>
+                      <Dropdown menu={getColumnMenu('default')} trigger={['click']} className={isMobile ? "border-black text-xs block theme-aware-dropdown-btn" : "border-black text-xs sm:block hidden theme-aware-dropdown-btn"}>
+                        <Button 
+                          type="text"
+                          className={isMobile ? "flex items-center p-1 h-7 text-xs" : "flex items-center"}
+                          size="small"
+                        >
+                          <FilterOutlined className="text-xs" />
+                          <Space>
+                            {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
+                          </Space>
+                          <DownOutlined className='align-middle ml-1' />
+                        </Button>
+                      </Dropdown>
+                      <Input
+                        placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
+                        prefix={<SearchOutlined />}
+                        value={searchText}
+                        onChange={handleSearch}
+                        className={isMobile ? "ml-1 w-24 border-black text-xs h-7" : "ml-1 w-auto sm:w-auto border-black text-xs"}
+                        size="small"
+                        suffix={
+                          searchText ? (
+                            <Button
+                              type="text"
+                              size="small"
+                              onClick={() => {
+                                setSearchText('');
+                                setFilterActive(false);
+                              }}
+                              className="text-xs p-0"
+                            >
+                              ×
+                            </Button>
+                          ) : null
+                        }
+                      />
                       <Tooltip title="Actions">
                         {(isAdmin || userRole === 'user') && (
                           <Button
                             type="text"
                             icon={<ControlOutlined />}
                             onClick={() => setIsModalVisible(true)}
-                            className="text-xs"
+                            className={isMobile ? "text-xs p-1 h-7" : "text-xs"}
+                            size="small"
                           />
                         )}
                       </Tooltip>
+                    <Dropdown
+                      menu={{
+                        items: batchMenuItems,
+                        onClick: handleBatchMenuClick,
+                      }}
+                      trigger={["click"]}
+                    >
+                    <Tooltip title="Batch Actions">
+                          <Button
+                            type="text"
+                        icon={<ToolOutlined />}
+                            className={isMobile ? "text-xs p-1 h-7" : "text-xs"}
+                            size="small"
+                      >
+                      </Button>
+                        </Tooltip>
+                    </Dropdown>
                       {isAdmin && (
                         <Tooltip title="Delete">
                           <Button
@@ -286,13 +362,14 @@ const InventoryTable = () => {
                             danger
                             disabled={selectedRowKeys.length === 0}
                             onClick={handleBatchDelete}
-                            className="text-xs"
+                            className={isMobile ? "text-xs p-1 h-7" : "text-xs"}
+                            size="small"
                           />
                         </Tooltip>
                       )}
                       <Select
                         value={sortOrder}
-                        className="w-auto text-xs transparent-select"
+                        className={isMobile ? "w-20 text-xs transparent-select h-7" : "w-auto text-xs transparent-select"}
                         onChange={handleSortOrderChange}
                         size="small"
                       >
@@ -301,7 +378,7 @@ const InventoryTable = () => {
                       </Select>
                       <Button 
                         onClick={handleFullRefresh} 
-                        className="custom-button w-auto text-xs"
+                        className={isMobile ? "custom-button w-16 text-xs p-1 h-7" : "custom-button w-auto text-xs"}
                         type="default"
                         size="small"
                         icon={<ReloadOutlined />}
@@ -312,7 +389,7 @@ const InventoryTable = () => {
                         onClick={handlePrint}
                         icon={<PrinterOutlined />}
                         size='small'
-                        className="custom-button w-auto text-xs"
+                        className={isMobile ? "custom-button w-16 text-xs p-1 h-7" : "custom-button w-auto text-xs"}
                         disabled={!selectedRowKeys || selectedRowKeys.length === 0}
                       >
                         <span className="text-xs">Print</span>
@@ -362,51 +439,71 @@ const InventoryTable = () => {
               children: (
                 <>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
-                    <Dropdown menu={getColumnMenu('issueddate')} trigger={['click']} className="border-black text-xs sm:block hidden theme-aware-dropdown-btn">
-                    <Button 
-                    type="text"
-                    className="flex items-center"
-                  >
-                    <FilterOutlined className="text-xs" />
-                        <Space>
-                          {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                        </Space>
-                        <DownOutlined className='align-middle ml-1' />
-                      </Button>
-                    </Dropdown>
-                    <Input
-                      placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
-                      prefix={<SearchOutlined />}
-                      value={searchText}
-                      onChange={handleSearch}
-                      className="ml-1 w-auto sm:w-auto border-black text-xs"
-                      suffix={
-                        searchText ? (
-                          <Button
-                            type="text"
-                            size="small"
-                            onClick={() => {
-                              setSearchText('');
-                              setFilterActive(false);
-                            }}
-                            className="text-xs"
-                          >
-                            ×
-                          </Button>
-                        ) : null
-                      }
-                    />
-                    <div className="flex items-center gap-2">
+                    <div className={isMobile ? "flex flex-row flex-wrap gap-1 mb-2" : "flex items-center gap-2"}>
+                      <Dropdown menu={getColumnMenu('issueddate')} trigger={['click']} className={isMobile ? "border-black text-xs block theme-aware-dropdown-btn" : "border-black text-xs sm:block hidden theme-aware-dropdown-btn"}>
+                        <Button 
+                          type="text"
+                          className={isMobile ? "flex items-center p-1 h-7 text-xs" : "flex items-center"}
+                          size="small"
+                        >
+                          <FilterOutlined className="text-xs" />
+                          <Space>
+                            {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
+                          </Space>
+                          <DownOutlined className='align-middle ml-1' />
+                        </Button>
+                      </Dropdown>
+                      <Input
+                        placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
+                        prefix={<SearchOutlined />}
+                        value={searchText}
+                        onChange={handleSearch}
+                        className={isMobile ? "ml-1 w-24 border-black text-xs h-7" : "ml-1 w-auto sm:w-auto border-black text-xs"}
+                        size="small"
+                        suffix={
+                          searchText ? (
+                            <Button
+                              type="text"
+                              size="small"
+                              onClick={() => {
+                                setSearchText('');
+                                setFilterActive(false);
+                              }}
+                              className="text-xs p-0"
+                            >
+                              ×
+                            </Button>
+                          ) : null
+                        }
+                      />
                       <Tooltip title="Actions">
                         {(isAdmin || userRole === 'user') && (
                           <Button
                             type="text"
                             icon={<ControlOutlined />}
                             onClick={() => setIsModalVisible(true)}
-                            className="text-xs"
+                            className={isMobile ? "text-xs p-1 h-7" : "text-xs"}
+                            size="small"
                           />
                         )}
                       </Tooltip>
+                    <Dropdown
+                      menu={{
+                        items: batchMenuItems,
+                        onClick: handleBatchMenuClick,
+                      }}
+                      trigger={["click"]}
+                    >
+                    <Tooltip title="Batch Actions">
+                          <Button
+                            type="text"
+                        icon={<ToolOutlined />}
+                            className={isMobile ? "text-xs p-1 h-7" : "text-xs"}
+                            size="small"
+                      >
+                      </Button>
+                        </Tooltip>
+                    </Dropdown>
                       {isAdmin && (
                         <Tooltip title="Delete">
                           <Button
@@ -415,13 +512,14 @@ const InventoryTable = () => {
                             danger
                             disabled={selectedRowKeys.length === 0}
                             onClick={handleBatchDelete}
-                            className="text-xs"
+                            className={isMobile ? "text-xs p-1 h-7" : "text-xs"}
+                            size="small"
                           />
                         </Tooltip>
                       )}
                       <Select
                         defaultValue="Newest"
-                        className="w-auto text-xs transparent-select"
+                        className={isMobile ? "w-20 text-xs transparent-select h-7" : "w-auto text-xs transparent-select"}
                         onChange={handleSortOrderChange}
                         size="small"
                       >
@@ -430,7 +528,7 @@ const InventoryTable = () => {
                       </Select>
                       <Button 
                         onClick={handleFullRefresh} 
-                        className="custom-button w-auto text-xs"
+                        className={isMobile ? "custom-button w-16 text-xs p-1 h-7" : "custom-button w-auto text-xs"}
                         type="default"
                         size="small"
                         icon={<ReloadOutlined />}
@@ -441,7 +539,7 @@ const InventoryTable = () => {
                         onClick={handlePrint}
                         icon={<PrinterOutlined />}
                         size='small'
-                        className="custom-button w-auto text-xs"
+                        className={isMobile ? "custom-button w-16 text-xs p-1 h-7" : "custom-button w-auto text-xs"}
                         disabled={!selectedRowKeys || selectedRowKeys.length === 0}
                       >
                         <span className="text-xs">Print</span>
@@ -490,51 +588,71 @@ const InventoryTable = () => {
               children: (
                 <>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
-                    <Dropdown menu={getColumnMenu('purchaseDate')} trigger={['click']} className="border-black text-xs sm:block hidden theme-aware-dropdown-btn">
-                    <Button 
-                    type="text"
-                    className="flex items-center"
-                  >
-                    <FilterOutlined className="text-xs" />
-                        <Space>
-                          {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
-                        </Space>
-                        <DownOutlined className='align-middle ml-1' />
-                      </Button>
-                    </Dropdown>
-                    <Input
-                      placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
-                      prefix={<SearchOutlined />}
-                      value={searchText}
-                      onChange={handleSearch}
-                      className="ml-1 w-auto sm:w-auto border-black text-xs"
-                      suffix={
-                        searchText ? (
-                          <Button
-                            type="text"
-                            size="small"
-                            onClick={() => {
-                              setSearchText('');
-                              setFilterActive(false);
-                            }}
-                            className="text-xs"
-                          >
-                            ×
-                          </Button>
-                        ) : null
-                      }
-                    />
-                    <div className="flex items-center gap-2">
+                    <div className={isMobile ? "flex flex-row flex-wrap gap-1 mb-2" : "flex items-center gap-2"}>
+                      <Dropdown menu={getColumnMenu('purchaseDate')} trigger={['click']} className={isMobile ? "border-black text-xs block theme-aware-dropdown-btn" : "border-black text-xs sm:block hidden theme-aware-dropdown-btn"}>
+                        <Button 
+                          type="text"
+                          className={isMobile ? "flex items-center p-1 h-7 text-xs" : "flex items-center"}
+                          size="small"
+                        >
+                          <FilterOutlined className="text-xs" />
+                          <Space>
+                            {searchableColumnsForTab.find(col => col.key === searchColumn)?.label || 'All Columns'}
+                          </Space>
+                          <DownOutlined className='align-middle ml-1' />
+                        </Button>
+                      </Dropdown>
+                      <Input
+                        placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumnsForTab.find(col => col.key === searchColumn)?.label}`}
+                        prefix={<SearchOutlined />}
+                        value={searchText}
+                        onChange={handleSearch}
+                        className={isMobile ? "ml-1 w-24 border-black text-xs h-7" : "ml-1 w-auto sm:w-auto border-black text-xs"}
+                        size="small"
+                        suffix={
+                          searchText ? (
+                            <Button
+                              type="text"
+                              size="small"
+                              onClick={() => {
+                                setSearchText('');
+                                setFilterActive(false);
+                              }}
+                              className="text-xs p-0"
+                            >
+                              ×
+                            </Button>
+                          ) : null
+                        }
+                      />
                       <Tooltip title="Actions">
                         {(isAdmin || userRole === 'user') && (
                           <Button
                             type="text"
                             icon={<ControlOutlined />}
                             onClick={() => setIsModalVisible(true)}
-                            className="text-xs"
+                            className={isMobile ? "text-xs p-1 h-7" : "text-xs"}
+                            size="small"
                           />
                         )}
                       </Tooltip>
+                    <Dropdown
+                      menu={{
+                        items: batchMenuItems,
+                        onClick: handleBatchMenuClick,
+                      }}
+                      trigger={["click"]}
+                    >
+                    <Tooltip title="Batch Actions">
+                          <Button
+                            type="text"
+                        icon={<ToolOutlined />}
+                            className={isMobile ? "text-xs p-1 h-7" : "text-xs"}
+                            size="small"
+                      >
+                      </Button>
+                        </Tooltip>
+                    </Dropdown>
                       {isAdmin && (
                         <Tooltip title="Delete">
                           <Button
@@ -543,13 +661,14 @@ const InventoryTable = () => {
                             danger
                             disabled={selectedRowKeys.length === 0}
                             onClick={handleBatchDelete}
-                            className="text-xs"
+                            className={isMobile ? "text-xs p-1 h-7" : "text-xs"}
+                            size="small"
                           />
                         </Tooltip>
                       )}
                       <Select
                         defaultValue="Newest"
-                        className="w-auto text-xs transparent-select"
+                        className={isMobile ? "w-20 text-xs transparent-select h-7" : "w-auto text-xs transparent-select"}
                         onChange={handleSortOrderChange}
                         size="small"
                       >
@@ -558,7 +677,7 @@ const InventoryTable = () => {
                       </Select>
                       <Button 
                         onClick={handleFullRefresh} 
-                        className="custom-button w-auto text-xs"
+                        className={isMobile ? "custom-button w-16 text-xs p-1 h-7" : "custom-button w-auto text-xs"}
                         type="default"
                         size="small"
                         icon={<ReloadOutlined />}
@@ -569,7 +688,7 @@ const InventoryTable = () => {
                         onClick={handlePrint}
                         icon={<PrinterOutlined />}
                         size='small'
-                        className="custom-button w-auto text-xs"
+                        className={isMobile ? "custom-button w-16 text-xs p-1 h-7" : "custom-button w-auto text-xs"}
                         disabled={!selectedRowKeys || selectedRowKeys.length === 0}
                       >
                         <span className="text-xs">Print</span>
@@ -659,6 +778,44 @@ const InventoryTable = () => {
         onEdit={handleRedistributeItem}
         item={redistributeItemData}
         loading={isLoading}
+      />
+      <BatchAddItemModal
+        visible={isBatchAddModalVisible}
+        onClose={() => setIsBatchAddModalVisible(false)}
+        onBatchAdd={handleBatchAdd}
+        loading={isLoading}
+      />
+      <BatchItemPickerModal
+        visible={isBatchItemPickerVisible}
+        onClose={() => setIsBatchItemPickerVisible(false)}
+        onConfirm={(items) => {
+          setBatchEditSelectedItems(items);
+          setIsBatchItemPickerVisible(false);
+          setIsBatchEditModalVisible(true);
+        }}
+        loading={batchEditLoading}
+      />
+      <BatchEditItemModal
+        visible={isBatchEditModalVisible}
+        onClose={() => {
+          setIsBatchEditModalVisible(false);
+          setBatchEditSelectedItems([]);
+        }}
+        onBatchEdit={handleBatchEdit}
+        loading={batchEditLoading}
+        selectedItems={batchEditSelectedItems}
+      />
+      <BatchDeleteItemModal
+        visible={isBatchDeleteModalVisible}
+        onClose={() => setIsBatchDeleteModalVisible(false)}
+        onConfirm={handleBatchDelete}
+        loading={batchDeleteLoading}
+      />
+      <BatchPrintItemModal
+        visible={isBatchPrintModalVisible}
+        onClose={() => setIsBatchPrintModalVisible(false)}
+        onConfirm={handleBatchPrint}
+        loading={batchPrintLoading}
       />
     </Card>
   );

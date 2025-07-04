@@ -2,11 +2,9 @@
 include('cors.php');  
 include('database.php'); 
 
-// Get Authorization header
 $headers = getallheaders();
 $token = str_replace('Bearer ', '', $headers['Authorization'] ?? '');
 
-// Validate token and get user ID
 $stmt = $conn->prepare("SELECT id, avatar, username FROM users WHERE token = ?");
 $stmt->bind_param("s", $token);
 $stmt->execute();
@@ -16,13 +14,11 @@ if ($stmt->num_rows === 1) {
     $stmt->bind_result($userId, $avatar, $username);
     $stmt->fetch();
 
-    // Decode the incoming JSON data
     $data = json_decode(file_get_contents("php://input"), true);
     $event_date = $data['date'];
     $content = $data['content'];
     $event_type = $data['event_type'];
 
-    // Insert event into the database with the associated user_id
     $stmtInsert = $conn->prepare("INSERT INTO calendar_events (event_date, content, event_type, user_id) VALUES (?, ?, ?, ?)");
     $stmtInsert->bind_param("sssi", $event_date, $content, $event_type, $userId);
 
@@ -30,9 +26,9 @@ if ($stmt->num_rows === 1) {
         echo json_encode([
             'success' => true, 
             'message' => 'Event added successfully', 
-            'id' => $stmtInsert->insert_id,  // Return the new event ID
-            'avatar' => $avatar,             // Return the current user's avatar
-            'username' => $username          // Return the current user's username
+            'id' => $stmtInsert->insert_id,  
+            'avatar' => $avatar,           
+            'username' => $username         
         ]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Failed to add event']);

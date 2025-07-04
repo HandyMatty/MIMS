@@ -1,8 +1,7 @@
 import { Modal, Form, Input, message, Select } from 'antd';
 import { addEvent } from '../../services/api/eventService';
 import { useActivity } from '../../utils/ActivityContext';
-import { useNotification } from '../../utils/NotificationContext';  // Import the Notification context
-
+import { useNotification } from '../../utils/NotificationContext';
 
 const { Option } = Select;
 
@@ -19,18 +18,16 @@ const EventModal = ({ isOpen, onClose, selectedDate, loadEvents }) => {
         event_type: values.color,
       };
 
-      // Add the event using the API
       addEvent(newEvent)
         .then((res) => {
           if (res.success) {
             message.success('Event added successfully!');
             form.resetFields();
-            loadEvents(); // Reload events
+            loadEvents(); 
             onClose();
 
-            // Log user activity after successfully adding an event
             logUserActivity(
-              res.username, // Use the username from the response or context
+              res.username,
               'Event',
               `Added an event: "${values.event}"`
             );

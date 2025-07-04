@@ -4,8 +4,7 @@ include('database.php');
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-// Assign and sanitize input
-$id = (string)$data['id']; // Keep as string since it's a date-based ID
+$id = (string)$data['id'];
 $type = htmlspecialchars($data['type']);
 $brand = htmlspecialchars($data['brand']);
 $serialNumber = isset($data['serialNumber']) && $data['serialNumber'] !== null ? strtoupper(trim($data['serialNumber'])) : '';
@@ -42,23 +41,18 @@ if (!$existingItem) {
     exit();
 }
 
-// Format the purchase dates as YYYYMMDD for easy comparison
 $inputPurchaseDateFormatted = date("Ymd", strtotime($purchaseDate));
 $existingPurchaseDateFormatted = date("Ymd", strtotime($existingItem['purchase_date']));
 
 $existingIdStartsWithDate = str_starts_with((string)$existingItem['id'], $inputPurchaseDateFormatted);
 
-// Check if existing ID uses 4-digit counter after the date
 $needsIdFormatFix = !preg_match('/^' . $inputPurchaseDateFormatted . '\d{4}$/', $existingItem['id']);
 
 if ($inputPurchaseDateFormatted === $existingPurchaseDateFormatted && $existingIdStartsWithDate && !$needsIdFormatFix) {
-    // Keep current ID
     $newItemId = $existingItem['id'];
 } else {
-    // Regenerate ID
     $purchaseDateFormatted = $inputPurchaseDateFormatted;
 
-    // Get the latest item with this date prefix
     $query = "SELECT id FROM inventory WHERE id LIKE ? ORDER BY id DESC LIMIT 1";
     $stmt = $conn->prepare($query);
     $likeParam = $purchaseDateFormatted . "%";
@@ -78,7 +72,6 @@ if ($inputPurchaseDateFormatted === $existingPurchaseDateFormatted && $existingI
     $newItemId = $purchaseDateFormatted . $newCounter;
 }
 
-// Prepare to log changes if any field has been updated
 $changes = [];
 if ($existingItem['id'] !== $newItemId) $changes['Item ID'] = ["old" => $existingItem['id'], "new" => $newItemId];
 if ($existingItem['type'] !== $type) $changes['Type'] = ["old" => $existingItem['type'], "new" => $type];
@@ -102,7 +95,6 @@ if (empty($changes)) {
     exit();
 }
 
-// ✅ Only log if there are real changes
 $fieldChanged = json_encode(array_keys($changes));
 $oldValues = json_encode(array_column($changes, "old"));
 $newValues = json_encode(array_column($changes, "new"));
@@ -136,7 +128,6 @@ $mobile_history_stmt->bind_param(
 $mobile_history_stmt->execute();
 $mobile_history_stmt->close();
 
-// Proceed to update the item in the inventory table
 $update_stmt = $conn->prepare("
     UPDATE inventory 
     SET id = ?, type = ?, brand = ?, serial_number = ?, issued_date = ?, purchase_date = ?, `condition` = ?, location = ?, status = ?, remarks = ?, quantity = ?
@@ -156,9 +147,7 @@ if (!$update_stmt->execute()) {
 }
 $update_stmt->close();
 
-// If the ID changed, update the mobile_history table to reference the new ID
 if ($newItemId !== $existingItem['id']) {
-    // Update the mobile_history table to reference the new ID
     $update_history = $conn->prepare("
         UPDATE mobile_history 
         SET item_id = ? 
@@ -168,7 +157,6 @@ if ($newItemId !== $existingItem['id']) {
     
     if (!$update_history->execute()) {
         error_log("Error updating mobile_history: " . $update_history->error);
-        // Even if this fails, we've already updated the inventory, so we'll just log the error
         error_log("Failed to update mobile_history records after inventory update");
     }
     $update_history->close();

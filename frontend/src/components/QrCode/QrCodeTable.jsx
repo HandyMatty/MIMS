@@ -63,7 +63,6 @@ const QrCodeTable = ({ onItemSelect }) => {
     { key: 'condition', label: 'Condition' },
   ], []);
 
-  // Debounced search handler
   const debouncedSearch = useCallback(
     debounce((value) => {
       if (value === '') {
@@ -125,7 +124,7 @@ const QrCodeTable = ({ onItemSelect }) => {
 
   const handleTableChange = (pagination, filters, sorterObj) => {
     setFilteredInfo(filters);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   const handleQrCodeClick = useCallback((item) => {
@@ -138,7 +137,6 @@ const QrCodeTable = ({ onItemSelect }) => {
     setQrDetails(item);
   }, [onItemSelect]);
 
-  // Filtering logic for Condition and Status
   const filteredData = useMemo(() => {
     let result = filterActive ? localFilteredData : data;
     if (filteredInfo.condition && filteredInfo.condition.length > 0) {
@@ -150,13 +148,11 @@ const QrCodeTable = ({ onItemSelect }) => {
     return result;
   }, [filterActive, localFilteredData, data, filteredInfo]);
 
-  // Apply Newest/Oldest select sort in-memory before paginating
   const sortedBySelect = useMemo(() => {
     const sorted = [...filteredData].sort((a, b) => Number(a.id) - Number(b.id));
     return sortOrder === 'Newest' ? sorted.reverse() : sorted;
   }, [filteredData, sortOrder]);
 
-  // Memoize menu items
   const menuItems = useMemo(() => 
     searchableColumns.map(column => ({
       key: column.key,

@@ -2,7 +2,6 @@
 include('cors.php');  
 include('database.php');
 
-// Fetch all activities with corresponding usernames
 $sql = "SELECT 
             a.id AS id, 
             u.username AS username, 
@@ -15,7 +14,6 @@ $sql = "SELECT
 
 $result = $conn->query($sql);
 
-// Process results
 $activities = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {

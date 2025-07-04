@@ -2,22 +2,18 @@
 include('cors.php');
 include('database.php');
 
-// Get the POST data
 $data = json_decode(file_get_contents("php://input"), true);
 
-// Validate required fields
 if (!isset($data['id'], $data['newQuantity'], $data['newLocation'])) {
     http_response_code(400);
     echo json_encode(["message" => "Missing required fields."]);
     exit();
 }
 
-// Sanitize input
 $id = $data['id'];
 $newQuantity = intval($data['newQuantity']);
 $newLocation = htmlspecialchars(trim($data['newLocation']));
 
-// Fetch existing item
 $query = "SELECT * FROM inventory WHERE id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $id);
@@ -38,13 +34,11 @@ if (intval($existingItem['quantity']) <= 1) {
     exit();
 }
 
-// Now it's safe to use $existingItem
 $status = isset($data['status']) ? htmlspecialchars(trim($data['status'])) : $existingItem['status'];
 $remarks = isset($data['remarks']) ? htmlspecialchars(trim($data['remarks'])) : $existingItem['remarks'];
 $issuedDate = isset($data['issued_date']) ? $data['issued_date'] : $existingItem['issued_date'];
 $condition = isset($data['condition']) ? htmlspecialchars(trim($data['condition'])) : $existingItem['condition'];
 
-// Check quantity
 $remainingQty = intval($existingItem['quantity']) - $newQuantity;
 if ($remainingQty < 0) {
     http_response_code(400);
@@ -52,7 +46,6 @@ if ($remainingQty < 0) {
     exit();
 }
 
-// Update original item quantity
 $updateQuery = "UPDATE inventory SET quantity = ? WHERE id = ?";
 $updateStmt = $conn->prepare($updateQuery);
 $updateStmt->bind_param("is", $remainingQty, $id);
@@ -63,7 +56,6 @@ if (!$updateStmt->execute()) {
 }
 $updateStmt->close();
 
-// Generate new item ID based on purchase date
 $purchaseDateFormatted = date("Ymd", strtotime($existingItem['purchase_date']));
 $likeParam = $purchaseDateFormatted . "%";
 $checkQuery = "SELECT id FROM inventory WHERE id LIKE ? ORDER BY id DESC LIMIT 1";
@@ -82,7 +74,6 @@ if ($lastItemId && preg_match('/^' . $purchaseDateFormatted . '(\d{1,4})$/', $la
 }
 $newItemId = $purchaseDateFormatted . $newCounter;
 
-// Insert new redistributed item
 $insertQuery = "
     INSERT INTO inventory (
         id, type, brand, serial_number, issued_date, purchase_date,
@@ -108,7 +99,6 @@ $insertStmt->bind_param(
 $insertSuccess = $insertStmt->execute();
 $insertStmt->close();
 
-// Log the update of the original item
 $changeField = json_encode(["Quantity"]);
 $oldValue = json_encode([$existingItem['quantity']]);
 $newValue = json_encode([$remainingQty]);
@@ -121,7 +111,6 @@ $logUpdateStmt->bind_param("ssss", $id, $changeField, $oldValue, $newValue);
 $logUpdateStmt->execute();
 $logUpdateStmt->close();
 
-// Log the creation of the new redistributed item as "Added"
 $logAddStmt = $conn->prepare("
     INSERT INTO history (
         action, item_id, type, brand, serial_number, issued_date, purchase_date,

@@ -7,6 +7,7 @@ import { useMediaQuery } from 'react-responsive';
 import { useTheme } from '../../utils/ThemeContext';
 import { ReloadOutlined, PrinterOutlined } from '@ant-design/icons';
 import { handlePrint as printUtilsHandlePrint } from '../../utils/printUtils';
+import BatchPrintItemModal from '../Inventory/BatchPrintItemModal';
 
 const { Option } = Select;
 
@@ -22,8 +23,8 @@ const DashboardTable = ({ searchText }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const isMobile = useMediaQuery({ maxWidth: 639 });
   const { theme, currentTheme } = useTheme();
+  const [isBatchPrintModalVisible, setIsBatchPrintModalVisible] = useState(false);
 
-  // Fetch inventory data
   const fetchInventoryData = useCallback(async () => {
     setLoading(true);
     try {
@@ -58,7 +59,15 @@ const DashboardTable = ({ searchText }) => {
     }
   };
 
-  // Filter the data based on the search text
+  const handleBatchPrint = () => {
+    setIsBatchPrintModalVisible(true);
+  };
+
+  const handleBatchPrintConfirm = (items) => {
+    printUtilsHandlePrint(items);
+    setIsBatchPrintModalVisible(false);
+  };
+
   const filteredData = Array.isArray(dataSource)
     ? dataSource.filter(item =>
         Object.values(item)
@@ -68,7 +77,6 @@ const DashboardTable = ({ searchText }) => {
       )
     : [];
 
-  // Sorting function based on selected sorterConfig
   const sortedData = [...filteredData].sort((a, b) => {
     if (sorterConfig.field && sorterConfig.order) {
       const { field, order } = sorterConfig;
@@ -143,6 +151,14 @@ const DashboardTable = ({ searchText }) => {
         >
           Print
         </Button>
+        <Button
+          onClick={handleBatchPrint}
+          icon={<PrinterOutlined />}
+          size='small'
+          className="custom-button text-xs"
+        >
+          Batch Print
+        </Button>
       </div>
 
       <div className="w-auto overflow-x-auto">
@@ -216,6 +232,12 @@ const DashboardTable = ({ searchText }) => {
         isVisible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         qrDetails={qrDetails}
+      />
+      <BatchPrintItemModal
+        visible={isBatchPrintModalVisible}
+        onClose={() => setIsBatchPrintModalVisible(false)}
+        onConfirm={handleBatchPrintConfirm}
+        loading={loading}
       />
     </div>
   );

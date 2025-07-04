@@ -1,4 +1,3 @@
-/* Container styles for Ant Design Charts */
 .history-bar-graph-container {
   width: 100%;
   height: 400px;
@@ -9,12 +8,10 @@
   padding-bottom: 10px;
   overflow: hidden;
 
-  /* Theme variables with default values */
   --tooltip-bg: #072C1C;
   --tooltip-text: #d4e09a;
 }
 
-/* Tooltip styles for Ant Design Charts */
 .g2-tooltip {
   background-color: var(--tooltip-bg, #072C1C) !important;
   color: var(--tooltip-text, #d4e09a) !important;
@@ -36,7 +33,6 @@
   color: var(--tooltip-text, #d4e09a) !important;
 }
 
-/* Loading spinner */
 .loading-spinner {
   display: flex;
   justify-content: center;

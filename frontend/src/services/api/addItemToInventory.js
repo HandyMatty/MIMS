@@ -1,4 +1,4 @@
-import { axiosAuth } from "../axios"; // Assuming axios is properly set up
+import { axiosAuth } from "../axios";
 
 export const addItemToInventory = async (itemData) => {
   try {
@@ -16,7 +16,7 @@ export const addItemToInventory = async (itemData) => {
   export const getInventoryData = async () => {
     try {
         const response = await axiosAuth.get('/getInventoryData.php');
-        return Array.isArray(response.data) ? response.data : []; // Ensure an array is returned
+        return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
         console.error('Failed to fetch inventory data:', error.message);
         throw error;

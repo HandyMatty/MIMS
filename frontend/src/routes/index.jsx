@@ -3,7 +3,7 @@ import AdminRoutes from './pageRoutes/AdminRoutes';
 import UserRoutes from './pageRoutes/UserRoutes';
 import PublicRoutes from './pageRoutes/PublicRoutes';
 import GuestRoutes from './pageRoutes/GuestRoutes';
-import ErrorPage from '../pages/Error/ErrorPage'; // ✅ Import your error page
+import ErrorPage from '../pages/Error/ErrorPage';
 
 const RootRoutes = () => {
   const router = createBrowserRouter(
@@ -11,7 +11,7 @@ const RootRoutes = () => {
       {
         path: '/admin/*',
         element: <AdminRoutes />,
-        errorElement: <ErrorPage />, // ✅ Show on route errors
+        errorElement: <ErrorPage />,
       },
       {
         path: '/user/*',

@@ -1,11 +1,8 @@
-/* Container styles for Graph */
 .graph-container {
-  /* Theme variables with default values */
   --tooltip-bg: #072C1C;
   --tooltip-text: #d4e09a;
 }
 
-/* Tooltip styles for Graph */
 .g2-tooltip {
   background-color: var(--tooltip-bg, #072C1C) !important;
   color: var(--tooltip-text, #d4e09a) !important;

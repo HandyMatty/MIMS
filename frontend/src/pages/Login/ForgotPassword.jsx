@@ -1,5 +1,5 @@
-import React, { Suspense, useState, useEffect } from 'react';
-import { Button, Form, Input, Typography, message, Spin } from 'antd';
+import { Suspense, useState, useEffect } from 'react';
+import { Button, Form, Input, Typography, App, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { forgotPasswordApi } from '../../services/api/forgotPasswordApi';
 import SINSSILogo from "../../../assets/SINSSI_LOGO-removebg-preview.png";
@@ -10,10 +10,11 @@ import { LazyImage, preloadImages } from '../../utils/imageHelpers.jsx';
 const { Title, Text } = Typography;
 
 const ForgotPassword = ({ className = "" }) => {
+  const { message } = App.useApp();
   useEffect(() => {
     preloadImages([SINSSILogo]);
   }, []);
-  const [step, setStep] = useState(1); // Step 1: Fetch question, Step 2: Validate and update
+  const [step, setStep] = useState(1);
   const [securityQuestion, setSecurityQuestion] = useState('');
   const [username, setUsername] = useState('');
   const navigate = useNavigate();

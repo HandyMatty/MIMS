@@ -16,6 +16,11 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
   const [form] = Form.useForm();
   const [isHeadOffice, setIsHeadOffice] = useState(false);
   const [hasSerialNumber, setHasSerialNumber] = useState(false);
+  const [showSerialModal, setShowSerialModal] = useState(false);
+  const [showQuantityWithSerial, setShowQuantityWithSerial] = useState(false);
+  const [lastSerialValue, setLastSerialValue] = useState('');
+  const [lastSerialModalValue, setLastSerialModalValue] = useState('');
+  const [serialModalShownForCurrentInput, setSerialModalShownForCurrentInput] = useState(false);
   const { message: messageApi } = App.useApp();
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
@@ -29,7 +34,6 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
     if (isAdmin) return adminAuth.userData;
     if (isUser) return userAuth.userData;
 
-    // If no auth store has user data, try cookies
     const username = Cookies.get('username');
     const userId = Cookies.get('user_id');
     if (username && userId) {
@@ -49,11 +53,15 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
         locationType: isHeadOffice ? 'Head Office' : 'Other',
         department: department,
         location: isHeadOffice ? null : item.location,
-        purchaseDate: item.purchaseDate ? dayjs(item.purchaseDate) : undefined,
-        issuedDate: item.issuedDate ? dayjs(item.issuedDate) : undefined
+        purchaseDate: item.purchaseDate && item.purchaseDate !== '0000-00-00' && item.purchaseDate !== '' ? dayjs(item.purchaseDate) : undefined,
+        issuedDate: item.issuedDate && item.issuedDate !== '0000-00-00' && item.issuedDate !== '' ? dayjs(item.issuedDate) : undefined
       });
       setIsHeadOffice(isHeadOffice);
       setHasSerialNumber(!!item.serialNumber);
+      setLastSerialValue(item.serialNumber || '');
+      if (item.serialNumber) {
+        setShowQuantityWithSerial(true);
+      }
     }
   }, [visible, item, form]);
 
@@ -82,7 +90,7 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
         ...item,
         type: values.type,
         brand: values.brand,
-        quantity: hasSerialNumber ? 1 : Math.max(1, values.quantity || 1),
+        quantity: Math.max(1, values.quantity || 1),
         serialNumber: values.serialNumber,
         issuedDate: values.issuedDate ? values.issuedDate.format('YYYY-MM-DD') : null, 
         purchaseDate: values.purchaseDate ? values.purchaseDate.format('YYYY-MM-DD') : null, 
@@ -108,8 +116,6 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
         );
       }
 
-      form.resetFields();
-      onClose();
     } catch (error) {
       console.error(error);
     }
@@ -118,21 +124,56 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
   const handleClose = () => {
     form.resetFields();
     setHasSerialNumber(false);
+    setShowSerialModal(false);
+    setShowQuantityWithSerial(false);
+    setLastSerialValue('');
+    setLastSerialModalValue('');
+    setSerialModalShownForCurrentInput(false);
     onClose();
   };
 
-  const handleSerialChange = (e) => {
-    const value = e.target.value.trim();
+  const onSerialChange = (e) => {
+    const value = e.target.value;
+    setLastSerialValue(value);
     setHasSerialNumber(value !== '');
-  
-    if (value !== '') {
-      form.setFieldsValue({ quantity: 1 });
-    } else {
+    if (value && !showQuantityWithSerial && !serialModalShownForCurrentInput) {
+      setShowSerialModal(true);
+      setLastSerialModalValue(value);
+      setSerialModalShownForCurrentInput(true);
+    }
+    if (value === '') {
+      setShowQuantityWithSerial(false);
+      setLastSerialModalValue('');
+      setSerialModalShownForCurrentInput(false);
       form.setFieldsValue({ quantity: 1 });
     }
   };
 
+  const handleSerialModalOk = () => {
+    setShowQuantityWithSerial(true);
+    setShowSerialModal(false);
+  };
+
+  const handleSerialModalCancel = () => {
+    setShowQuantityWithSerial(false);
+    setShowSerialModal(false);
+    form.setFieldsValue({ quantity: 1 });
+  };
+
   return (
+    <>
+      <Modal
+        open={showSerialModal}
+        onOk={handleSerialModalOk}
+        onCancel={handleSerialModalCancel}
+        title="Serial Number Quantity"
+        okText="Yes"
+        cancelText="No"
+        centered
+      >
+        Does the item you want to edit have only 1 serial number but has many quantities?
+      </Modal>
+      
     <Modal
       title={
         <div className="text-center">
@@ -169,7 +210,6 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
             }}
           >
             <Row gutter={[32, 24]}>
-              {/* LEFT COLUMN */}
               <Col xs={24} md={12}>
                 <div className="space-y-6">
                   <Form.Item
@@ -246,16 +286,26 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
                   >
                     <Input 
                       size="medium"
-                      onChange={handleSerialChange}
+                        onChange={onSerialChange}
                       placeholder="Enter serial number (optional)"
                     />
                   </Form.Item>
 
-                  {!hasSerialNumber && (
+                    {(!lastSerialValue || showQuantityWithSerial) && (
                     <Form.Item
                       label={<span className="font-semibold">Quantity</span>}
                       name="quantity"
-                      rules={[{ required: true, message: 'Please input the quantity!' }]}
+                        rules={[
+                          { required: true, message: 'Please input the quantity!' },
+                          { 
+                            validator: (_, value) => {
+                              if (!value || value < 1) {
+                                return Promise.reject('Quantity must be at least 1');
+                              }
+                              return Promise.resolve();
+                            }
+                          }
+                        ]}
                     >
                       <Input 
                         size="medium"
@@ -281,7 +331,6 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
                 </div>
               </Col>
 
-              {/* RIGHT COLUMN */}
               <Col xs={24} md={12}>
                 <div className="space-y-6">
                   <Form.Item
@@ -405,6 +454,7 @@ const EditItemModal = ({ visible, onClose, onEdit, item }) => {
         </Card>
       </div>
     </Modal>
+    </>
   );
 };
 

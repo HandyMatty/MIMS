@@ -15,7 +15,6 @@ $sql = "
 
 $result = $conn->query($sql);
 
-// Check if query execution succeeded
 if (!$result) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database query failed: ' . $conn->error]);
@@ -25,13 +24,12 @@ if (!$result) {
 $events = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $events[] = $row; // Include the username and avatar (with default) in the response
+        $events[] = $row;
     }
 }
 
 $conn->close();
 
-// Send the JSON response
 header('Content-Type: application/json');
 echo json_encode($events);
 ?>

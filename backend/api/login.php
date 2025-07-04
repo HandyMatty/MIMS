@@ -2,9 +2,8 @@
 include('cors.php');
 include('database.php');
 
-// Configuration
 $max_attempts  = 5;
-$lockout_time  = 900; // 15 minutes in seconds
+$lockout_time  = 900;
 
 $response = ['success' => false, 'message' => 'Invalid credentials'];
 $data     = json_decode(file_get_contents('php://input'), true);
@@ -20,7 +19,6 @@ $rememberMe = !empty($data['rememberMe']);
 
 $current_time = time();
 
-// Fetch user and lockout info in one query
 $stmt = $conn->prepare("
   SELECT id, password, role, status, token_expiry,
          login_attempts, lockout_until
@@ -43,7 +41,6 @@ $stmt->bind_result(
 $stmt->fetch();
 $stmt->close();
 
-// Check if account is locked
 if ($lockout_until !== null && strtotime($lockout_until) > $current_time) {
     $remaining = strtotime($lockout_until) - $current_time;
     echo json_encode([
@@ -54,9 +51,7 @@ if ($lockout_until !== null && strtotime($lockout_until) > $current_time) {
 }
 
 
-// Verify password
 if (!password_verify($password, $hashed_password)) {
-    // Increment login_attempts
     $login_attempts++;
     $new_lockout = null;
     if ($login_attempts >= $max_attempts) {
@@ -80,7 +75,6 @@ if (!password_verify($password, $hashed_password)) {
     exit;
 }
 
-// Successful login: reset attempts and lockout
 $upd = $conn->prepare("
   UPDATE users
   SET login_attempts = 0,
@@ -96,7 +90,6 @@ $expiry = $current_time + ($rememberMe ? 7*24*3600 : 24*3600);
 $upd->bind_param("sii", $token, $expiry, $id);
 $upd->execute();
 
-// Set secure cookie
 setcookie("authToken_$username", $token, [
     'expires'  => $expiry,
     'path'     => '/',

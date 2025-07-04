@@ -59,7 +59,6 @@ const debouncedSearch = useCallback(
       if (searchColumn === 'all') {
         for (const key in item) {
           let cellValue = item[key];
-          // If searching date, use formatted date string
           if (key === 'date' && cellValue) {
             const formattedDate = new Date(cellValue).toLocaleString('en-PH', {
               year: 'numeric',
@@ -80,7 +79,6 @@ const debouncedSearch = useCallback(
         }
         return false;
       } else if (searchColumn === 'date') {
-        // Search formatted date string
         const formattedDate = new Date(item.date).toLocaleString('en-PH', {
           year: 'numeric',
           month: 'long',
@@ -114,7 +112,6 @@ const debouncedSearch = useCallback(
 
   const refreshActivities = async () => {
     setLoading(true);
-    // Reset all states to default before fetching
     setSearchText('');
     setCurrentPage(1);
     setPageSize(5);

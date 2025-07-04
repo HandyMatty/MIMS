@@ -2,7 +2,6 @@
 include('cors.php');
 include('database.php');
 
-// Get the POST data
 $data = json_decode(file_get_contents("php://input"), true);
 
 $type = htmlspecialchars($data['type']);
@@ -34,7 +33,6 @@ if (!empty($serialNumber)) {
 
 $purchaseDateFormatted = date("Ymd", strtotime($purchaseDate));
 
-// Fetch the last item with the same purchase date
 $query = "SELECT id FROM inventory WHERE id LIKE ? ORDER BY id DESC LIMIT 1";
 $stmt = $conn->prepare($query);
 $likeParam = $purchaseDateFormatted . "%";
@@ -44,24 +42,20 @@ $stmt->bind_result($lastId);
 $stmt->fetch();
 $stmt->close();
 
-// Generate new ID
 if ($lastId) {
-    $lastCounter = (int)substr($lastId, -4); // Extract last 4 digits
+    $lastCounter = (int)substr($lastId, -4);
     $newCounter = str_pad($lastCounter + 1, 4, "0", STR_PAD_LEFT);
 } else {
-    $newCounter = "0001"; // Start with 0001 if no previous item exists
+    $newCounter = "0001";
 }
 $newId = $purchaseDateFormatted . $newCounter;
 
-// Insert into inventory
 $stmt = $conn->prepare("INSERT INTO inventory (id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, remarks, quantity) 
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("ssssssssssi", $newId, $type, $brand, $serialNumber, $issuedDate, $purchaseDate, $condition, $location, $status, $remarks, $quantity);
 
-// Format purchase date for ID generation (YYYYMMDD)
 
 if ($stmt->execute()) {
-    // Record in history
     $history_stmt = $conn->prepare("INSERT INTO history (action, item_id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, remarks, quantity) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");    
 

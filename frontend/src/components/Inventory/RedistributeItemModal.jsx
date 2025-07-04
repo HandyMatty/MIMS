@@ -27,7 +27,6 @@ const RedistributeItemModal = ({ visible, onClose, item, onEdit, isLoading }) =>
     if (isAdmin) return adminAuth.userData;
     if (isUser) return userAuth.userData;
 
-    // If no auth store has user data, try cookies
     const username = Cookies.get('username');
     const userId = Cookies.get('user_id');
     if (username && userId) {
@@ -37,14 +36,11 @@ const RedistributeItemModal = ({ visible, onClose, item, onEdit, isLoading }) =>
     return null;
   };
 
-  // Initialize form values when item changes
   useEffect(() => {
     if (visible && item) {
-      // Determine if the location is Head Office
       const isHeadOfficeLocation = item.location?.includes('Head Office');
       setIsHeadOffice(isHeadOfficeLocation);
 
-      // Parse location data
       let locationType = 'Other';
       let department = undefined;
       let specificLocation = undefined;
@@ -79,7 +75,6 @@ const RedistributeItemModal = ({ visible, onClose, item, onEdit, isLoading }) =>
     try {
       if (!item) return;
 
-      // Fetch latest inventory data
       const currentInventory = await getInventoryData();
       const currentItem = currentInventory.find(invItem => invItem.id === item.id);
 

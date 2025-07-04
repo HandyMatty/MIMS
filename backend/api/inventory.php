@@ -12,7 +12,6 @@ $response = [
     "forrepair" => 0
 ];
 
-// Fetch counts from the inventory table
 $query = "SELECT 
             COUNT(*) AS totalEquipment,
             SUM(`condition` = 'Brand New') AS BrandNew,
@@ -37,10 +36,8 @@ if ($result && $row = $result->fetch_assoc()) {
     ];
 }
 
-// Return the response as JSON
 header('Content-Type: application/json');
 echo json_encode($response);
 
-// Close the database connection
 $conn->close();
 ?>

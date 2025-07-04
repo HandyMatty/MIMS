@@ -1,5 +1,6 @@
-import { Form, Input, Select, Button, DatePicker, Row, Col, Card, Typography } from 'antd';
+import { Form, Input, Select, Button, DatePicker, Row, Col, Card, Typography, Modal } from 'antd';
 import { EditOutlined, CopyFilled } from '@ant-design/icons';
+import { useState } from 'react';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -11,13 +12,68 @@ const StockItemForm = ({
   selectedStockItem, 
   isHeadOffice, 
   setIsHeadOffice, 
-  hasSerialNumber, 
   handleSerialChange 
 }) => {
+  const [showSerialModal, setShowSerialModal] = useState(false);
+  const [showQuantityWithSerial, setShowQuantityWithSerial] = useState(false);
+  const [lastSerialValue, setLastSerialValue] = useState('');
+  const [serialModalShownForCurrentInput, setSerialModalShownForCurrentInput] = useState(false);
+
   if (!selectedStockItem) return null;
 
+  const onSerialChange = (e) => {
+    const value = e.target.value;
+    setLastSerialValue(value);
+    handleSerialChange && handleSerialChange(e);
+    if (value && !showQuantityWithSerial && !serialModalShownForCurrentInput) {
+      setShowSerialModal(true);
+      setSerialModalShownForCurrentInput(true);
+    }
+    if (value === '') {
+      setShowQuantityWithSerial(false);
+      setSerialModalShownForCurrentInput(false);
+      form.setFieldsValue({ quantity: 1 });
+    }
+  };
+
+  const handleSerialModalOk = () => {
+    setShowQuantityWithSerial(true);
+    setShowSerialModal(false);
+  };
+
+  const handleSerialModalCancel = () => {
+    setShowQuantityWithSerial(false);
+    setShowSerialModal(false);
+    form.setFieldsValue({ quantity: 1 });
+  };
+
+  const onFinishHandler = (values) => {
+    // If serial number is present and showQuantityWithSerial is false, force quantity to 1
+    let finalQuantity = lastSerialValue && !showQuantityWithSerial && selectedStockItem?.action !== 'redistribute'
+      ? 1
+      : values.quantity;
+    const payload = {
+      ...values,
+      quantity: finalQuantity,
+      serialNumber: values.serialNumber,
+    };
+    onFinish(payload);
+  };
+
   return (
-    <Card className="shadow-lg custom-card ">
+    <>
+      <Modal
+        open={showSerialModal}
+        onOk={handleSerialModalOk}
+        onCancel={handleSerialModalCancel}
+        title="Serial Number Quantity"
+        okText="Yes"
+        cancelText="No"
+        centered
+      >
+        Does the item you want to add have only 1 serial number but has many quantities?
+      </Modal>
+    <Card className="shadow-lg custom-card">
       <div className="mb-6">
         <Title level={4} className="mb-2">
           {selectedStockItem.action === 'redistribute' ? '🔄 Redistribute Item' : '✏️ Edit Item'}
@@ -32,8 +88,11 @@ const StockItemForm = ({
       
       <Form
         form={form}
-        onFinish={onFinish}
+        onFinish={onFinishHandler}
         layout="vertical"
+        initialValues={{
+          quantity: 1,
+        }}
       >
         <Row gutter={[32, 24]}>
           <Col span={12}>
@@ -112,25 +171,12 @@ const StockItemForm = ({
               >
                 <Input 
                   size="medium"
-                  onChange={handleSerialChange}
+                    onChange={onSerialChange}
                   placeholder="Enter serial number (optional)"
-                />
-              </Form.Item>
-
-              {selectedStockItem?.action === 'redistribute' && (
-                <Form.Item 
-                  label={<span className="font-semibold">Original Quantity</span>}
-                  name="originalQuantity"
-                  rules={[{ required: true, message: 'Original quantity is required' }]}
-                >
-                  <Input 
-                    size="medium"
-                    disabled 
                   />
                 </Form.Item>
-              )}
 
-              {!hasSerialNumber && (
+                {(!lastSerialValue || showQuantityWithSerial || selectedStockItem?.action === 'redistribute') && (
                 <Form.Item
                   label={<span className="font-semibold">
                     {selectedStockItem?.action === 'redistribute' ? "New Quantity to Redistribute" : "Quantity"}
@@ -138,7 +184,7 @@ const StockItemForm = ({
                   name="quantity"
                   rules={[
                     { required: true, message: 'Please input the quantity!' },
-                    { 
+                    {
                       validator: (_, value) => {
                         if (!value || value < 1) {
                           return Promise.reject('Quantity must be at least 1');
@@ -298,6 +344,7 @@ const StockItemForm = ({
         </Row>
       </Form>
     </Card>
+    </>
   );
 };
 

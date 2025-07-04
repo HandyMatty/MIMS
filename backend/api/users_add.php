@@ -10,7 +10,6 @@ if (isset($data['username'], $data['department'], $data['role'], $data['password
     $role = $data['role'];
     $password = $data['password'];
 
-    // Check if the username already exists
     $checkStmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM users WHERE username = ?");
     $checkStmt->bind_param("s", $username);
     $checkStmt->execute();
@@ -22,10 +21,8 @@ if (isset($data['username'], $data['department'], $data['role'], $data['password
         exit;
     }
 
-    // Hash the password
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    // If role is 'guest', set security_question & security_answer as NULL
     if ($role === 'guest') {
         $security_question = null;
         $security_answer = null;

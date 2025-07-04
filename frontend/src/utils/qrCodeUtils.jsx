@@ -27,7 +27,6 @@ export const downloadAsPng = (qrCodeRef) => {
         const centerX = (canvas.width - logoSize) / 2;
         const centerY = (canvas.height - logoSize) / 2;
 
-        // Draw a white background behind the logo for contrast
         ctx.fillStyle = 'transparent';
         ctx.fillRect(centerX - 4, centerY - 4, logoSize + 8, logoSize + 8);
 
@@ -55,14 +54,12 @@ export const downloadAsSvg = async (qrCodeRef) => {
 
   const logoSize = 50;
 
-  // Get bounding box of the original QR SVG (more accurate than assuming 250x250)
   const width = parseInt(svg.getAttribute('width')) || 250;
   const height = parseInt(svg.getAttribute('height')) || 250;
 
   const centerX = (width - logoSize) / 2;
   const centerY = (height - logoSize) / 2;
 
-  // Convert logo image to base64
   const toBase64 = (url) =>
     new Promise((resolve, reject) => {
       const img = new Image();
@@ -81,7 +78,6 @@ export const downloadAsSvg = async (qrCodeRef) => {
 
   const base64Logo = await toBase64(SINSSILogo);
 
-  // Final combined SVG with the embedded logo centered
   const combinedSvg = `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <g>
@@ -109,7 +105,6 @@ export const downloadAsSvg = async (qrCodeRef) => {
 };
 
 
-// Print QR code in new window
 export const printQrCode = (qrCodeRef, size = 250) => {
   const printWindow = window.open('', '_blank');
   if (printWindow) {

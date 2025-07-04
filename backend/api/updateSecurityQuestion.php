@@ -2,9 +2,8 @@
 include('cors.php');  
 include('database.php');
 
-// Get user's security question
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['userId'])) {
-    $userId = intval($_GET['userId']); // Ensure userId is integer
+    $userId = intval($_GET['userId']);
 
     if (empty($userId)) {
         http_response_code(400);
@@ -28,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['userId'])) {
     exit();
 }
 
-// Update user's security question and answer
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents("php://input"), true);
 

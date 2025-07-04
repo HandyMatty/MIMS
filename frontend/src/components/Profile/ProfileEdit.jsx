@@ -33,7 +33,6 @@ const ProfileEdit = () => {
 
   const { theme, currentTheme } = useTheme();
 
-  // Button hover state for theme
   const [avatarBtnHover, setAvatarBtnHover] = useState(false);
   const [cancelBtnHover, setCancelBtnHover] = useState(false);
   const [mainBtnHover, setMainBtnHover] = useState(false);
@@ -48,7 +47,7 @@ const ProfileEdit = () => {
           message.error('Authentication token missing. Please log in again.');
           window.location.href = '/login';
         }
-        setAuthUsername(storedUsername); // <- Save it in state
+        setAuthUsername(storedUsername);
         return { token, username: storedUsername };
       }
     }
@@ -161,7 +160,6 @@ const ProfileEdit = () => {
   return (
     <Card className="flex flex-col w-auto bg-[#a7f3d0] rounded-3xl shadow p-6 border-none"
       style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}>
-      {/* Avatar Section */}
       <div className="flex flex-col justify-center items-center mt-4">
         {imageUrl && (
           <Image src={imageUrl} alt="avatar" width={100} height={100} style={{ borderRadius: '50%', objectFit: 'cover' }} />

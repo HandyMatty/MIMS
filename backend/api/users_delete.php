@@ -4,18 +4,15 @@ include('database.php');
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-// Log the input for debugging
 error_log('Received Data: ' . print_r($data, true));
 
 if (isset($data['userIds']) && is_array($data['userIds']) && count($data['userIds']) > 0) {
     $userIds = $data['userIds'];
     $placeholders = implode(',', array_fill(0, count($userIds), '?'));
 
-    // Start transaction
     $conn->begin_transaction();
 
     try {
-        // Delete related rows from calendar_events
         $stmt = $conn->prepare("DELETE FROM calendar_events WHERE user_id IN ($placeholders)");
         if (!$stmt) {
             throw new Exception("Prepare failed for calendar_events: " . $conn->error);
@@ -26,7 +23,6 @@ if (isset($data['userIds']) && is_array($data['userIds']) && count($data['userId
         $stmt->execute();
         $stmt->close();
 
-        // Delete users from users table
         $stmt = $conn->prepare("DELETE FROM users WHERE id IN ($placeholders)");
         if (!$stmt) {
             throw new Exception("Prepare failed for users: " . $conn->error);
@@ -37,7 +33,6 @@ if (isset($data['userIds']) && is_array($data['userIds']) && count($data['userId
         $affectedRows = $stmt->affected_rows;
         $stmt->close();
 
-        // Commit transaction
         $conn->commit();
 
         echo json_encode([
@@ -45,7 +40,7 @@ if (isset($data['userIds']) && is_array($data['userIds']) && count($data['userId
             'message' => "$affectedRows user(s) deleted successfully."
         ]);
     } catch (Exception $e) {
-        $conn->rollback(); // Rollback transaction on error
+        $conn->rollback();
         echo json_encode([
             'success' => false,
             'message' => 'Error deleting users: ' . $e->getMessage()

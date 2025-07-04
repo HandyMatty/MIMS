@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { Layout, Menu, Spin, Modal, message, Drawer } from 'antd';
+import { Layout, Menu, Spin, Modal, App, Drawer } from 'antd';
 import {
   DashboardOutlined,
   AppstoreOutlined,
@@ -26,6 +26,7 @@ import { checkTokenValidity } from '../services/api/checkTokenValidity';
 const { Sider } = Layout;
 
 const MainLayout = () => {
+  const { message } = App.useApp();
   const initialCollapsedState = JSON.parse(localStorage.getItem('sidebarCollapsed')) || false;
   const { theme } = useTheme();
 
@@ -94,15 +95,12 @@ const MainLayout = () => {
       if (success) {
         logUserActivity(username, "Logout", `User ${username} just logged out`);
   
-        // Reset the correct auth store
         if (role === "admin") adminAuth.reset();
         if (role === "user") userAuth.reset();
         if (role === "guest") guestAuth.reset();
   
-        // Clear all storages and cookies
         sessionStorage.clear();
         localStorage.clear();
-        // Remove all user-specific authToken cookies
         const allCookies = Cookies.get();
         Object.keys(allCookies).forEach((cookieName) => {
           if (cookieName.startsWith('authToken_')) {
@@ -200,8 +198,8 @@ const MainLayout = () => {
       }
     };
 
-    checkToken(); // Run once on load
-    const interval = setInterval(checkToken, 15000); // Then every 15 seconds
+    checkToken();
+    const interval = setInterval(checkToken, 15000);
     return () => clearInterval(interval);
   }, [adminAuth, userAuth, guestAuth, navigate, logUserActivity]);
 
@@ -252,7 +250,6 @@ const MainLayout = () => {
           const updatedUserData = JSON.parse(event.newValue);
           if (!updatedUserData || !updatedUserData.username) return;
   
-          // Check which auth store should be updated
           if (isAdmin) {
             adminAuth.setUserData(updatedUserData);
           } else if (isUser) {
@@ -273,7 +270,6 @@ const MainLayout = () => {
   }, [adminAuth, userAuth, guestAuth, isAdmin, isUser, isGuest, navigate]);  
   
   useEffect(() => {
-    // Preload critical images
     preloadImages([SINSSILogo]);
   }, []);
 

@@ -2,7 +2,6 @@
 include('cors.php');
 include('database.php');
 
-// Fetch history data without depending on the inventory table
 $query = "
     SELECT id, action, item_id, type, brand, serial_number, issued_date, purchase_date, `condition`, location, status, remarks, 
            field_changed, old_value, new_value, action_date, quantity
@@ -16,7 +15,6 @@ $history = [];
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        // Decode JSON values for display
         $row['field_changed'] = json_decode($row['field_changed'], true) ?: [];
         $row['old_value'] = json_decode($row['old_value'], true) ?: [];
         $row['new_value'] = json_decode($row['new_value'], true) ?: [];

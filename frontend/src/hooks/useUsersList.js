@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { message, Modal } from 'antd';
+import { App, Modal } from 'antd';
 import {
   fetchUsersData,
   deleteUsers,
@@ -36,6 +36,7 @@ const useUsersList = () => {
 
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
+  const { message, modal } = App.useApp();
 
 
   const handleRoleUpdate = async (values) => {
@@ -174,7 +175,7 @@ const useUsersList = () => {
             const updatedUsers = users.filter((user) => !selectedRowKeys.includes(user.id));
             setUsers(updatedUsers);
             setFilteredData(updatedUsers);
-            setSelectedRowKeys([]); // Clear selection
+            setSelectedRowKeys([]);
             logUserActivity('Admin', 'User Management', `Deleted ${selectedRowKeys.length} user(s)`);
             logUserNotification('User Management', `You have deleted ${selectedRowKeys.length} user(s)`);
           } else {
@@ -217,7 +218,7 @@ const useUsersList = () => {
   
 
   const handleResetPassword = (userId) => {
-    Modal.confirm({
+    modal.confirm({
       title: 'Are you sure you want to reset the password?',
       content: "This action will reset the user's password to a temporary one.",
       okText: 'Yes',
@@ -288,7 +289,6 @@ const useUsersList = () => {
 
   const refreshUsers = async () => {
     setLoading(true);
-    // Reset all states to default before fetching
     setSearchText('');
     setCurrentPage(1);
     setPageSize(5);

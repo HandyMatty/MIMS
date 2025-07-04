@@ -1,4 +1,4 @@
-import { axiosAuth } from '../axios'; // Assuming axios is properly configured
+import { axiosAuth } from '../axios';
 
 export const fetchSecurityQuestion = async (token) => {
   try {
@@ -13,7 +13,7 @@ export const fetchSecurityQuestion = async (token) => {
     throw error;
   }
 };
-// Update the user's security question and answer
+
 export const updateSecurityQuestion = async (token, question, answer) => {
     try {
       const response = await axiosAuth.post(

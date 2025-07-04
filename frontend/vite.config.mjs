@@ -9,7 +9,6 @@ export default defineConfig({
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
-          // Use names[0] if available, otherwise fallback to name
           const assetName = assetInfo.names?.[0] || assetInfo.name || 'asset';
           if (assetName.endsWith('.css')) {
             return 'css/[name]-[hash][extname]';

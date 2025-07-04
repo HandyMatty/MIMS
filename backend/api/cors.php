@@ -14,7 +14,6 @@ header("Content-Security-Policy: frame-ancestors 'none';");
 header("Cache-Control: no-store, no-cache, must-revalidate");
 header("Pragma: no-cache");
 
-// Dynamically set Content-Type based on file type
 if (isset($_SERVER['REQUEST_URI'])) {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $extension = pathinfo($path, PATHINFO_EXTENSION);
@@ -34,7 +33,7 @@ if (isset($_SERVER['REQUEST_URI'])) {
             header("Content-Type: text/html");
             break;
         default:
-            header("Content-Type: text/plain"); // Default to plain text
+            header("Content-Type: text/plain");
             break;
     }
 }

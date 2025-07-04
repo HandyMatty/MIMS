@@ -121,10 +121,8 @@ export const ThemeProvider = ({ children }) => {
       document.documentElement.style.setProperty('--theme-modal-border', theme.text);
       document.documentElement.style.setProperty('--theme-modal-close', theme.text);
       document.documentElement.style.setProperty('--theme-modal-close-hover', theme.textLight);
-      // In ThemeProvider's useEffect, add:
 document.documentElement.style.setProperty('--theme-modal-btn-bg', theme.CardHead);
 document.documentElement.style.setProperty('--theme-modal-btn-text', theme.text);
-// For Cancel button (optional, or use a lighter color)
 document.documentElement.style.setProperty('--theme-modal-btn-cancel-bg', theme.componentBackground || theme.background);
 document.documentElement.style.setProperty('--theme-modal-btn-cancel-text', theme.text);
     } else {

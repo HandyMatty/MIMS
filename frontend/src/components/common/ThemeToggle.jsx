@@ -32,7 +32,6 @@ const ThemeToggle = () => {
   }));
 
   return (
-  <Tooltip title="Themes" >
     <Dropdown
       menu={{
         items,
@@ -44,6 +43,7 @@ const ThemeToggle = () => {
       placement="bottomRight"
       trigger={['click']}
     >
+    <Tooltip title="Themes">
       <Button
         type="text"
         icon={<BgColorsOutlined />}
@@ -58,10 +58,9 @@ const ThemeToggle = () => {
           width: '40px',
           height: '40px',
         }}
-        title="Change Theme"
       />
+    </Tooltip>
     </Dropdown>
-  </Tooltip>
   );
 };
 

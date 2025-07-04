@@ -7,7 +7,7 @@ export const updatePassword = async (token, passwordData) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      return response.data; // Adjust based on your API response structure
+      return response.data;
     } catch (error) {
       console.error('Password update API Error:', error);
       throw error;

@@ -46,8 +46,7 @@ const UsersStatisticBoard = () => {
         <Card
           title={<span className="text-black text-xs sm:text-sm md:text-base lg:text-lgi ">
           <UserOutlined className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi " /> Total Users</span>}
-          bordered={false}
-          className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+          className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
           style={{ textAlign: 'center' }}
           loading={loading}
         >
@@ -71,8 +70,7 @@ const UsersStatisticBoard = () => {
         <Card
           title={<span className="text-black text-xs sm:text-sm md:text-base lg:text-lgi ">
             <CheckOutlined className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi " /> Active Users</span>}
-          bordered={false}
-          className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+          className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
           style={{ textAlign: 'center' }}
           loading={loading}
         >
@@ -96,8 +94,7 @@ const UsersStatisticBoard = () => {
         <Card
           title={<span className="text-black text-xs sm:text-sm md:text-base lg:text-lgi ">
             <LaptopOutlined className="text-xs sm:text-sm md:text-base font-semibold lg:text-lgi " /> Activities</span>}
-          bordered={false}
-          className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+          className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
           style={{ textAlign: 'center' }}
           loading={loading}
         >

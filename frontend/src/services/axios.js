@@ -71,9 +71,7 @@ export const createAxiosInstanceWithInterceptor = (type = "data", user) => {
         message.warning('You have been logged out because your account was accessed from another device.');
         localStorage.clear();
         sessionStorage.clear();
-        // Remove cookies if you use js-cookie
         Cookies.remove('authToken', { path: '/' });
-        // Remove all user-specific authToken cookies
         const allCookies = Cookies.get();
         Object.keys(allCookies).forEach((cookieName) => {
           if (cookieName.startsWith('authToken_')) {

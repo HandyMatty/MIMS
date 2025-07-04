@@ -102,7 +102,7 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     dataIndex: 'quantity',
     key: 'quantity',
     align: 'center',
-    width: '70px',
+    width: '80px',
     className: 'text-xs overflow-auto text-wrap',
     sorter: (a, b) => a.quantity - b.quantity,
     responsive: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],

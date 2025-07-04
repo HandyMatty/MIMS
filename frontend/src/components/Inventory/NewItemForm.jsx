@@ -1,4 +1,5 @@
-import { Form, Input, Select, Button, DatePicker, Row, Col } from 'antd';
+import { useState } from 'react';
+import { Form, Input, Select, Button, DatePicker, Row, Col, Modal } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import AddItemTypeTemplate from './AddItemTypeTemplate';
 
@@ -16,7 +17,50 @@ const NewItemForm = ({
   handleSerialChange,
   selectedStockItem 
 }) => {
+  const [showSerialModal, setShowSerialModal] = useState(false);
+  const [showQuantityWithSerial, setShowQuantityWithSerial] = useState(false);
+  const [lastSerialValue, setLastSerialValue] = useState('');
+  const [serialModalShownForCurrentInput, setSerialModalShownForCurrentInput] = useState(false);
+
+  const onSerialChange = (e) => {
+    const value = e.target.value;
+    setLastSerialValue(value);
+    handleSerialChange && handleSerialChange(e);
+    if (value && !showQuantityWithSerial && !serialModalShownForCurrentInput) {
+      setShowSerialModal(true);
+      setSerialModalShownForCurrentInput(true);
+    }
+    if (value === '') {
+      setShowQuantityWithSerial(false);
+      setSerialModalShownForCurrentInput(false);
+      form.setFieldsValue({ quantity: 1 });
+    }
+  };
+
+  const handleSerialModalOk = () => {
+    setShowQuantityWithSerial(true);
+    setShowSerialModal(false);
+  };
+
+  const handleSerialModalCancel = () => {
+    setShowQuantityWithSerial(false);
+    setShowSerialModal(false);
+    form.setFieldsValue({ quantity: 1 });
+  };
+
   return (
+    <>
+      <Modal
+        open={showSerialModal}
+        onOk={handleSerialModalOk}
+        onCancel={handleSerialModalCancel}
+        title="Serial Number Quantity"
+        okText="Yes"
+        cancelText="No"
+        centered
+      >
+        Does the item you want to add have only 1 serial number but has many quantities?
+      </Modal>
         <Form
           form={form}
           onFinish={onFinish}
@@ -31,7 +75,6 @@ const NewItemForm = ({
           />
 
           <Row gutter={[32, 24]}>
-            {/* LEFT COLUMN */}
             <Col span={12}>
               <div className="space-y-6">
                 <Form.Item
@@ -108,7 +151,7 @@ const NewItemForm = ({
                 >
                   <Input 
                     size="medium"
-                    onChange={handleSerialChange}
+                  onChange={onSerialChange}
                     placeholder="Enter serial number (optional)"
                   />
                 </Form.Item>
@@ -127,7 +170,7 @@ const NewItemForm = ({
                   </Form.Item>
                 )}
 
-                {!hasSerialNumber && (
+              {(!lastSerialValue || showQuantityWithSerial || selectedStockItem?.action === 'redistribute') && (
                   <Form.Item
                     label={<span className="font-semibold">
                       {selectedStockItem?.action === 'redistribute' ? "New Quantity to Redistribute" : "Quantity"}
@@ -173,7 +216,6 @@ const NewItemForm = ({
               </div>
             </Col>
 
-            {/* RIGHT COLUMN */}
             <Col span={12}>
               <div className="space-y-6">
                 <Form.Item
@@ -295,6 +337,7 @@ const NewItemForm = ({
             </Col>
           </Row>
         </Form>
+    </>
   );
 };
 

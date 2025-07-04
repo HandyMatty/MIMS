@@ -33,7 +33,6 @@ const ModalForms = ({
 }) => {
   const [isEditingSecurityQuestion, setIsEditingSecurityQuestion] = useState(false);
 
-  // Form instances
   const [addUserForm] = Form.useForm();
   const [securityQuestionForm] = Form.useForm();
   const [roleForm] = Form.useForm();
@@ -41,15 +40,14 @@ const ModalForms = ({
 
   return (
     <>
-      {/* Security Question Modal */}
       <Modal
   title="Security Question"
   open={isSecurityQuestionModalVisible}
   centered
   onCancel={() => {
-    setIsSecurityQuestionModalVisible(false); // Close the modal
-    setIsEditingSecurityQuestion(false); // Reset to the first view
-    securityQuestionForm.resetFields(); // Clear the form fields
+    setIsSecurityQuestionModalVisible(false); 
+    setIsEditingSecurityQuestion(false);
+    securityQuestionForm.resetFields(); 
   }}
   footer={null}
 >
@@ -87,8 +85,8 @@ const ModalForms = ({
       onFinish={(values) => {
         handleChangeSecurityQuestion(values);
         setIsEditingSecurityQuestion(false);
-        setIsSecurityQuestionModalVisible(false); // Close the modal on successful save
-        securityQuestionForm.resetFields(); // Reset the form after submission
+        setIsSecurityQuestionModalVisible(false);
+        securityQuestionForm.resetFields();
       }}
     >
       <Form.Item
@@ -114,8 +112,8 @@ const ModalForms = ({
       <div             className='w-auto flex justify-self-end mt-5'>
       <Button
         onClick={() => {
-          securityQuestionForm.resetFields(); // Reset fields without closing
-          setIsEditingSecurityQuestion(false); // Exit editing mode
+          securityQuestionForm.resetFields();
+          setIsEditingSecurityQuestion(false);
         }}
         className='custom-button-cancel'
       >
@@ -176,7 +174,7 @@ const ModalForms = ({
             >
               <Select
                 placeholder="Select a role"
-                onChange={(value) => setSelectedRole(value)} // Update state when role changes
+                onChange={(value) => setSelectedRole(value)}
               >
                 <Select.Option value="user">User</Select.Option>
                 <Select.Option value="admin">Admin</Select.Option>
@@ -226,19 +224,18 @@ const ModalForms = ({
         <p>Your temporary password is: {temporaryPassword}</p>
       </Modal>
 
-          {/* Edit Role Modal */}
         <Modal
           title="Edit Role"
           open={isRoleModalVisible}
           centered
           onCancel={() => {
             setIsRoleModalVisible(false);
-            roleForm.resetFields(); // Reset form fields when modal closes
+            roleForm.resetFields();
           }}
           footer={null}
           afterOpenChange={(visible) => {
             if (visible) {
-              roleForm.setFieldsValue({ role: currentUserRole }); // Ensure the current role is pre-filled
+              roleForm.setFieldsValue({ role: currentUserRole });
             }
           }}
         >
@@ -246,8 +243,8 @@ const ModalForms = ({
             form={roleForm}
             onFinish={(values) => {
               handleRoleUpdate(values);
-              roleForm.resetFields(); // Reset form fields after submission
-              setIsRoleModalVisible(false); // Close modal after updating role
+              roleForm.resetFields();
+              setIsRoleModalVisible(false);
             }}
           >
             <Form.Item

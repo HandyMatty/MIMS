@@ -10,7 +10,6 @@ export const useHistoryTable = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
 
-  // Independent states for each tab
   const [searchTerms, setSearchTerms] = useState({ added: "", updated: "", deleted: "" });
   const [currentPages, setCurrentPages] = useState({ added: 1, updated: 1, deleted: 1 });
   const [pageSizes, setPageSizes] = useState({ added: 10, updated: 10, deleted: 10 });
@@ -20,12 +19,10 @@ export const useHistoryTable = () => {
     deleted: { field: null, order: null },
   });
   const isMobile = useMediaQuery({ maxWidth: 639 });
-  // States for column-specific search
   const [searchColumns, setSearchColumns] = useState({ added: 'all', updated: 'all', deleted: 'all' });
   const [localFilteredData, setLocalFilteredData] = useState({ added: [], updated: [], deleted: [] });
   const [filterActive, setFilterActive] = useState({ added: false, updated: false, deleted: false });
 
-  // Searchable columns for the dropdown
 const searchableColumns = {
   added: [
     { key: 'all', label: 'All Columns' },
@@ -74,7 +71,6 @@ const searchableColumns = {
 
   const refreshHistory = useCallback(async () => {
     setLoading(true);
-    // Reset all states to default before fetching
     setSearchTerms({ added: "", updated: "", deleted: "" });
     setCurrentPages({ added: 1, updated: 1, deleted: 1 });
     setPageSizes({ added: 10, updated: 10, deleted: 10 });
@@ -101,9 +97,7 @@ const searchableColumns = {
     refreshHistory();
   }, [refreshHistory]);
 
-  // Memoized filter and sort function
   const filterAndSortData = useCallback((data, searchTerm, sorterConfig, searchColumn) => {
-    // Apply search filter
     let filteredData = data;
     if (searchTerm) {
       filteredData = data.filter((item) => {
@@ -118,7 +112,6 @@ const searchableColumns = {
       });
     }
 
-    // Apply sorting
     if (sorterConfig.field && sorterConfig.order) {
       return [...filteredData].sort((a, b) => {
         const valueA = a[sorterConfig.field];
@@ -142,7 +135,6 @@ const searchableColumns = {
     return filteredData;
   }, []);
 
-  // Categorized and processed data (memoized)
   const addedData = useMemo(() => {
     return filterAndSortData(
       historyData.filter((item) => item.action === "Added"),
@@ -170,7 +162,6 @@ const searchableColumns = {
     );
   }, [historyData, searchTerms.deleted, sorterConfigs.deleted, searchColumns.deleted, filterAndSortData]);
 
-  // Debounced search handler
   const debouncedSetLocalFilteredData = useMemo(
     () =>
       debounce((tab, filtered) => {
@@ -179,7 +170,6 @@ const searchableColumns = {
     []
   );
 
-  // Handle search with column filtering (debounced)
   const handleSearch = (tab, e) => {
     const value = e.target.value.trim().toLowerCase();
     setSearchTerms((prev) => ({ ...prev, [tab]: value }));
@@ -192,7 +182,6 @@ const searchableColumns = {
 
     setFilterActive((prev) => ({ ...prev, [tab]: true }));
 
-    // Get the correct data based on tab
     const tabData = historyData.filter((item) => {
       if (tab === "added") return item.action === "Added";
       if (tab === "updated") return item.action === "Updated" || item.action === "QRCode Update";
@@ -200,7 +189,6 @@ const searchableColumns = {
       return false;
     });
 
-    // Filter data based on selected column
     const filtered = tabData.filter((item) => {
       if (!item) return false;
       const searchColumn = searchColumns[tab];
@@ -221,12 +209,10 @@ const searchableColumns = {
     debouncedSetLocalFilteredData(tab, filtered);
   };
 
-  // Handle column selection change
   const handleColumnChange = (tab, column) => {
     setSearchColumns((prev) => ({ ...prev, [tab]: column }));
   };
 
-  // Reset all filters for a tab
   const resetTab = (tab) => {
     setSearchTerms((prev) => ({ ...prev, [tab]: "" }));
     setSearchColumns((prev) => ({ ...prev, [tab]: "all" }));
@@ -235,13 +221,11 @@ const searchableColumns = {
     setLocalFilteredData((prev) => ({ ...prev, [tab]: [] }));
   };
 
-  // Function to handle pagination change for each tab
   const handlePageChange = (tab, page, pageSize) => {
     setCurrentPages((prev) => ({ ...prev, [tab]: page }));
     setPageSizes((prev) => ({ ...prev, [tab]: pageSize }));
   };
 
-  // Function to handle sorting changes for each tab
   const handleTableChange = (tab, _, __, sorter) => {
     setSorterConfigs((prev) => ({
       ...prev,
@@ -249,13 +233,11 @@ const searchableColumns = {
     }));
   };
 
-  // Function to open modal
   const showModal = (record) => {
     setSelectedRecord(record);
     setModalVisible(true);
   };
 
-  // Reset all filters and sorters for a tab
   const resetAllFilters = (tab) => {
     resetTab(tab);
     setSorterConfigs((prev) => ({

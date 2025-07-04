@@ -71,8 +71,7 @@ const inventoryCounts = {
                 <LaptopOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Total Equipment
               </span>
             }
-            bordered={false}
-            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
             style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
@@ -99,8 +98,7 @@ const inventoryCounts = {
                 <TagsOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Brand New
               </span>
             }
-            bordered={false}
-            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
             style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
@@ -127,8 +125,7 @@ const inventoryCounts = {
                 <LikeOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Good Condition
               </span>
             }
-            bordered={false}
-            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
             style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
@@ -155,8 +152,7 @@ const inventoryCounts = {
                 <WarningOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Defective
               </span>
             }
-            bordered={false}
-            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
             style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
@@ -185,8 +181,7 @@ const inventoryCounts = {
                 <CheckCircleOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> On Stock
               </span>
             }
-            bordered={false}
-            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
             style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
@@ -213,8 +208,7 @@ const inventoryCounts = {
                 <TruckOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> Deployed
               </span>
             }
-            bordered={false}
-            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
             style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >
@@ -241,8 +235,7 @@ const inventoryCounts = {
                 <ToolOutlined className="text-black text-xs sm:text-sm md:text-base lg:text-lgi " /> For Repair
               </span>
             }
-            bordered={false}
-            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105"
+            className="rounded-xl shadow-md transition-transform bg-[#A8E1C5] transform hover:scale-105 border-none"
             style={currentTheme !== 'default' ? { textAlign: 'center', background: theme.componentBackground, color: theme.text } : { textAlign: 'center' }}
             loading={loading}
           >

@@ -2,7 +2,6 @@
 include('cors.php');
 include('database.php');
 
-// Get all templates
 $query = "SELECT * FROM saved_templates ORDER BY created_at DESC";
 $result = $conn->query($query);
 

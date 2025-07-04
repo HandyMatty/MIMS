@@ -19,7 +19,6 @@ const Dashboard = () => {
 
   return (
     <Suspense fallback={<LoadingFallback />}>
-      {/* Search Input - Positioned Top Right */}
       <div className="flex justify-center sm:justify-end mb-4 mt-2">
         <Input
           placeholder="Search..."

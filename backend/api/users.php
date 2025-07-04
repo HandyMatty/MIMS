@@ -2,7 +2,6 @@
 include('cors.php');  
 include('database.php');
 
-// Fetch all users including status and latest activity
 $stmt = $conn->prepare("SELECT id, username, role, department, status FROM users");
 $stmt->execute();
 $stmt->bind_result($id, $username, $role, $department, $status);
@@ -26,6 +25,5 @@ $response = array(
     'users' => $users
 );
 
-// Return the response as JSON
 echo json_encode($response);
 ?>
