@@ -183,35 +183,40 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
     {
       title: 'Type',
       dataIndex: 'type',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <Select
           value={value}
           onChange={val => handleFieldChange(idx, 'type', val)}
           style={{ minWidth: 170 }}
           size="small"
+          className='text-xs'
         >
-          {typeOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+          {typeOptions.map(opt => <Option key={opt} value={opt}><span className='text-xs'>{opt}</span></Option>)}
         </Select>
       ),
     },
     {
       title: 'Brand',
       dataIndex: 'brand',
+      className: 'text-xs',
       render: (value, _, idx) => (
-        <Input value={value} onChange={e => handleFieldChange(idx, 'brand', e.target.value)}
+        <Input className='text-xs' value={value} onChange={e => handleFieldChange(idx, 'brand', e.target.value)}
          size="small" placeholder="Enter brand name" />
       ),
     },
     {
         title: 'Serial Number',
         dataIndex: 'serialNumber',
+        className: 'text-xs',
         render: (value, _, idx) => (
-          <Input value={value} onChange={e => handleFieldChange(idx, 'serialNumber', e.target.value)} size="small" placeholder="Enter serial number" />
+          <Input className='text-xs' value={value} onChange={e => handleFieldChange(idx, 'serialNumber', e.target.value)} size="small" placeholder="Enter serial number" />
         ),
       },
     {
       title: 'Qty',
       dataIndex: 'quantity',
+      className: 'text-xs',
       render: (value, row, idx) => (
         <Input
           type="number"
@@ -221,12 +226,14 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
           size="small"
           style={{ width: 60 }}
           disabled={row.serialNumber && !row.showQuantityWithSerial}
+          className='text-xs'
         />
       ),
     },
     {
       title: 'Remarks',
       dataIndex: 'remarks',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <Input.TextArea
           value={value}
@@ -234,12 +241,14 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
           size="small"
           rows={3}
           placeholder="Enter any additional remarks"
+          className='text-xs'
         />
       ),
     },
     {
       title: 'Issued Date',
       dataIndex: 'issuedDate',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <DatePicker
           value={value ? dayjs(value, 'YYYY-MM-DD') : null}
@@ -248,12 +257,14 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
           size="small"
           style={{ width: 120 }}
           allowClear
+          className='text-xs'
         />
       ),
     },
     {
       title: 'Purchased Date',
       dataIndex: 'purchaseDate',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <DatePicker
           value={value ? dayjs(value, 'YYYY-MM-DD') : null}
@@ -262,26 +273,31 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
           size="small"
           style={{ width: 120 }}
           allowClear
+          className='text-xs'
         />
       ),
     },
     {
       title: 'Condition',
       dataIndex: 'condition',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <Select
           value={value}
           onChange={val => handleFieldChange(idx, 'condition', val)}
           style={{ minWidth: 150 }}
           size="small"
+          className='text-xs'
         >
-          {conditionOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+          {conditionOptions.map(opt => <Option key={opt} value={opt}><span className='text-xs'
+            >{opt}</span></Option>)}
         </Select>
       ),
     },
     {
       title: 'Detachment/Office',
       dataIndex: 'locationType',
+      className: 'text-xs',
       render: (value, row, idx) => (
         <div style={{ minWidth: 200 }}>
           <Select
@@ -290,9 +306,10 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
             size="small"
             placeholder="Select location type"
             style={{ width: 150, marginBottom: 4 }}
+            className='text-xs'
           >
-            <Option value="Head Office">Head Office</Option>
-            <Option value="Other">Other (Specify Below)</Option>
+            <Option value="Head Office"> <span className='text-xs'>Head Office</span></Option>
+            <Option value="Other"><span className='text-xs'>Other (Specify Below)</span></Option>
           </Select>
           {row.locationType === 'Head Office' && (
             <Select
@@ -301,8 +318,9 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
               size="small"
               placeholder="Select department"
               style={{ width: 150, marginTop: 4 }}
+              className='text-xs'
             >
-              {departmentOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+              {departmentOptions.map(opt => <Option key={opt} value={opt}><span className='text-xs'>{opt}</span></Option>)}
             </Select>
           )}
           {row.locationType === 'Other' && (
@@ -312,6 +330,7 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
               size="small"
               placeholder="Enter specific location"
               style={{ width: 140, marginTop: 4 }}
+              className='text-xs'
             />
           )}
         </div>
@@ -320,22 +339,25 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
     {
       title: 'Status',
       dataIndex: 'status',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <Select
           value={value}
           onChange={val => handleFieldChange(idx, 'status', val)}
           style={{ minWidth: 100 }}
           size="small"
+          className='text-xs'
         >
-          {statusOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+          {statusOptions.map(opt => <Option key={opt} value={opt}><span className='text-xs'>{opt}</span></Option>)}
         </Select>
       ),
     },
     {
       title: 'Action',
       dataIndex: 'action',
+      className: 'text-xs',
       render: (_, __, idx) => (
-        <Button danger size="small" onClick={() => handleRemoveRow(idx)} disabled={rows.length === 1}>Remove</Button>
+        <Button danger className='text-xs' size="small" onClick={() => handleRemoveRow(idx)} disabled={rows.length === 1}>Remove</Button>
       ),
     },
   ];
@@ -362,9 +384,9 @@ export default function BatchAddItemModal({ visible, onClose, onBatchAdd, loadin
       confirmLoading={submitting || loading}
       width={1500}
       footer={[
-        <Button key="add" onClick={handleAddRow} className='custom-button' disabled={submitting || loading}>Add Row</Button>,
-        <Button key="cancel" onClick={handleClose} className='custom-button-cancel'  disabled={submitting || loading}>Cancel</Button>,
-        <Button key="submit" type="primary" className='custom-button'  onClick={handleSubmit} loading={submitting || loading}>Submit All</Button>,
+        <Button key="add" onClick={handleAddRow} className='custom-button text-xs' disabled={submitting || loading}>Add Row</Button>,
+        <Button key="cancel" onClick={handleClose} className='custom-button-cancel text-xs'  disabled={submitting || loading}>Cancel</Button>,
+        <Button key="submit" type="primary" className='custom-button text-xs'  onClick={handleSubmit} loading={submitting || loading}>Submit All</Button>,
       ]}
     >
       <Table

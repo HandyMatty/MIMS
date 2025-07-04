@@ -114,10 +114,7 @@ const HistoryBarGraph = ({ searchText }) => {
     },
     scale: {
       y: {
-        domain: [0, (() => {
-          const maxValue = Math.max(...barData.map(d => d.value || 0), 0);
-          return maxValue === 0 ? 1000 : Math.ceil(maxValue / 1000) * 1000;
-        })()],
+        nice: true,
       },
       color: {
         range: COLORS,
@@ -125,6 +122,9 @@ const HistoryBarGraph = ({ searchText }) => {
     },
     axis: {
       x: {
+        grid: true,
+        gridStrokeOpacity: 20,
+        gridLineDash: [1],
         tick: true,
         label: true,
         labelFontSize: isMobile ? 5 : 9,
@@ -134,9 +134,9 @@ const HistoryBarGraph = ({ searchText }) => {
       },
       y: {
         grid: true,
-        gridStrokeOpacity: 5,
-        gridLineDash: [5, 5],
-        tick: false,
+        gridStrokeOpacity: 20,
+        gridLineDash: [1],
+        tick: true,
         label: true,
         title: 'Inventory Types Quantity',
         titleFontSize: isMobile ? 10 : 12,

@@ -164,7 +164,7 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
       const itemToEdit = {
         ...row,
         location: getFinalLocation(row),
-        quantity: row.serialNumber && !row.showQuantityWithSerial ? 1 : Math.max(1, row.quantity || 1),
+        quantity: row.serialNumber && !row.showQuantityWithSerial ? 1 : row.quantity,
       };
       delete itemToEdit.locationType;
       delete itemToEdit.department;
@@ -188,6 +188,7 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
       title: 'ID',
       dataIndex: 'id',
       width: 120,
+      className: 'text-xs',
       render: (value, row, idx) => (
         <div>
           <div>{value}</div>
@@ -200,35 +201,40 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
     {
       title: 'Type',
       dataIndex: 'type',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <Select
           value={value}
           onChange={val => handleFieldChange(idx, 'type', val)}
           style={{ minWidth: 170 }}
           size="small"
+          className='text-xs'
         >
-          {typeOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+          {typeOptions.map(opt => <Option key={opt} value={opt}><span className='text-xs'>{opt}</span></Option>)}
         </Select>
       ),
     },
     {
       title: 'Brand',
       dataIndex: 'brand',
+      className: 'text-xs',
       render: (value, _, idx) => (
-        <Input value={value} onChange={e => handleFieldChange(idx, 'brand', e.target.value)}
+        <Input value={value} className='text-xs' onChange={e => handleFieldChange(idx, 'brand', e.target.value)}
          size="small" placeholder="Enter brand name" />
       ),
     },
     {
       title: 'Serial Number',
       dataIndex: 'serialNumber',
+      className: 'text-xs',
       render: (value, _, idx) => (
-        <Input value={value} onChange={e => handleFieldChange(idx, 'serialNumber', e.target.value)} size="small" placeholder="Enter serial number" />
+        <Input value={value} className='text-xs' onChange={e => handleFieldChange(idx, 'serialNumber', e.target.value)} size="small" placeholder="Enter serial number" />
       ),
     },
     {
       title: 'Qty',
       dataIndex: 'quantity',
+      className: 'text-xs',
       render: (value, row, idx) => (
         <Input 
           type="number" 
@@ -237,6 +243,7 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
           onChange={e => handleFieldChange(idx, 'quantity', Number(e.target.value))} 
           size="small" 
           style={{ width: 60 }}
+          className='text-xs'
           disabled={row.serialNumber && !row.showQuantityWithSerial}
         />
       ),
@@ -244,12 +251,14 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
     {
       title: 'Remarks',
       dataIndex: 'remarks',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <Input.TextArea
           value={value}
           onChange={e => handleFieldChange(idx, 'remarks', e.target.value)}
           size="small"
           rows={3}
+          className='text-xs'
           placeholder="Enter any additional remarks"
         />
       ),
@@ -257,12 +266,14 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
     {
       title: 'Issued Date',
       dataIndex: 'issuedDate',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <DatePicker
           value={value && value !== '0000-00-00' && value !== '' ? dayjs(value, 'YYYY-MM-DD') : null}
           onChange={date => handleDateChange(idx, 'issuedDate', date)}
           format="YYYY-MM-DD"
           size="small"
+          className='text-xs'
           style={{ width: 120 }}
           allowClear
         />
@@ -271,6 +282,7 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
     {
       title: 'Purchased Date',
       dataIndex: 'purchaseDate',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <DatePicker
           value={value && value !== '0000-00-00' && value !== '' ? dayjs(value, 'YYYY-MM-DD') : null}
@@ -279,26 +291,30 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
           size="small"
           style={{ width: 120 }}
           allowClear
+          className='text-xs'
         />
       ),
     },
     {
       title: 'Condition',
       dataIndex: 'condition',
+      className: 'text-xs',
       render: (value, _, idx) => (
         <Select
           value={value}
           onChange={val => handleFieldChange(idx, 'condition', val)}
           style={{ minWidth: 150 }}
           size="small"
+          className='text-xs'
         >
-          {conditionOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+          {conditionOptions.map(opt => <Option key={opt} value={opt}><span className='text-xs'>{opt}</span></Option>)}
         </Select>
       ),
     },
     {
       title: 'Detachment/Office',
       dataIndex: 'locationType',
+      className: 'text-xs',
       render: (value, row, idx) => (
         <div style={{ minWidth: 200 }}>
           <Select
@@ -306,10 +322,11 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
             onChange={val => handleFieldChange(idx, 'locationType', val)}
             size="small"
             placeholder="Select location type"
+            className='text-xs'
             style={{ width: 150, marginBottom: 4 }}
           >
-            <Option value="Head Office">Head Office</Option>
-            <Option value="Other">Other (Specify Below)</Option>
+            <Option value="Head Office" ><span className='text-xs'>Head Office</span></Option>
+            <Option value="Other"><span className='text-xs'>Other (Specify Below)</span></Option>
           </Select>
           {row.locationType === 'Head Office' && (
             <Select
@@ -319,7 +336,7 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
               placeholder="Select department"
               style={{ width: 150, marginTop: 4 }}
             >
-              {departmentOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+              {departmentOptions.map(opt => <Option key={opt} value={opt}><span className='text-xs'>{opt}</span></Option>)}
             </Select>
           )}
           {row.locationType === 'Other' && (
@@ -329,6 +346,7 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
               size="small"
               placeholder="Enter specific location"
               style={{ width: 140, marginTop: 4 }}
+              className='text-xs'
             />
           )}
         </div>
@@ -344,7 +362,7 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
           style={{ minWidth: 100 }}
           size="small"
         >
-          {statusOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+          {statusOptions.map(opt => <Option key={opt} value={opt}><span className='text-xs'>{opt}</span></Option>)}
         </Select>
       ),
     },
@@ -376,8 +394,8 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
         confirmLoading={submitting || loading}
         width={1500}
         footer={[
-          <Button key="cancel" onClick={onClose} className='custom-button-cancel' disabled={submitting || loading}>Cancel</Button>,
-          <Button key="submit" type="primary" className='custom-button' onClick={handleSubmit} loading={submitting || loading}>
+          <Button key="cancel" onClick={onClose} className='custom-button-cancel text-xs' disabled={submitting || loading}>Cancel</Button>,
+          <Button key="submit" type="primary" className='custom-button text-xs' onClick={handleSubmit} loading={submitting || loading}>
             Submit {changedItemsCount > 0 ? `(${changedItemsCount}/${totalItemsCount})` : ''}
           </Button>,
         ]}

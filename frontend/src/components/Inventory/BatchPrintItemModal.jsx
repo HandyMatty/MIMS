@@ -49,13 +49,14 @@ export default function BatchPrintItemModal({ visible, onClose, onConfirm, loadi
   }, [selectedRowKeys, allItems]);
 
   const columns = [
-    { title: 'ID', dataIndex: 'id', key: 'id', width: 100 },
-    { title: 'Type', dataIndex: 'type', key: 'type', width: 120 },
-    { title: 'Brand', dataIndex: 'brand', key: 'brand', width: 120 },
-    { title: 'Serial Number', dataIndex: 'serialNumber', key: 'serialNumber', width: 150 },
-    { title: 'Quantity', dataIndex: 'quantity', key: 'quantity', width: 80 },
-    { title: 'Location', dataIndex: 'location', key: 'location', width: 150 },
-    { title: 'Status', dataIndex: 'status', key: 'status', width: 100 },
+    { title: 'ID', dataIndex: 'id', key: 'id', className: 'text-xs', width: 100 },
+    { title: 'Type', dataIndex: 'type', key: 'type', className: 'text-xs', width: 120 },
+    { title: 'Brand', dataIndex: 'brand', key: 'brand', className: 'text-xs', width: 120 },
+    { title: 'Serial Number', dataIndex: 'serialNumber', key: 'serialNumber', className: 'text-xs', width: 150 },
+    { title: 'Remarks', dataIndex: 'remarks', key: 'remarks', className: 'text-xs', width: 100},
+    { title: 'Quantity', dataIndex: 'quantity', key: 'quantity', className: 'text-xs', width: 80 },
+    { title: 'Location', dataIndex: 'location', key: 'location', className: 'text-xs', width: 150 },
+    { title: 'Status', dataIndex: 'status', key: 'status', className: 'text-xs', width: 100 },
   ];
 
   return (
@@ -69,13 +70,17 @@ export default function BatchPrintItemModal({ visible, onClose, onConfirm, loadi
     >
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 min-w-0">
-          <Input
-            placeholder="Search items..."
-            value={searchText}
-            onChange={e => setSearchText(e.target.value)}
-            className="mb-2"
-          />
+            <Input.Search
+              placeholder="Search items..."
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              allowClear
+              style={{ width: 300 }}
+              size="small"
+              className='text-xs mb-2'
+            />
           <Table
+            bordered
             rowKey="id"
             dataSource={filteredItems}
             columns={columns}
@@ -112,6 +117,7 @@ export default function BatchPrintItemModal({ visible, onClose, onConfirm, loadi
                     <span>ID: {item.id}</span><br />
                     <span>Serial: {item.serialNumber || 'N/A'}</span><br />
                     <span>Location: {item.location}</span><br />
+                    <span>Remarks: {item.remarks}</span><br />
                     <span>Status: {item.status}</span>
                   </li>
                 ))}
@@ -119,12 +125,13 @@ export default function BatchPrintItemModal({ visible, onClose, onConfirm, loadi
             )}
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button onClick={onClose} disabled={loading}>Cancel</Button>
+            <Button onClick={onClose} disabled={loading} className='custom-button-cancel text-xs'>Cancel</Button>
             <Button
               type="primary"
               onClick={() => onConfirm(selectedItems)}
               loading={loading}
               disabled={selectedItems.length === 0}
+              className='custom-button text-xs'
             >
               Print Selected
             </Button>

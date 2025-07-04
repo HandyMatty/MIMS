@@ -31,6 +31,7 @@ const StockItemsTable = ({
       dataIndex: 'id',
       key: 'id',
       width: '15%',
+      className: 'text-xs',
       render: (text) => <span className="font-medium text-xs">{text}</span>
     },
     {
@@ -38,6 +39,7 @@ const StockItemsTable = ({
       dataIndex: 'type',
       key: 'type',
       width: '20%',
+      className: 'text-xs',
       render: (text) => <span className="font-medium text-xs">{text}</span>
     },
     {
@@ -45,6 +47,15 @@ const StockItemsTable = ({
       dataIndex: 'brand',
       key: 'brand',
       width: '20%',
+      className: 'text-xs',
+      render: (text) => <span className="font-medium text-xs">{text}</span>
+    },
+    {
+      title: 'Remarks',
+      dataIndex: 'remarks',
+      key: 'remarks',
+      width: '15%',
+      className: 'text-xs',
       render: (text) => <span className="font-medium text-xs">{text}</span>
     },
     {
@@ -52,6 +63,7 @@ const StockItemsTable = ({
       dataIndex: 'quantity',
       key: 'quantity',
       width: '15%',
+      className: 'text-xs',
       render: (text) => (
         <Tag color={text > 5 ? 'green' : text > 1 ? 'orange' : 'red'} className="text-xs">
           {text}
@@ -63,16 +75,29 @@ const StockItemsTable = ({
       dataIndex: 'location',
       key: 'location',
       width: '20%',
+      className: 'text-xs',
       render: (text) => (
         <Tooltip title={text}>
-          <span className="truncate block max-w-[200px] text-xs">{text}</span>
+          <span className="max-w-[200px] text-xs">{text}</span>
         </Tooltip>
       )
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: '20%',
+      className: 'text-xs',
+      render: (text) =>
+      <Tag color='green'> 
+      <span className="font-medium text-xs">{text}</span>
+      </Tag>
     },
     {
       title: 'Action',
       key: 'action',
       width: '10%',
+      className: 'text-xs',
       render: (_, record) => (
         <Space>
           <Tooltip title="Edit">
@@ -82,6 +107,7 @@ const StockItemsTable = ({
               onClick={() => handleStockItemSelect(record)}
               size="small"
               style={{backgroundColor: 'var(--theme-card-head-bg, #5fe7a7)', color: 'black'}}
+              className='text-xs'
             />
           </Tooltip>
           {record.quantity > 1 && (
@@ -92,6 +118,7 @@ const StockItemsTable = ({
                 onClick={() => handleStockItemSelect({ ...record, action: 'redistribute' })}
                 size="small"
                 style={{backgroundColor: 'var(--theme-text-light-custom, #EAF4E2)', color: 'black'}}
+                className='text-xs'
               />
             </Tooltip>
           )}
@@ -167,7 +194,7 @@ const StockItemsTable = ({
             showSizeChanger
             size="small"
             responsive
-            pageSizeOptions={['5', '10', '15']}
+            pageSizeOptions={['5', '10', '15','30','50']}
             onChange={(page, size) => {
               setCurrentPage(page);
               setPageSize(size);

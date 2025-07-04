@@ -4,7 +4,7 @@ import { getInventoryData } from '../../services/api/addItemToInventory';
 
 const { Text } = Typography;
 
-export default function BatchItemPickerModal({ visible, onClose, onConfirm, loading }) {
+export default function BatchItemPickerModal({ visible, onClose, onConfirm, loading, status }) {
   const [allItems, setAllItems] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -46,22 +46,59 @@ export default function BatchItemPickerModal({ visible, onClose, onConfirm, load
   }, [selectedRowKeys, allItems]);
 
   const columns = [
-    { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-    { title: 'Type', dataIndex: 'type', key: 'type', width: 120 },
-    { title: 'Brand', dataIndex: 'brand', key: 'brand', width: 120 },
-    { title: 'Qty', dataIndex: 'quantity', key: 'quantity', width: 70 },
-    { title: 'Serial Number', dataIndex: 'serialNumber', key: 'serialNumber', width: 150 },
-    { title: 'Location', dataIndex: 'location', key: 'location', width: 150 },
-    { title: 'Status', dataIndex: 'status', key: 'status', width: 100, render: (text) => <Tag>{text}</Tag> },
+    { title: 'ID', dataIndex: 'id', key: 'id', width: 80, className: 'text-xs' },
+    { title: 'Type', dataIndex: 'type', key: 'type', className: 'text-xs', width: 120 },
+    { title: 'Brand', dataIndex: 'brand', key: 'brand', className: 'text-xs', width: 120 },
+    { title: 'Qty', dataIndex: 'quantity', key: 'quantity', className: 'text-xs', width: 70 },
+    { title: 'Serial Number', dataIndex: 'serialNumber', key: 'serialNumber', className: 'text-xs', width: 150 },
+    { title: 'Remarks', dataIndex: 'remarks', key: 'remarks', className: 'text-xs', width: 150 },
+    { title: 'Location', dataIndex: 'location', key: 'location', className: 'text-xs', width: 150 },
+    { title: 'Status', dataIndex: 'status', key: 'status', width: 100, className: 'text-xs', render: (text) => {
+      let color;
+      switch (text) {
+        case 'On Stock':
+          color = 'green';
+          break;
+        case 'For Repair':
+          color = 'volcano';
+          break;
+        case 'Deployed':
+          color = 'blue';
+          break;
+        default:
+          color = 'gray';
+      }
+      return <Tag color={color}>{text}</Tag>;
+    } },
   ];
 
   const previewColumns = [
-    { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-    { title: 'Type', dataIndex: 'type', key: 'type', width: 120 },
-    { title: 'Brand', dataIndex: 'brand', key: 'brand', width: 120 },
-    { title: 'Qty', dataIndex: 'quantity', key: 'quantity', width: 70 },
-    { title: 'Remove', key: 'remove', width: 80, render: (_, record) => (
-      <Button size="small" danger onClick={() => handleRemoveSelected(record.id)}>Remove</Button>
+    { title: 'ID', dataIndex: 'id', key: 'id', className: 'text-xs', width: 80 },
+    { title: 'Type', dataIndex: 'type', key: 'type', className: 'text-xs', width: 120 },
+    { title: 'Brand', dataIndex: 'brand', key: 'brand', className: 'text-xs', width: 120 },
+    { title: 'Qty', dataIndex: 'quantity', key: 'quantity', className: 'text-xs', width: 70 },
+    { title: 'Remarks', dataIndex: 'remarks', key: 'remarks', className: 'text-xs', width: 150 },
+    { title: 'Serial Number', dataIndex: 'serialNumber', key: 'serialNumber', className: 'text-xs', width: 150 },
+    { title: 'Location', dataIndex: 'location', key: 'location', className: 'text-xs', width: 150 },
+    { title: 'Status', dataIndex: 'status', key: 'status', width: 100, className: 'text-xs', render: (text) => {
+      let color;
+      switch (text) {
+        case 'On Stock':
+          color = 'green';
+          break;
+        case 'For Repair':
+          color = 'volcano';
+          break;
+        case 'Deployed':
+          color = 'blue';
+          break;
+        default:
+          color = 'gray';
+      }
+      return <Tag color={color}>{text}</Tag>;
+    } },
+    { title: 'Remove', key: 'remove', width: 80, className: 'text-xs', render: (_, record) => (
+      <Button size="small" danger onClick={() => handleRemoveSelected(record.id)} className="text-xs">Remove</Button>
     ) },
   ];
 

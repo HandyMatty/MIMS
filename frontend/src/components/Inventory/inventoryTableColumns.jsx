@@ -258,7 +258,6 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
     },
   ];
 
-  // Only add the "Action" column if user is not a guest
   if (userRole !== 'guest') {
     baseColumns.push({
       title: 'Action',
