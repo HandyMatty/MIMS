@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global Styles */
 :root {
   font-family: 'Inter', sans-serif;
   font-synthesis: none;
@@ -19,40 +18,140 @@ html, body {
 }
 
 body {
-  @apply leading-normal; /* Apply Tailwind's leading-normal utility */
+  @apply leading-normal;
 }
 
-/* Specific Container Styling */
 .container {
-  overflow: hidden; /* Prevent overflow within specific containers */
+  overflow: hidden;
 }
 
-/* Custom Modal Styles */
 .customExportModal .ant-modal-body div {
   display: grid;
 }
 
-/* Reset Border and Margin */
 *,
 ::before,
 ::after {
   border-width: 0;
-  margin: 0; /* Reset margin for all elements */
+  margin: 0;
 }
 
-/* Sider Css */
+/* Skeleton loading optimizations */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Optimize skeleton animations for better performance */
+.skeleton-optimized {
+  will-change: opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Prevent layout shifts during loading */
+.skeleton-container {
+  min-height: 0;
+  min-width: 0;
+  contain: layout style paint;
+}
+
+/* Optimize grid layouts to prevent shifts */
+.grid-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 0.25rem;
+  contain: layout;
+}
+
+/* Improve table skeleton performance */
+.table-skeleton {
+  contain: layout style;
+  overflow: hidden;
+}
+
+.table-skeleton-row {
+  height: 48px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Optimize chart skeleton */
+.chart-skeleton {
+  aspect-ratio: 16/9;
+  contain: layout style;
+}
+
+/* Calendar skeleton optimizations */
+.calendar-skeleton {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  contain: layout;
+}
+
+.calendar-skeleton-cell {
+  aspect-ratio: 1;
+  min-height: 32px;
+}
+
+/* Statistics board skeleton */
+.stats-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  contain: layout;
+}
+
+/* Reduce CLS by ensuring consistent heights */
+.skeleton-height-fixed {
+  height: var(--skeleton-height, auto);
+  min-height: var(--skeleton-min-height, 0);
+}
+
+/* Optimize for mobile */
+@media (max-width: 640px) {
+  .skeleton-mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .calendar-skeleton {
+    gap: 1px;
+  }
+  
+  .calendar-skeleton-cell {
+    min-height: 24px;
+  }
+}
+
 .custom-menu .ant-menu-item-selected, 
 .custom-menu .ant-menu-item:hover {
   background-color: var(--theme-text-light, #D4E09B) !important;
 }
 
-/* Default state for menu items and icons */
 .custom-menu .ant-menu-item,
 .custom-menu .ant-menu-item .anticon {
   color: var(--theme-menu-item, #072C1C) !important;
 }
 
-/* Text and icon color on hover and select */
 .custom-menu .ant-menu-item-selected,
 .custom-menu .ant-menu-item:hover,
 .custom-menu .ant-menu-item-selected .anticon,
@@ -61,50 +160,41 @@ body {
 }
 
 .custom-menu .ant-menu-item {
-  margin-bottom: 20px; /* Adds spacing between menu items */
+  margin-bottom: 20px;
 }
 
-/* Tooltip Styles */
 .ant-tooltip-inner {
-  background-color: var(--theme-text, #072C1C) !important; /* Background color of tooltip */
-  color: var(--theme-text-light, #D4E09B) !important; /* Text color of tooltip */
-  font-size: 14px; /* Font size of tooltip text */
+  background-color: var(--theme-text, #072C1C) !important;
+  color: var(--theme-text-light, #D4E09B) !important;
+  font-size: 14px;
 }
-/* Login.css */
 
-/* Customize the placeholder color */
 .custom-password-input::placeholder {
-  color: var(--theme-text-light, #D4E09B) !important; /* Apply the same color to the placeholder */
+  color: var(--theme-text-light, #D4E09B) !important;
 }
 
-/* Customize the text color inside the password field */
 .custom-password-input {
-  background-color: #2F4F4F; /* Adjust background color if needed */
-  color: var(--theme-text-light, #D4E09B) !important; /* Set text color */
+  background-color: #2F4F4F;
+  color: var(--theme-text-light, #D4E09B) !important;
 }
 
-/* Customize the placeholder text */
 .custom-password-input input::placeholder {
   color: var(--theme-text-light, #D4E09B) !important;
 }
-/* Apply styles to the custom input */
 .custom-input {
-  background-color: var(--theme-text, #072c1c) !important; /* Dark green background */
-  color: var(--theme-text-light, #d4e09b) !important;            /* Pale goldenrod text */
+  background-color: var(--theme-text, #072c1c) !important;
+  color: var(--theme-text-light, #d4e09b) !important;
 }
 
-/* Styling for placeholder text */
 .custom-input::placeholder {
-  color: var(--theme-text-light, #d4e09b) !important;            /* Pale goldenrod placeholder text */
-  opacity: 1; /* Optional: Make sure it's fully opaque */
+  color: var(--theme-text-light, #d4e09b) !important; 
+  opacity: 1;
 }
 
-/* Ensure that input text color persists */
 .custom-input .input {
   color: var(--theme-text-light, #d4e09b) !important;
 }
 
-/*logo animation loading*/
 @keyframes bounce {
   0%, 100% {
     transform: translateY(0);
@@ -116,46 +206,41 @@ body {
 .logo-bounce {
   animation: bounce 0.4s ease-in-out infinite;
 }
-/* Avatar Icon Styling */
+
 .custom-avatar-icon {
   width: 40px;
   height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50%; /* Make the icon circular */
-  background-color: transparent; /* Default transparent background */
-  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Default icon color (yellow) */
 .custom-avatar-icon .anticon {
   font-size: 20px;
   color: var(--theme-text-light, #D4E09B);
 }
 
-/* Active state: when the icon is clicked */
 .custom-avatar-icon.active {
-  background-color: var(--theme-text-light, #D4E09B); /* Active background color (yellow) */
-  color: var(--theme-text, #072C1C); /* Active icon color (green) */
+  background-color: var(--theme-text-light, #D4E09B);
+  color: var(--theme-text, #072C1C);
 }
 
-/* Ensure icon color changes to green when active */
 .custom-avatar-icon.active .anticon {
   color: var(--theme-text, #072C1C);
 }
 
-/* Hover effect: yellow background */
 .custom-avatar-icon:hover {
-  background-color: var(--theme-text-light, #D4E09B); /* Hover background color (yellow) */
-  color: var(--theme-text, #072C1C); /* Icon color when hovered */
+  background-color: var(--theme-text-light, #D4E09B);
+  color: var(--theme-text, #072C1C);
 }
 
-/* Ensure icon inherits hover color */
 .custom-avatar-icon:hover .anticon {
-  color: var(--theme-text, #072C1C); /* Icon color changes on hover */
+  color: var(--theme-text, #072C1C);
 }
-/*Calendar*/
+
 .events {
   margin: 0;
   padding: 0;
@@ -176,28 +261,26 @@ body {
 .notes-month section {
   font-size: 28px;
 }
-/* Hide Edge's native eye icon for password fields */
+
 input[type="password"]::-ms-reveal {
   display: none;
 }
-/* Ensuring that the table body and the header color do not change */
+
 .ant-table-tbody > tr > td {
   background-color: var(--theme-table-container-bg, #a7f3d0  ) !important;
 }
 
-/* Optional: Customize hover effect */
 .ant-table-tbody > tr:hover > td {
   background-color: var(--theme-table-hover-bg, #94d7b3 ) !important;
 }
 
-/* Remove white border background from Ant Design Table */
 .ant-table-thead > tr > th {
   background-color: var(--theme-table-head-bg, #5fe7a7) !important;
   color: var(--theme-text, black) !important;
 }
 
 .ant-table-container {
-  background-color: #a7f3d0; /* Adjusts the table background */
+  background-color: #a7f3d0;
 }
 
 .ant-table-wrapper .ant-table-bordered .ant-table-container,
@@ -247,7 +330,6 @@ input[type="password"]::-ms-reveal {
   background-color: var(--theme-pagination-bg, #94d7b3) !important;
 }
  
-/* Ant Card CSS */
 .ant-card .ant-card-head {
   background-color: var(--theme-card-head-bg, #5fe7a7) !important;
   border-bottom: 3px solid var(--theme-card-head-border, #0C9B4B) !important;
@@ -261,30 +343,28 @@ input[type="password"]::-ms-reveal {
   border-radius: 10%;
 }
 
-/* Apply to entire table body */
 .ant-table-tbody td {
   word-wrap: break-word; 
   word-break: break-word;
 }
 
 .ant-tabs-tab {
-  border-top: 1px solid black !important; /* Change border color */
+  border-top: 1px solid black !important;
   border-left: 1px solid black !important;
   border-right: 1px solid black !important;
   border-bottom: 0.5px black !important;
-  border-radius: 5px; /* Optional: Add rounded corners */
+  border-radius: 5px;
 }
 .ant-tabs-nav-wrap {
   border-bottom: 1px solid black !important;
 }
 
-/* Optional: Change active tab border */
-.ant-tabs-tab-active {
-  background-color: var(--theme-background, #eaf4e2) !important;
+.custom-tabs .ant-tabs-tab-active {
+  background-color: var(--theme-text-light, #d9f99d) !important;
 }
 
-.ant-tabs-tab-btn {
-  color: var(--theme-text, #072C1C) !important;
+.custom-tabs .ant-tabs-tab-btn {
+  color: var(--theme-textLight, #072C1C) !important;
 }
 
 .ant-table-filter-trigger.active {
@@ -318,7 +398,6 @@ input[type="password"]::-ms-reveal {
   border-radius: 4px;
 }
 
-/* CalendarCustom.css */
 .ant-picker-cell-inner {
   min-height: 40px;
   padding: 2px 0;
@@ -331,7 +410,6 @@ input[type="password"]::-ms-reveal {
   }
 }
 
-/* Prevent text selection in menu items and dropdowns */
 .ant-select-item-option-content,
 .ant-dropdown-menu-title-content,
 .ant-menu-item,
@@ -347,7 +425,6 @@ span {
   -ms-user-select: none !important;
 }
 
-/* Support for forced colors mode */
 @media (forced-colors: active) {
   .ant-btn,
   .ant-menu-item,
@@ -357,7 +434,6 @@ span {
   }
 }
 
-/* Table Scrollbar Styling */
 .ant-table-body::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -377,7 +453,6 @@ span {
   background: var(--theme-table-hover-bg, #94d7b3);
 }
 
-/* For Firefox */
 .ant-table-body {
   scrollbar-width: thin;
   scrollbar-color: var(--theme-table-head-bg, #5fe7a7) var(--theme-table-container-bg, #a7f3d0);
@@ -400,7 +475,6 @@ span {
   background-color: var(--theme-background, #EAF4E2) !important;
 }
 
-/* Global Dropdown Menu & Item Styles */
 .ant-dropdown-menu {
   background-color: #ffffff !important;
 }
@@ -414,7 +488,6 @@ span {
   background-color: var(--theme-table-hover-bg, #94d7b3) !important;
 }
 
-/* Global Select Styles */
 .custom-selector .ant-select-selector {
   background-color: var(--theme-component-bg, #a7f3d0) !important;
   border: 1px solid var(--theme-border, black) !important;
@@ -439,7 +512,6 @@ span {
   color: var(--theme-text, black) !important;
 }
 
-/* QR Code Generator Action Button */
 .qr-action-btn {
   background-color: var(--theme-card-head-bg, #d9f99d) !important;
   color: var(--theme-text, #072C1C) !important;
@@ -450,7 +522,6 @@ span {
   background-color: var(--theme-hover-bg, #94d7b3) !important;
 }
 
-/* Global Scrollbar Styles */
 body::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -470,7 +541,6 @@ body::-webkit-scrollbar-thumb:hover {
   background: var(--theme-hover-bg, #94d7b3);
 }
 
-/* Firefox scrollbar styles */
 body {
   scrollbar-width: thin;
   scrollbar-color: var(--theme-card-head-bg, #5fe7a7) var(--theme-component-bg, #EAF4E2);
@@ -497,7 +567,6 @@ body {
   color: var(--theme-text, black) !important;
 }
 
-/* Global Spin Component Styles */
 .ant-spin-dot-item {
   background-color: var(--theme-spin-color, #0C9B4B) !important;
 }
@@ -509,7 +578,6 @@ body {
 .ant-spin-container {
   background-color: var(--theme-spin-bg, transparent) !important;
 }
-/* Theme-aware Alert Styles */
 .theme-aware-alert .ant-alert-info {
   background-color: var(--theme-component-bg, #5fe7a7) !important;
 }
@@ -525,20 +593,17 @@ body {
 .theme-aware-alert .ant-alert-icon {
   color: var(--theme-card-head-bg, #5fe7a7) !important;
 }
-/* Move the close button 20px from the top and 30px from the right */
 .ant-modal-close {
   top: 20px !important;
   right: 25px !important;
 }
 
-/* Date panel: today cell */
 .ant-picker-cell-today .ant-picker-cell-inner {
   background: var(--theme-sider, #94d7b3) !important;
   color: var(--theme-text, #000000) !important;
   box-shadow: none !important;
 }
 
-/* Month panel: today cell */
 .ant-picker-month-panel .ant-picker-cell-today .ant-picker-cell-inner,
 .ant-picker-month-panel .ant-picker-cell-today.ant-picker-cell-selected .ant-picker-cell-inner {
   background: var(--theme-sider, #94d7b3) !important;
@@ -546,7 +611,6 @@ body {
   box-shadow: none !important;
 }
 
-/* Month panel: selected month (not today) */
 .ant-picker-month-panel .ant-picker-cell-selected .ant-picker-cell-inner {
   background: var(--theme-card-head-bg, #5fe7a7) !important;
   color: var(--theme-text, #000000) !important;
@@ -561,4 +625,8 @@ body {
 
 .ant-picker-calendar-date-value {
   color: #000000 !important;
+}
+
+.ant-select-selection-item{
+  font-size: 12px;
 }

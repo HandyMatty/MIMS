@@ -70,7 +70,8 @@ export const getDashboardTableColumns = (handleQrCodeClick, searchTerm = '') => 
     align: 'center',
     sorter: true,
     width: '130px',
-    className: 'text-xs overflow-auto',
+    fixed: 'left',
+    className: 'text-xs',
     responsive: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
   },

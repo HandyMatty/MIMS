@@ -47,19 +47,19 @@ const useLoginAuth = () => {
           setAdminUserData({ username });
           setAdminRole(role);
           setAdminToken(token);
-          logUserActivity(username, 'Login', `This admin just logged in`);
+          logUserActivity('Login', `This admin just logged in`, username);
           navigate('/admin/dashboard', { replace: true });
         } else if (role === 'user') {
           setUserUserData({ username });
           setUserRole(role);
           setUserToken(token);
-          logUserActivity(username, 'Login', `This user just logged in`);
+          logUserActivity('Login', `This user just logged in`, username);
           navigate('/user/dashboard', { replace: true });
         } else if (role === 'guest') {
           setGuestUserData({ username });
           setGuestRole(role);
           setGuestToken(token);
-          logUserActivity(username, 'Login', `This guest just logged in`);
+          logUserActivity('Login', `This guest just logged in`, username);
           navigate('/guest/dashboard', { replace: true });
         }
 

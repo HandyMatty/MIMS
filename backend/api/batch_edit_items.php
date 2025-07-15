@@ -39,7 +39,6 @@ foreach ($items as $item) {
         continue;
     }
 
-    // Fetch existing item
     $query = "SELECT * FROM inventory WHERE id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $id);
@@ -57,7 +56,6 @@ foreach ($items as $item) {
         continue;
     }
 
-    // ID reformatting logic
     $inputPurchaseDateFormatted = date("Ymd", strtotime($purchaseDate));
     $existingPurchaseDateFormatted = date("Ymd", strtotime($existingItem['purchase_date']));
     $existingIdStartsWithDate = str_starts_with((string)$existingItem['id'], $inputPurchaseDateFormatted);
@@ -86,7 +84,6 @@ foreach ($items as $item) {
         $newItemId = $purchaseDateFormatted . $newCounter;
     }
 
-    // Serial number uniqueness check for new format
     $isNewFormat = str_starts_with((string)$newItemId, '20');
     if (!empty($serialNumber) && $isNewFormat) {
         $checkSerialQuery = "
@@ -112,7 +109,6 @@ foreach ($items as $item) {
         $stmt->close();
     }
 
-    // Change detection
     $changes = [];
     if ($existingItem['id'] !== $newItemId) $changes['Item ID'] = ["old" => $existingItem['id'], "new" => $newItemId];
     if ($existingItem['type'] !== $type) $changes['Type'] = ["old" => $existingItem['type'], "new" => $type];
@@ -136,7 +132,6 @@ foreach ($items as $item) {
         continue;
     }
 
-    // History logging
     $fieldChanged = json_encode(array_keys($changes));
     $oldValues = json_encode(array_column($changes, "old"));
     $newValues = json_encode(array_column($changes, "new"));
@@ -149,7 +144,6 @@ foreach ($items as $item) {
     $history_stmt->execute();
     $history_stmt->close();
 
-    // Update item
     $update_stmt = $conn->prepare("
         UPDATE inventory 
         SET id = ?, type = ?, brand = ?, serial_number = ?, issued_date = ?, purchase_date = ?, `condition` = ?, location = ?, status = ?, remarks = ?, quantity = ?

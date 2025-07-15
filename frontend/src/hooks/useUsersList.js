@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { App, Modal } from 'antd';
 import {
   fetchUsersData,
@@ -13,6 +13,15 @@ import { resetPasswordApi } from '../services/api/resetpassword';
 import { generateTempPassword } from '../utils/password';
 import { useActivity } from '../utils/ActivityContext';
 import { useNotification } from '../utils/NotificationContext';
+import { 
+  updateTableCache, 
+  markTableCacheStale, 
+  isTableCacheValid, 
+  getTableCacheData, 
+  getTableCacheLastUpdated,
+  SYNC_INTERVAL 
+} from '../utils/cacheUtils';
+import { isOffline } from '../utils/offlineUtils';
 
 const useUsersList = () => {
   const [users, setUsers] = useState([]);
@@ -33,10 +42,15 @@ const useUsersList = () => {
   const [currentUserRole, setCurrentUserRole] = useState(null);
   const [currentUserIdForRole, setCurrentUserIdForRole] = useState(null);
   const [loadingRoleUpdate, setLoadingRoleUpdate] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState(null);
 
   const { logUserActivity } = useActivity();
   const { logUserNotification } = useNotification();
   const { message, modal } = App.useApp();
+  const syncIntervalRef = useRef(null);
+  
+  const TABLE_NAME = 'users';
 
 
   const handleRoleUpdate = async (values) => {
@@ -129,20 +143,75 @@ const useUsersList = () => {
     ]);
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchUsersData();
-        setUsers(data.users);
-        setFilteredData(data.users);
-      } catch (error) {
-        console.error('Error fetching users data:', error);
-      } finally {
-        setLoading(false);
+  const refreshUsers = useCallback(async (forceRefresh = false) => {
+    try {
+      if (await isOffline()) {
+        console.warn('Cannot refresh users while offline');
+        return;
       }
-    };
-    fetchData();
+
+      setIsRefreshing(true);
+      
+      if (isTableCacheValid(TABLE_NAME, forceRefresh)) {
+        const cachedData = getTableCacheData(TABLE_NAME);
+        setUsers(cachedData.users);
+        setFilteredData(cachedData.users);
+        setLastSyncTime(getTableCacheLastUpdated(TABLE_NAME));
+        return;
+      }
+
+      const freshData = await fetchUsersData();
+      
+      updateTableCache(TABLE_NAME, freshData);
+      
+      setUsers(freshData.users);
+      setFilteredData(freshData.users);
+      setLastSyncTime(Date.now());
+      
+    } catch (error) {
+      console.error('Failed to load users data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
   }, []);
+
+  const startBackgroundSync = useCallback(() => {
+    if (syncIntervalRef.current) {
+      clearInterval(syncIntervalRef.current);
+    }
+    
+    syncIntervalRef.current = setInterval(async () => {
+      try {
+        if (await isOffline()) {
+          return;
+        }
+        
+        const freshData = await fetchUsersData();
+        updateTableCache(TABLE_NAME, freshData);
+        
+        setUsers(freshData.users);
+        setFilteredData(freshData.users);
+        setLastSyncTime(Date.now());
+        
+      } catch (error) {
+        console.warn('Background sync failed:', error);
+        markTableCacheStale(TABLE_NAME);
+      }
+    }, SYNC_INTERVAL);
+  }, []);
+
+  const stopBackgroundSync = useCallback(() => {
+    if (syncIntervalRef.current) {
+      clearInterval(syncIntervalRef.current);
+      syncIntervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshUsers();
+    startBackgroundSync();
+    return () => stopBackgroundSync();
+  }, [refreshUsers, startBackgroundSync, stopBackgroundSync]);
 
   const onSearch = (e) => {
     const value = e.target.value;
@@ -287,26 +356,6 @@ const useUsersList = () => {
     }
   };
 
-  const refreshUsers = async () => {
-    setLoading(true);
-    setSearchText('');
-    setCurrentPage(1);
-    setPageSize(5);
-    setSelectedRowKeys([]);
-    setFilteredData([]);
-
-    try {
-      const data = await fetchUsersData();
-      setUsers(data.users);
-      setFilteredData(data.users);
-    } catch (error) {
-      console.error('Error fetching users data:', error);
-      message.error('Failed to refresh users data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return {
     users,
     setUsers,
@@ -347,6 +396,8 @@ const useUsersList = () => {
     handleChangeSecurityQuestion,
     handleDepartmentUpdate,
     refreshUsers,
+    isRefreshing,
+    lastSyncTime,
   };
 };
 

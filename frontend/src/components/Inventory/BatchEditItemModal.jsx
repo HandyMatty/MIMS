@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Modal, Button, Table, Input, Select, DatePicker, App, Tag } from 'antd';
+import { Modal, Button, Table, Input, Select, DatePicker, App, Tag, Checkbox } from 'antd';
 import dayjs from 'dayjs';
+import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';
 
 const { Option } = Select;
 
@@ -20,6 +22,19 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
   const [originalRows, setOriginalRows] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [serialModalRowIdx, setSerialModalRowIdx] = useState(null);
+  const [batchApplyModalVisible, setBatchApplyModalVisible] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [batchApplyValues, setBatchApplyValues] = useState({
+    condition: '',
+    status: '',
+    locationType: 'Head Office',
+    department: 'SOD',
+    location: '',
+    purchaseDate: '',
+    issuedDate: '',
+  });
+  const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
 
   useEffect(() => {
     if (visible) {
@@ -175,6 +190,8 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
     try {
       await onBatchEdit(itemsToEdit);
       message.success(`${itemsToEdit.length} item(s) updated successfully!`);
+      logUserActivity('Batch Edit', `Edited ${itemsToEdit.length} item(s) in inventory.`);
+      logUserNotification('Batch Edit', `Edited ${itemsToEdit.length} item(s) in inventory.`);
       onClose();
     } catch (e) {
       message.error('Failed to update some items.');
@@ -368,6 +385,59 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
     },
   ];
 
+  const handleBatchApply = () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('Please select at least one row to apply batch operations.');
+      return;
+    }
+    setBatchApplyModalVisible(true);
+  };
+
+  const handleBatchApplySubmit = () => {
+    const updatedRows = rows.map(row => {
+      if (selectedRowKeys.includes(row.id)) {
+        const updatedRow = { ...row };
+        
+        if (batchApplyValues.condition) updatedRow.condition = batchApplyValues.condition;
+        if (batchApplyValues.status) updatedRow.status = batchApplyValues.status;
+        if (batchApplyValues.locationType) {
+          updatedRow.locationType = batchApplyValues.locationType;
+          if (batchApplyValues.locationType === 'Head Office' && batchApplyValues.department) {
+            updatedRow.department = batchApplyValues.department;
+          } else if (batchApplyValues.locationType === 'Other' && batchApplyValues.location) {
+            updatedRow.location = batchApplyValues.location;
+          }
+        }
+        if (batchApplyValues.purchaseDate) updatedRow.purchaseDate = batchApplyValues.purchaseDate;
+        if (batchApplyValues.issuedDate) updatedRow.issuedDate = batchApplyValues.issuedDate;
+        
+        return updatedRow;
+      }
+      return row;
+    });
+    
+    setRows(updatedRows);
+    setBatchApplyModalVisible(false);
+    setSelectedRowKeys([]);
+    message.success(`Applied batch values to ${selectedRowKeys.length} item(s)`);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedRowKeys.length === rows.length) {
+      setSelectedRowKeys([]);
+    } else {
+      setSelectedRowKeys(rows.map(row => row.id));
+    }
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
+    getCheckboxProps: (record) => ({
+      disabled: false,
+    }),
+  };
+
   const changedItemsCount = getChangedItems().length;
   const totalItemsCount = rows.length;
 
@@ -384,6 +454,117 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
       >
         Does the item you want to edit have only 1 serial number but has many quantities?
       </Modal>
+
+      <Modal
+        open={batchApplyModalVisible}
+        title="Batch Apply Values"
+        onCancel={() => setBatchApplyModalVisible(false)}
+        onOk={handleBatchApplySubmit}
+        okText="Apply to Selected"
+        width={600}
+      >
+        <div className="space-y-4">
+          <div className="text-sm text-gray-600 mb-4">
+            Apply the following values to {selectedRowKeys.length} selected item(s):
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Condition</label>
+              <Select
+                value={batchApplyValues.condition}
+                onChange={(value) => setBatchApplyValues(prev => ({ ...prev, condition: value }))}
+                placeholder="Select condition"
+                allowClear
+                style={{ width: '100%' }}
+              >
+                {conditionOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+              </Select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Status</label>
+              <Select
+                value={batchApplyValues.status}
+                onChange={(value) => setBatchApplyValues(prev => ({ ...prev, status: value }))}
+                placeholder="Select status"
+                allowClear
+                style={{ width: '100%' }}
+              >
+                {statusOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Location Type</label>
+            <Select
+              value={batchApplyValues.locationType}
+              onChange={(value) => setBatchApplyValues(prev => ({ ...prev, locationType: value }))}
+              placeholder="Select location type"
+              style={{ width: '100%' }}
+            >
+              <Option value="Head Office">Head Office</Option>
+              <Option value="Other">Other (Specify Below)</Option>
+            </Select>
+          </div>
+
+          {batchApplyValues.locationType === 'Head Office' && (
+            <div>
+              <label className="block text-sm font-medium mb-1">Department</label>
+              <Select
+                value={batchApplyValues.department}
+                onChange={(value) => setBatchApplyValues(prev => ({ ...prev, department: value }))}
+                placeholder="Select department"
+                style={{ width: '100%' }}
+              >
+                {departmentOptions.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+              </Select>
+            </div>
+          )}
+
+          {batchApplyValues.locationType === 'Other' && (
+            <div>
+              <label className="block text-sm font-medium mb-1">Location</label>
+              <Input
+                value={batchApplyValues.location}
+                onChange={(e) => setBatchApplyValues(prev => ({ ...prev, location: e.target.value }))}
+                placeholder="Enter specific location"
+              />
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Purchase Date</label>
+              <DatePicker
+                value={batchApplyValues.purchaseDate ? dayjs(batchApplyValues.purchaseDate) : null}
+                onChange={(date) => setBatchApplyValues(prev => ({ 
+                  ...prev, 
+                  purchaseDate: date ? dayjs(date).format('YYYY-MM-DD') : '' 
+                }))}
+                format="YYYY-MM-DD"
+                style={{ width: '100%' }}
+                allowClear
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Issued Date</label>
+              <DatePicker
+                value={batchApplyValues.issuedDate ? dayjs(batchApplyValues.issuedDate) : null}
+                onChange={(date) => setBatchApplyValues(prev => ({ 
+                  ...prev, 
+                  issuedDate: date ? dayjs(date).format('YYYY-MM-DD') : '' 
+                }))}
+                format="YYYY-MM-DD"
+                style={{ width: '100%' }}
+                allowClear
+              />
+            </div>
+          </div>
+        </div>
+      </Modal>
       
       <Modal
         open={visible}
@@ -394,16 +575,35 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
         confirmLoading={submitting || loading}
         width={1500}
         footer={[
-          <Button key="cancel" onClick={onClose} className='custom-button-cancel text-xs' disabled={submitting || loading}>Cancel</Button>,
-          <Button key="submit" type="primary" className='custom-button text-xs' onClick={handleSubmit} loading={submitting || loading}>
+          <Button size='small' key="batch" onClick={handleBatchApply} className='custom-button text-xs' disabled={submitting || loading || selectedRowKeys.length === 0}>
+            Batch Apply ({selectedRowKeys.length})
+          </Button>,
+          <Button size='small' key="cancel" onClick={onClose} className='custom-button-cancel text-xs' disabled={submitting || loading}>Cancel</Button>,
+          <Button size='small' key="submit" type="primary" className='custom-button text-xs' onClick={handleSubmit} loading={submitting || loading}>
             Submit {changedItemsCount > 0 ? `(${changedItemsCount}/${totalItemsCount})` : ''}
           </Button>,
         ]}
       >
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
-          <div className="text-sm text-blue-800">
-            <strong>Change Detection:</strong> {changedItemsCount} of {totalItemsCount} items have changes.
-            {changedItemsCount === 0 && ' No changes detected - only modified items will be submitted.'}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-blue-800">
+              <strong>Change Detection:</strong> {changedItemsCount} of {totalItemsCount} items have changes.
+              {changedItemsCount === 0 && ' No changes detected - only modified items will be submitted.'}
+            </div>
+            <Checkbox 
+              checked={selectedRowKeys.length === rows.length && rows.length > 0}
+              indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < rows.length}
+              onChange={handleSelectAll}
+              className="text-xs"
+            >
+              Select All ({selectedRowKeys.length}/{rows.length})
+            </Checkbox>
+          </div>
+        </div>
+
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded">
+          <div className="text-sm text-green-800">
+            <strong>Smart Batch Operations:</strong> Select rows and use "Batch Apply" to set common values for multiple items at once.
           </div>
         </div>
         
@@ -416,8 +616,11 @@ export default function BatchEditItemModal({ visible, onClose, onBatchEdit, load
           size="small"
           scroll={{ x: "max-content", y: 600 }}
           responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
+          rowSelection={rowSelection}
           rowClassName={(record, index) => {
-            return hasChanges(record, originalRows[index]) ? 'bg-blue-50' : '';
+            const hasChangesClass = hasChanges(record, originalRows[index]) ? 'bg-blue-50' : '';
+            const isSelectedClass = selectedRowKeys.includes(record.id) ? 'bg-green-50' : '';
+            return `${hasChangesClass} ${isSelectedClass}`.trim();
           }}
         />
         <div className="text-xs text-gray-500 mt-2">* Required fields: Type, Brand, Qty, Purchased Date, Condition, Status, Detachment/Office</div>

@@ -1,3 +1,4 @@
+import { useState, useMemo, useCallback } from 'react';
 import {
   Table,
   Tag,
@@ -19,7 +20,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import ModalForms from '../ModalForms';
-import useUsersList from '../../hooks/useUsersList'; // Adjust the path if needed
+import useUsersList from '../../hooks/useUsersList';
 import { useMediaQuery } from 'react-responsive';
 
 const { Text } = Typography;
@@ -35,32 +36,27 @@ const DEPARTMENT_OPTIONS = [
   'BDO'
 ];
 
-const UsersList = () => {
+const UsersList = ({ usersData = [], loading = false, error = null, onRefresh, lastSyncTime }) => {
   const isMobile = useMediaQuery({ maxWidth: 639 });
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [searchText, setSearchText] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   const {
-    selectedRowKeys,
-    searchText,
-    filteredData,
     isAddModalVisible,
     isPasswordModalVisible,
     isSecurityQuestionModalVisible,
     temporaryPassword,
     securityQuestions,
     currentUserSecurityQuestion,
-    currentPage,
-    pageSize,
-    loading,
     isRoleModalVisible,
     setIsRoleModalVisible,
     currentUserRole,
     loadingRoleUpdate,
-    setSelectedRowKeys,
     setIsAddModalVisible,
     setIsPasswordModalVisible,
     setIsSecurityQuestionModalVisible,
-    onSearch,
-    handlePageChange,
     handleBatchDelete,
     handleAddUser,
     handleResetPassword,
@@ -69,10 +65,50 @@ const UsersList = () => {
     handleRoleUpdate,
     handleChangeSecurityQuestion,
     handleDepartmentUpdate,
-    refreshUsers,
+    lastSyncTime: hookLastSyncTime,
   } = useUsersList();
 
-  const columns = [
+  const filteredData = useMemo(() => {
+    if (!searchText) return usersData;
+    return usersData.filter((item) =>
+      Object.values(item).some((field) =>
+        String(field).toLowerCase().includes(searchText.toLowerCase())
+      )
+    );
+  }, [usersData, searchText]);
+
+  const paginatedData = useMemo(() => 
+    filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize), 
+    [filteredData, currentPage, pageSize]
+  );
+
+  const handleSearch = useCallback((e) => {
+    const value = e.target.value;
+    setSearchText(value);
+    setCurrentPage(1);
+  }, []);
+
+  const handlePageChange = useCallback((page, pageSize) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    setSearchText('');
+    setCurrentPage(1);
+    setPageSize(5);
+    setSelectedRowKeys([]);
+    if (onRefresh) {
+      onRefresh();
+    }
+  }, [onRefresh]);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchText('');
+    setCurrentPage(1);
+  }, []);
+
+  const columns = useMemo(() => [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -168,12 +204,29 @@ const UsersList = () => {
         </div>
       ),
     },
-  ];
+  ], [isMobile, handleDepartmentUpdate, handleResetPassword, handleSecurityQuestion, showEditRoleModal, loadingRoleUpdate]);
 
-  const rowSelection = {
+  const rowSelection = useMemo(() => ({
     selectedRowKeys,
     onChange: (newSelectedRowKeys) => setSelectedRowKeys(newSelectedRowKeys),
-  };
+    preserveSelectedRowKeys: true,
+  }), [selectedRowKeys]);
+
+  const expandableConfig = useMemo(() => 
+    isMobile ? {
+      expandedRowRender: (record) => (
+        <div className="text-xs space-y-1">
+          <div><b>ID:</b> {record.id}</div>
+          <div><b>Username:</b> {record.username}</div>
+          <div><b>Department:</b> {record.department}</div>
+          <div><b>Role:</b> {record.role}</div>
+          <div><b>Status:</b> {record.status}</div>
+        </div>
+      ),
+      rowExpandable: () => true,
+    } : undefined, 
+    [isMobile]
+  );
 
   return (
     <Card
@@ -185,24 +238,9 @@ const UsersList = () => {
           placeholder="Search users..."
           prefix={<SearchOutlined />}
           value={searchText}
-          onChange={onSearch}
+          onChange={handleSearch}
           className="w-auto text-xs border border-black"
-          suffix={
-            searchText ? (
-              <Button
-                type="text"
-                onClick={() => {
-                  onSearch({ target: { value: '' } });
-                }}
-                className="text-xs"
-                size="small"
-                tabIndex={-1}
-                style={{ padding: 0, height: 'auto', lineHeight: 1 }}
-              >
-                ×
-              </Button>
-            ) : null
-          }
+          allowClear
         />
         <Tooltip title="Add User">
           <Button
@@ -224,7 +262,7 @@ const UsersList = () => {
           <Button
             type="text"
             icon={<ReloadOutlined />}
-            onClick={refreshUsers}
+            onClick={handleRefresh}
             className="w-auto text-xs"
             size='small'
           />
@@ -233,7 +271,7 @@ const UsersList = () => {
       <div className="w-auto overflow-x-auto" >
         <Table
           columns={columns}
-          dataSource={filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+          dataSource={paginatedData}
           pagination={false}
           bordered
           rowKey="id"
@@ -242,29 +280,21 @@ const UsersList = () => {
           loading={loading}
           responsive= {['xs', 'sm', 'md', 'lg', 'xl']}
           scroll={{ x: 'max-content', y: 300 }}
-          expandable={
-            isMobile
-              ? {
-                  expandedRowRender: (record) => (
-                    <div className="text-xs space-y-1">
-                      <div><b>ID:</b> {record.id}</div>
-                      <div><b>Username:</b> {record.username}</div>
-                      <div><b>Department:</b> {record.department}</div>
-                      <div><b>Role:</b> {record.role}</div>
-                      <div><b>Status:</b> {record.status}</div>
-                    </div>
-                  ),
-                  rowExpandable: () => true,
-                }
-              : undefined
-          }
+          expandable={expandableConfig}
         />
       </div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-5 space-y-2 sm:space-y-0">
-        <Text style={{ color: '#072C1C' }} className="w-full text-xs text-wrap text-center sm:text-left">
-          Showing {Math.min((currentPage - 1) * pageSize + 1, filteredData.length)} to{' '}
-          {Math.min(currentPage * pageSize, filteredData.length)} of {filteredData.length} entries
-        </Text>
+        <div className="w-full flex flex-col items-center sm:items-start">
+          <Text style={{ color: '#072C1C' }} className="w-full text-xs text-wrap text-center sm:text-left">
+            Showing {Math.min((currentPage - 1) * pageSize + 1, filteredData.length)} to{' '}
+            {Math.min(currentPage * pageSize, filteredData.length)} of {filteredData.length} entries
+          </Text>
+          {lastSyncTime && (
+            <div className="text-xs text-gray-500 mt-1 text-center sm:text-left">
+              Last synced: {new Date(lastSyncTime).toLocaleTimeString()}
+            </div>
+          )}
+        </div>
         <div className="w-full flex justify-center sm:justify-end">
         <Pagination
           current={currentPage}

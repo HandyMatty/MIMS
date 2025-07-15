@@ -8,19 +8,19 @@ const ContactInfo = memo(() => (
     <Text strong>Contact Information:</Text><br />
     <Paragraph>
       📧 Email:{" "}
-      <a href="mailto:matthewlondonio@sentinelphils.com">
-        matthewlondonio@sentinelphils.com
+      <a href="mailto:newdeveloper@sentinelphils.com">
+        "If you are the new Developer, you can edit/update the NoticeModal.jsx to place your email link"
       </a>{" "}
       &nbsp;|&nbsp;
       <a
-        href="https://mail.google.com/mail/?view=cm&fs=1&to=matthewlondonio@sentinelphils.com"
+        href="https://mail.google.com/mail/?view=cm&fs=1&to=newdeveloper@sentinelphils.com"
         target="_blank"
         rel="noopener noreferrer"
       >
-        Open in Gmail
+        "This is a GMAIL reference link for the new Developer"
       </a>
     </Paragraph>
-    📱 Phone: <a href="tel:+639951088710">+63 995 108 8710</a>
+    📱 Phone: <a href="tel:+placeyournewnumberhere">"New Contact Number"</a>
   </Paragraph>
 ));
 

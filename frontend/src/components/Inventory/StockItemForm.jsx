@@ -1,6 +1,8 @@
 import { Form, Input, Select, Button, DatePicker, Row, Col, Card, Typography, Modal } from 'antd';
 import { EditOutlined, CopyFilled } from '@ant-design/icons';
 import { useState } from 'react';
+import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -18,6 +20,8 @@ const StockItemForm = ({
   const [showQuantityWithSerial, setShowQuantityWithSerial] = useState(false);
   const [lastSerialValue, setLastSerialValue] = useState('');
   const [serialModalShownForCurrentInput, setSerialModalShownForCurrentInput] = useState(false);
+  const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
 
   if (!selectedStockItem) return null;
 
@@ -47,17 +51,11 @@ const StockItemForm = ({
     form.setFieldsValue({ quantity: 1 });
   };
 
-  const onFinishHandler = (values) => {
-    // If serial number is present and showQuantityWithSerial is false, force quantity to 1
-    let finalQuantity = lastSerialValue && !showQuantityWithSerial && selectedStockItem?.action !== 'redistribute'
-      ? 1
-      : values.quantity;
-    const payload = {
-      ...values,
-      quantity: finalQuantity,
-      serialNumber: values.serialNumber,
-    };
-    onFinish(payload);
+  const handleFinish = (values) => {
+    onFinish(values);
+    const action = selectedStockItem?.action === 'redistribute' ? 'Redistribute Item' : 'Edit Item';
+    logUserActivity(action, `${action}: ${values.type} (${values.brand}), Qty: ${values.quantity}`);
+    logUserNotification(action, `${action}: ${values.type} (${values.brand}), Qty: ${values.quantity}`);
   };
 
   return (
@@ -88,7 +86,7 @@ const StockItemForm = ({
       
       <Form
         form={form}
-        onFinish={onFinishHandler}
+        onFinish={handleFinish}
         layout="vertical"
         initialValues={{
           quantity: 1,
@@ -327,10 +325,10 @@ const StockItemForm = ({
                     style={{
                       backgroundColor: 'var(--theme-card-head-bg, #a7f3d0)',
                       border: 'none',
-                      borderRadius: '8px',
-                      padding: '10px',
+                      borderRadius: '6px',
+                      padding: '8px',
                       height: 'auto',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontWeight: '600',
                       color: 'black'
                     }}

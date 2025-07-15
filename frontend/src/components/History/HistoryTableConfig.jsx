@@ -1,7 +1,7 @@
 import { Tag, Button } from "antd";
 import HighlightText from "../common/HighlightText";
 
-export const getStatusTag = (status, searchTerm = '') => {
+export const getStatusTag = (status) => {
   let color;
   switch (status) {
     case 'On Stock':
@@ -18,12 +18,12 @@ export const getStatusTag = (status, searchTerm = '') => {
   }
   return (
     <Tag color={color} className="text-wrap text-center">
-      <HighlightText text={status} searchTerm={searchTerm} />
+      <HighlightText text={status} />
     </Tag>
   );
 };
 
-export const getConditionTag = (condition, searchTerm = '') => {
+export const getConditionTag = (condition) => {
   let color;
   switch (condition) {
     case 'Brand New':
@@ -40,12 +40,12 @@ export const getConditionTag = (condition, searchTerm = '') => {
   }
   return (
     <Tag color={color} className="text-wrap text-center">
-      <HighlightText text={condition} searchTerm={searchTerm} />
+      <HighlightText text={condition} />
     </Tag>
   );
 };
 
-export const getColumns = (showModal, tabType, searchTerm = '') => {
+export const getColumns = (showModal, tabType) => {
   let columns = [
     {
       title: "ID",
@@ -54,8 +54,9 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
       align: "center",
       sorter: true,
       width: '80px',
-      className: "text-xs overflow-auto text-wrap",
-      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+      fixed: 'left',
+      className: "text-xs text-wrap",
+      render: (text) => <HighlightText text={text} />
     },
     {
       title: "Action",
@@ -64,7 +65,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
       align: "center",
       width: '90px',
       className: "text-xs overflow-auto text-wrap",
-      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+      render: (text) => <HighlightText text={text} />
     },
     {
       title: "Action Date",
@@ -77,11 +78,11 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
       className: "text-xs overflow-auto text-wrap",
       render: (text) => {
         if (!text || text === "0000-00-00" || text === "") {
-          return <HighlightText text="NO DATE" searchTerm={searchTerm} />;
+          return <HighlightText text="NO DATE" />;
         }
         const date = new Date(text);
         const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-        return <HighlightText text={formattedDate} searchTerm={searchTerm} />;
+        return <HighlightText text={formattedDate} />;
       },
     },
     {
@@ -93,7 +94,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
       width: '130px',
       responsive: ['sm'],
       className: "text-xs overflow-auto text-wrap",
-      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+      render: (text) => <HighlightText text={text} />
     },
   ];
   if (tabType === "Added" || tabType === "Deleted") {
@@ -106,7 +107,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '100px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+        render: (text) => <HighlightText text={text} />
       },
       {
         title: "Brand",
@@ -116,7 +117,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '100px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+        render: (text) => <HighlightText text={text} />
       },
       {
         title: 'Qty',
@@ -127,7 +128,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
         sorter: (a, b) => a.quantity - b.quantity,
-        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+        render: (text) => <HighlightText text={text} />
       },
       {
         title: "Remarks",
@@ -137,7 +138,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '180px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
+        render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} />
       },
       {
         title: "Serial No.",
@@ -147,7 +148,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '150px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} searchTerm={searchTerm} />
+        render: (text) => <HighlightText text={text && text.trim() !== "" ? text : "-"} />
       },
       {
         title: "Issued Date",
@@ -158,7 +159,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '110px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (date) => <HighlightText text={(!date || date === "0000-00-00") ? "NO DATE" : date} searchTerm={searchTerm} />,
+        render: (date) => <HighlightText text={(!date || date === "0000-00-00") ? "NO DATE" : date} />,
       },
       {
         title: "Purchased Date",
@@ -169,7 +170,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '120px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+        render: (text) => <HighlightText text={text} />
       },
       {
         title: "Condition",
@@ -179,7 +180,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '120px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (condition) => getConditionTag(condition, searchTerm),
+        render: (condition) => getConditionTag(condition),
         filters: [
           { text: "Brand New", value: "Brand New" },
           { text: "Good Condition", value: "Good Condition" },
@@ -195,7 +196,7 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '155px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+        render: (text) => <HighlightText text={text} />
       },
       {
         title: "Status",
@@ -205,18 +206,16 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '100px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (status) => getStatusTag(status, searchTerm),
+        render: (status) => getStatusTag(status),
         filters: [
           { text: "On Stock", value: "On Stock" },
-          { text: "For Repair", value: "For Repair" },
           { text: "Deployed", value: "Deployed" },
+          { text: "For Repair", value: "For Repair" },
         ],
         onFilter: (value, record) => record.status.includes(value),
-      }
+      },
     );
-  }
-
-  if (tabType === "Updated") {
+  } else if (tabType === "Updated") {
     columns.push(
       {
         title: "Field Changed",
@@ -226,19 +225,70 @@ export const getColumns = (showModal, tabType, searchTerm = '') => {
         width: '200px',
         responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (fields) => <HighlightText text={fields ? fields.join(", ") : "N/A"} searchTerm={searchTerm} />,
+        render: (field_changed) => {
+          if (Array.isArray(field_changed)) {
+            return <HighlightText text={field_changed.join(', ')} />;
+          } else if (typeof field_changed === 'string') {
+            const fields = field_changed.split(/[,|;]/).map(s => s.trim()).filter(Boolean);
+            return <HighlightText text={fields.join(', ')} />;
+          }
+          return <HighlightText text={field_changed || '-'} />;
+        },
       },
       {
-        title: "Changed Details",
-        key: "changed_details",
+        title: "Old Value",
+        dataIndex: "old_value",
+        key: "old_value",
         align: "center",
         width: '150px',
+        responsive: ['sm'],
         className: "text-xs overflow-auto text-wrap",
-        render: (_, record) => (
-          <Button type="link" onClick={() => showModal(record)} className="text-xs">View Changes</Button>
-        ),
-      }
+        render: (old_value) => {
+          if (Array.isArray(old_value)) {
+            return <HighlightText text={old_value.join(', ')} />;
+          } else if (typeof old_value === 'string') {
+            const values = old_value.split(/[,|;]/).map(s => s.trim()).filter(Boolean);
+            return <HighlightText text={values.join(', ')} />;
+          }
+          return <HighlightText text={old_value || '-'} />;
+        },
+      },
+      {
+        title: "New Value",
+        dataIndex: "new_value",
+        key: "new_value",
+        align: "center",
+        width: '150px',
+        responsive: ['sm'],
+        className: "text-xs overflow-auto text-wrap",
+        render: (new_value) => {
+          if (Array.isArray(new_value)) {
+            return <HighlightText text={new_value.join(', ')} />;
+          } else if (typeof new_value === 'string') {
+            const values = new_value.split(/[,|;]/).map(s => s.trim()).filter(Boolean);
+            return <HighlightText text={values.join(', ')} />;
+          }
+          return <HighlightText text={new_value || '-'} />;
+        },
+      },
     );
+      columns.push({
+    title: "Actions",
+    key: "actions",
+    align: "center",
+    width: '100px',
+    className: "text-xs",
+    render: (_, record) => (
+      <Button
+        type="link"
+        size="small"
+        onClick={() => showModal(record)}
+        className="text-xs p-0"
+      >
+        View Details
+      </Button>
+    ),
+  });
   }
 
   return columns;

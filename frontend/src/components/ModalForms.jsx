@@ -207,7 +207,7 @@ const ModalForms = ({
                 </Form.Item>
               </>
             )}
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" className='custom-button text-xs justify-self-end flex'>
             Add User
           </Button>
         </Form>

@@ -12,7 +12,7 @@ if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
 
 $token = $matches[1];
 
-$stmt = $conn->prepare("SELECT id, username FROM users WHERE token = ?");
+$stmt = $conn->prepare("SELECT id, username, token_expiry FROM users WHERE token = ?");
 $stmt->bind_param("s", $token);
 $stmt->execute();
 $stmt->store_result();
@@ -22,8 +22,12 @@ if ($stmt->num_rows !== 1) {
     exit;
 }
 
-$stmt->bind_result($id, $username);
+$stmt->bind_result($id, $username, $token_expiry);
 $stmt->fetch();
+if ($token_expiry !== null && $token_expiry < time()) {
+    echo json_encode(['success' => false, 'message' => 'Token expired']);
+    exit;
+}
 $stmt->close();
 
 $upd = $conn->prepare("

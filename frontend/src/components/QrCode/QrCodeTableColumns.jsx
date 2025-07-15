@@ -46,7 +46,6 @@ export const getConditionTag = (condition, searchTerm = '') => {
   );
 };
 
-// Export the columns function
 export const getColumns = (handleQrCodeClick, searchTerm = '', sorter = {}, filteredInfo = {}) => [
   {
     title: 'QR Code',
@@ -68,7 +67,8 @@ export const getColumns = (handleQrCodeClick, searchTerm = '', sorter = {}, filt
     dataIndex: 'id',
     key: 'id',
     align: 'center',
-    className: 'text-xs overflow-auto',
+    fixed: 'left',
+    className: 'text-xs',
     width: '120px',
     sorter: (a, b) => Number(a.id) - Number(b.id),
     render: (text) => <HighlightText text={text} searchTerm={searchTerm} />

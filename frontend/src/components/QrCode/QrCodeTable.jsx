@@ -1,52 +1,67 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Input, Select, Table, Pagination, Typography, Card, Button, Dropdown, Space } from 'antd';
 import { SearchOutlined, DownOutlined, ReloadOutlined, FilterOutlined } from '@ant-design/icons';
-import { getInventoryData } from '../../services/api/addItemToInventory';
 import QrCodeModal from './QrCodeModal';
 import { getColumns } from './QrCodeTableColumns';
 import debounce from 'lodash/debounce';
 import { useMediaQuery } from 'react-responsive';
+import { 
+  updateTableCache, 
+  markTableCacheStale, 
+  isTableCacheValid, 
+  getTableCacheData, 
+  SYNC_INTERVAL 
+} from '../../utils/cacheUtils';
+import { getInventoryData } from '../../services/api/addItemToInventory';
+import { isOffline } from '../../utils/offlineUtils';
 
 const { Option } = Select;
 
-const QrCodeTable = ({ onItemSelect }) => {
+const QrCodeTableSkeleton = () => (
+  <div className="w-full h-full mx-auto rounded-xl shadow border-none p-8 table-skeleton">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
+      {[...Array(5)].map((_, index) => (
+        <div key={index} className="h-8 bg-gray-300 rounded w-20 animate-pulse"></div>
+      ))}
+    </div>
+    <div className="w-auto overflow-x-auto">
+      <div className="table-skeleton">
+        <div className="table-skeleton-row rounded mb-2 bg-gray-300 animate-pulse"></div>
+        {[...Array(5)].map((_, index) => (
+          <div key={index} className="table-skeleton-row rounded mb-2 bg-gray-300 animate-pulse"></div>
+        ))}
+      </div>
+    </div>
+    <div className="flex justify-between items-center mt-4">
+      <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+      <div className="h-8 bg-gray-300 rounded w-48 animate-pulse"></div>
+    </div>
+  </div>
+);
+
+const QrCodeTable = ({ inventoryData = [], loading = false, error = null, onRefresh, onItemSelect, lastSyncTime }) => {
   const [searchText, setSearchText] = useState('');
   const [sortOrder, setSortOrder] = useState('Newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [data, setData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [qrDetails, setQrDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [searchColumn, setSearchColumn] = useState('all');
   const [localFilteredData, setLocalFilteredData] = useState([]);
   const [filterActive, setFilterActive] = useState(false);
   const [filteredInfo, setFilteredInfo] = useState({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 639 });
-
-  const fetchInventoryData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const fetchedData = await getInventoryData();
-      if (Array.isArray(fetchedData)) {
-        setData(fetchedData);
-        if (fetchedData.length > 0 && !qrDetails) {
-          onItemSelect(fetchedData[0]);
-          setQrDetails(fetchedData[0]);
-        }
-      } else {
-        console.error('Received invalid data:', fetchedData);
-      }
-    } catch (error) {
-      console.error('Failed to load inventory data:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [onItemSelect, qrDetails]);
+  const syncIntervalRef = useRef(null);
+  
+  const TABLE_NAME = 'qrcode';
 
   useEffect(() => {
-    fetchInventoryData();
-  }, [fetchInventoryData]);
+    if (inventoryData.length > 0 && !qrDetails) {
+      onItemSelect(inventoryData[0]);
+      setQrDetails(inventoryData[0]);
+    }
+  }, [inventoryData, qrDetails, onItemSelect]);
 
   const searchableColumns = useMemo(() => [
     { key: 'all', label: 'All Columns' },
@@ -63,14 +78,14 @@ const QrCodeTable = ({ onItemSelect }) => {
     { key: 'condition', label: 'Condition' },
   ], []);
 
-  const debouncedSearch = useCallback(
-    debounce((value) => {
+  const debouncedSearch = useMemo(
+    () => debounce((value) => {
       if (value === '') {
         setFilterActive(false);
         return;
       }
       setFilterActive(true);
-      const filtered = data.filter(item => {
+      const filtered = inventoryData.filter(item => {
         if (!item) return false;
         if (searchColumn === 'all') {
           for (const key in item) {
@@ -87,7 +102,7 @@ const QrCodeTable = ({ onItemSelect }) => {
       });
       setLocalFilteredData(filtered);
     }, 300),
-    [data, searchColumn]
+    [inventoryData, searchColumn]
   );
 
   const handleSearch = useCallback((e) => {
@@ -100,32 +115,89 @@ const QrCodeTable = ({ onItemSelect }) => {
     setSearchColumn(column);
   }, []);
 
-  const handleRefresh = () => {
-    setSearchText('');
-    setSortOrder('Newest');
-    setCurrentPage(1);
-    setPageSize(10);
-    setSearchColumn('all');
-    setFilterActive(false);
-    setLocalFilteredData([]);
-    setFilteredInfo({});
-    fetchInventoryData();
-  };
+  const handleRefresh = useCallback(async (forceRefresh = false) => {
+    try {
+      if (await isOffline()) {
+        console.warn('Cannot refresh QR code data while offline');
+        return;
+      }
 
-  const handleSortOrderChange = (value) => {
+      setIsRefreshing(true);
+      
+      if (isTableCacheValid(TABLE_NAME, forceRefresh)) {
+        const cachedData = getTableCacheData(TABLE_NAME);
+        if (onRefresh) {
+          onRefresh(cachedData);
+        }
+        return;
+      }
+
+      const freshData = await getInventoryData();
+      
+      updateTableCache(TABLE_NAME, freshData);
+      
+      if (onRefresh) {
+        onRefresh(freshData);
+      }
+      
+    } catch (error) {
+      console.error('Failed to load QR code data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [onRefresh]);
+
+  const startBackgroundSync = useCallback(() => {
+    if (syncIntervalRef.current) {
+      clearInterval(syncIntervalRef.current);
+    }
+    
+    syncIntervalRef.current = setInterval(async () => {
+      try {
+        if (await isOffline()) {
+          return;
+        }
+        
+        const freshData = await getInventoryData();
+        updateTableCache(TABLE_NAME, freshData);
+        
+        if (onRefresh) {
+          onRefresh(freshData);
+        }
+        
+      } catch (error) {
+        console.warn('Background sync failed:', error);
+        markTableCacheStale(TABLE_NAME);
+      }
+    }, SYNC_INTERVAL);
+  }, [onRefresh]);
+
+  const stopBackgroundSync = useCallback(() => {
+    if (syncIntervalRef.current) {
+      clearInterval(syncIntervalRef.current);
+      syncIntervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    startBackgroundSync();
+    return () => stopBackgroundSync();
+  }, [startBackgroundSync, stopBackgroundSync]);
+
+  const handleSortOrderChange = useCallback((value) => {
     setSortOrder(value);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const handlePageChange = (page, pageSize) => {
+  const handlePageChange = useCallback((page, pageSize) => {
     setCurrentPage(page);
     setPageSize(pageSize);
-  };
+  }, []);
 
-  const handleTableChange = (pagination, filters, sorterObj) => {
+  const handleTableChange = useCallback((pagination, filters, sorterObj) => {
     setFilteredInfo(filters);
     setCurrentPage(1);
-  };
+  }, []);
 
   const handleQrCodeClick = useCallback((item) => {
     setQrDetails(item);
@@ -138,7 +210,7 @@ const QrCodeTable = ({ onItemSelect }) => {
   }, [onItemSelect]);
 
   const filteredData = useMemo(() => {
-    let result = filterActive ? localFilteredData : data;
+    let result = filterActive ? localFilteredData : inventoryData;
     if (filteredInfo.condition && filteredInfo.condition.length > 0) {
       result = result.filter(item => filteredInfo.condition.includes(item.condition));
     }
@@ -146,7 +218,7 @@ const QrCodeTable = ({ onItemSelect }) => {
       result = result.filter(item => filteredInfo.status.includes(item.status));
     }
     return result;
-  }, [filterActive, localFilteredData, data, filteredInfo]);
+  }, [filterActive, localFilteredData, inventoryData, filteredInfo]);
 
   const sortedBySelect = useMemo(() => {
     const sorted = [...filteredData].sort((a, b) => Number(a.id) - Number(b.id));
@@ -158,6 +230,42 @@ const QrCodeTable = ({ onItemSelect }) => {
       key: column.key,
       label: column.label,
     })), [searchableColumns]);
+
+  const paginatedData = useMemo(() => 
+    sortedBySelect.slice((currentPage - 1) * pageSize, currentPage * pageSize), 
+    [sortedBySelect, currentPage, pageSize]
+  );
+
+  const tableColumns = useMemo(() => 
+    getColumns(handleQrCodeClick, searchText, undefined, filteredInfo), 
+    [handleQrCodeClick, searchText, filteredInfo]
+  );
+
+  const expandableConfig = useMemo(() => 
+    isMobile ? {
+      expandedRowRender: (record) => (
+        <div className="text-xs space-y-1">
+          <div><b>ID:</b> {record.id}</div>
+          <div><b>Type:</b> {record.type}</div>
+          <div><b>Brand:</b> {record.brand}</div>
+          <div><b>Quantity:</b> {record.quantity}</div>
+          <div><b>Remarks:</b> {record.remarks}</div>
+          <div><b>Serial Number:</b> {record.serialNumber}</div>
+          <div><b>Issued Date:</b> {record.issuedDate}</div>
+          <div><b>Purchased Date:</b> {record.purchaseDate}</div>
+          <div><b>Condition:</b> {record.condition}</div>
+          <div><b>Location:</b> {record.location}</div>
+          <div><b>Status:</b> {record.status}</div>
+        </div>
+      ),
+      rowExpandable: () => true,
+    } : undefined, 
+    [isMobile]
+  );
+
+  if (loading) {
+    return <QrCodeTableSkeleton />;
+  }
 
   return (
     <Card title={<span className="text-lgi sm:text-sm md:text-base lg:text-lgi xl:text-xl font-bold flex justify-center">ITEMS</span>}
@@ -172,8 +280,10 @@ const QrCodeTable = ({ onItemSelect }) => {
               selectedKeys: [searchColumn]
             }} trigger={['click']}>
             <Button 
-              type="text" 
-              icon={<FilterOutlined className='text-xs' />}
+              type="text"
+              size='small'
+              className='text-xs' 
+              icon={<FilterOutlined/>}
             >
               <Space className="text-xs w-auto align-middle">
                 {searchableColumns.find(col => col.key === searchColumn)?.label || 'All Columns'}
@@ -184,15 +294,16 @@ const QrCodeTable = ({ onItemSelect }) => {
           <Input
             placeholder={`Search in ${searchColumn === 'all' ? 'all columns' : searchableColumns.find(col => col.key === searchColumn)?.label}`}
             prefix={<SearchOutlined />}
-            className="border border-black w-auto ml-1 text-xs"
+            className="border border-black w-auto ml-1 text-xs h-6"
             value={searchText}
+            allowClear
             onChange={handleSearch}
           />
         </div>
-        <div className="flex gap-2 w-auto justify-center">
+        <div className="flex gap-2 w-auto justify-center ">
           <Select
             value={sortOrder}
-            className="w-auto text-xs transparent-select mt-1"
+            className="w-auto text-xs transparent-select"
             size="small"
             onChange={handleSortOrderChange}
           >
@@ -200,21 +311,24 @@ const QrCodeTable = ({ onItemSelect }) => {
             <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
           </Select>
           <Button 
-            onClick={handleRefresh}
-            className="custom-button mt-1 text-xs"
+            onClick={() => handleRefresh(true)}
+            className="custom-button text-xs"
             type="default"
             size="small"
             icon={<ReloadOutlined />}
+            loading={isRefreshing}
           >
-            <span className="text-xs">Refresh</span>
+            <span className="text-xs">
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </span>
           </Button>
         </div>
       </div>
 
       <Table
         rowKey="id"
-        columns={getColumns(handleQrCodeClick, searchText, undefined, filteredInfo)}
-        dataSource={sortedBySelect.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+        columns={tableColumns}
+        dataSource={paginatedData}
         pagination={false}
         bordered
         sortDirections={['descend', 'ascend']}
@@ -223,32 +337,21 @@ const QrCodeTable = ({ onItemSelect }) => {
           onClick: () => handleRowClick(record),
         })}
         scroll={{ x: 'max-content', y: 600 }}
-        loading={loading}
         responsive={['sm', 'md', 'lg', 'xl', 'xxl']}
-        expandable={ isMobile ? {
-          expandedRowRender: (record) => (
-            <div className="text-xs space-y-1">
-              <div><b>ID:</b> {record.id}</div>
-              <div><b>Type:</b> {record.type}</div>
-              <div><b>Brand:</b> {record.brand}</div>
-              <div><b>Quantity:</b> {record.quantity}</div>
-              <div><b>Remarks:</b> {record.remarks}</div>
-              <div><b>Serial Number:</b> {record.serialNumber}</div>
-              <div><b>Issued Date:</b> {record.issuedDate}</div>
-              <div><b>Purchased Date:</b> {record.purchaseDate}</div>
-              <div><b>Condition:</b> {record.condition}</div>
-              <div><b>Location:</b> {record.location}</div>
-              <div><b>Status:</b> {record.status}</div>
-            </div>
-          ),
-          rowExpandable: () => true,
-        } : undefined}
+        expandable={expandableConfig}
       />
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-5 space-y-2 sm:space-y-0">
-        <Typography.Text style={{ color: '#072C1C' }} className="w-full text-xs text-wrap text-center sm:text-left">
-          Showing data of {sortedBySelect.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}
-          {Math.min(currentPage * pageSize, sortedBySelect.length)} of {sortedBySelect.length} entries
-        </Typography.Text>
+        <div className="w-full flex flex-col items-center sm:items-start">
+          <Typography.Text style={{ color: '#072C1C' }} className="w-full text-xs text-wrap text-center sm:text-left">
+            Showing data of {sortedBySelect.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}
+            {Math.min(currentPage * pageSize, sortedBySelect.length)} of {sortedBySelect.length} entries
+          </Typography.Text>
+          {lastSyncTime && (
+            <div className="text-xs text-gray-500 mt-1 text-center sm:text-left">
+              Last synced: {new Date(lastSyncTime).toLocaleTimeString()}
+            </div>
+          )}
+        </div>
         <div className="w-full flex justify-center sm:justify-end">
           <Pagination
             current={currentPage}

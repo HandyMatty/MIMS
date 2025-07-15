@@ -2,7 +2,7 @@ import { Tag, Tooltip, Button } from 'antd';
 import { CopyFilled, EditFilled } from '@ant-design/icons';
 import HighlightText from '../common/HighlightText';
 
-export const getStatusTag = (status, searchTerm = '') => {
+export const getStatusTag = (status) => {
   let color;
   switch (status) {
     case 'On Stock':
@@ -19,12 +19,12 @@ export const getStatusTag = (status, searchTerm = '') => {
   }
   return (
     <Tag color={color} className="text-wrap text-center">
-      <HighlightText text={status} searchTerm={searchTerm} />
+      <HighlightText text={status} />
     </Tag>
   );
 };
 
-export const getConditionTag = (condition, searchTerm = '') => {
+export const getConditionTag = (condition) => {
   let color;
   switch (condition) {
     case 'Brand New':
@@ -41,12 +41,12 @@ export const getConditionTag = (condition, searchTerm = '') => {
   }
   return (
     <Tag color={color} className="text-wrap text-center">
-      <HighlightText text={condition} searchTerm={searchTerm} />
+      <HighlightText text={condition} />
     </Tag>
   );
 };
 
-export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, activeTab, searchTerm = '') => {
+export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, activeTab) => {
   const baseColumns = [
     {
       title: 'ID',
@@ -54,9 +54,10 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       key: 'id',
       align: 'center',
       width: '120px',
-      className: 'text-xs overflow-auto',
+      fixed: 'left',
+      className: 'text-xs',
       sorter: (a, b) => a.id.localeCompare(b.id),
-      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+      render: (text) => <HighlightText text={text} />
     },
     {
       title: 'Type',
@@ -66,7 +67,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       width: '100px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
-      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />,
+      render: (text) => <HighlightText text={text} />,
       filters: [
         { text: 'AVR', value: 'AVR' },
         { text: 'Battery', value: 'Battery' },
@@ -112,7 +113,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
       sorter: (a, b) => a.brand.localeCompare(b.brand),
-      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+      render: (text) => <HighlightText text={text} />
     },
     {
       title: 'Qty', 
@@ -123,7 +124,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       className: 'text-xs overflow-auto text-wrap',
       responsive: ['sm'],
       sorter: (a, b) => a.quantity - b.quantity,
-      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+      render: (text) => <HighlightText text={text} />
     },
     {
       title: 'Remarks',
@@ -133,7 +134,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       width: '200px',
       className: 'text-xs overflow-auto text-wrap',
       responsive: ['sm'],
-      render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} searchTerm={searchTerm} />
+      render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} />
     },
     {
       title: 'Serial Number',
@@ -144,7 +145,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       className: 'text-xs overflow-auto text-wrap',
       responsive: ['sm'],
       sorter: (a, b) => a.serialNumber?.localeCompare(b.serialNumber || ''),
-      render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} searchTerm={searchTerm} />
+      render: (text) => <HighlightText text={text && text.trim() !== '' ? text : '-'} />
     },
     ...(activeTab === 'default'
       ? [
@@ -161,7 +162,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
               const dateB = new Date(b.issuedDate);
               return sortOrder === 'Newest' ? dateB - dateA : dateA - dateB;
             },
-            render: (date) => <HighlightText text={(!date || date === '0000-00-00') ? 'NO DATE' : date} searchTerm={searchTerm} />,
+            render: (date) => <HighlightText text={(!date || date === '0000-00-00') ? 'NO DATE' : date} />,
           },
           {
             title: 'Purchased Date',
@@ -176,7 +177,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
               const dateB = new Date(b.purchaseDate);
               return sortOrder === 'Newest' ? dateB - dateA : dateA - dateB;
             },
-            render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+            render: (text) => <HighlightText text={text} />
           },
         ]
       : activeTab === 'issuedDate'
@@ -194,7 +195,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
               const dateB = new Date(b.issuedDate);
               return sortOrder === 'Newest' ? dateB - dateA : dateA - dateB;
             },
-            render: (date) => <HighlightText text={(!date || date === '0000-00-00') ? 'NO DATE' : date} searchTerm={searchTerm} />,
+            render: (date) => <HighlightText text={(!date || date === '0000-00-00') ? 'NO DATE' : date} />,
           },
         ]
       : [
@@ -211,7 +212,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
               const dateB = new Date(b.purchaseDate);
               return sortOrder === 'Newest' ? dateB - dateA : dateA - dateB;
             },
-            render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+            render: (text) => <HighlightText text={text} />
           },
         ]),
     {
@@ -222,7 +223,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       width: '120px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
-      render: (condition) => getConditionTag(condition, searchTerm),
+      render: (condition) => getConditionTag(condition),
       filters: [
         { text: 'Brand New', value: 'Brand New' },
         { text: 'Good Condition', value: 'Good Condition' },
@@ -238,7 +239,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       width: '150px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
-      render: (text) => <HighlightText text={text} searchTerm={searchTerm} />
+      render: (text) => <HighlightText text={text} />
     },
     {
       title: 'Status',
@@ -248,7 +249,7 @@ export const columns = (handleEdit, handleRedistribute, sortOrder, userRole, act
       width: '110px',
       className: 'text-xs overflow-auto',
       responsive: ['sm'],
-      render: (status) => getStatusTag(status, searchTerm),
+      render: (status) => getStatusTag(status),
       filters: [
         { text: 'On Stock', value: 'On Stock' },
         { text: 'For Repair', value: 'For Repair' },

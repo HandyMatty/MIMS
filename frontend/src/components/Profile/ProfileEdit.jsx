@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Typography, Upload, message, Image, Card, Descriptions, Modal, Divider, Select } from 'antd';
+import { Button, Input, Typography, Upload, App, Image, Card, Descriptions, Divider, Select } from 'antd';
 import ImgCrop from 'antd-img-crop';
 import Cookies from 'js-cookie';
 
@@ -16,6 +16,7 @@ const STORAGE_KEYS = ['userAuth', 'adminAuth', 'guestAuth'];
 const DEPARTMENT_OPTIONS = ['GAD','CID', 'SOD', 'HRD', 'AFD', 'EDO', 'BDO'];
 
 const ProfileEdit = () => {
+  const { message, modal } = App.useApp();
   const [isEditable, setIsEditable] = useState(false);
   const [username, setUsername] = useState('');
   const [newUsername, setNewUsername] = useState('');
@@ -99,7 +100,7 @@ const ProfileEdit = () => {
   const handleEdit = async () => {
     if (!isEditable) return setIsEditable(true);
 
-    Modal.confirm({
+    modal.confirm({
       title: 'Save Changes?',
       content: 'Are you sure you want to save these changes?',
       onOk: async () => {
@@ -157,6 +158,11 @@ const ProfileEdit = () => {
     setLoading(false);
   };
 
+  const uploadUrl =
+  window.location.hostname === 'localhost' || window.location.hostname.startsWith('192.168.')
+    ? 'http://localhost/Sentinel-MIMS/backend/api/upload.php'
+    : 'https://sentinelphils.com/Sentinel-MIMS/backend/api/upload.php';
+
   return (
     <Card className="flex flex-col w-auto bg-[#a7f3d0] rounded-3xl shadow p-6 border-none"
       style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}>
@@ -172,7 +178,7 @@ const ProfileEdit = () => {
       <ImgCrop rotationSlider>
         <Upload
           name="avatar"
-          action="http://localhost/Sentinel-MIMS/backend/api/upload.php"
+          action={uploadUrl}
           showUploadList={false}
           beforeUpload={beforeUpload}
           onChange={handleChange}
@@ -214,7 +220,14 @@ const ProfileEdit = () => {
                 options={DEPARTMENT_OPTIONS.map(opt => ({ value: opt, label: opt }))}
                 placeholder="Select department"
                 style={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : { background: '#a7f3d0' }}
-                dropdownStyle={currentTheme !== 'default' ? { background: theme.componentBackground, color: theme.text } : {}}
+                styles={currentTheme !== 'default' ? {
+                  popup: {
+                    root: {
+                      background: theme.componentBackground,
+                      color: theme.text
+                    }
+                  }
+                } : {}}
                 />
                 ) : (
               <Input

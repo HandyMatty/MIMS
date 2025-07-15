@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Bar } from '@ant-design/plots';
-import { getInventoryData } from '../../services/api/addItemToInventory';
 import { Spin } from 'antd';
 import './customBarGraph.css';
 import { useTheme } from '../../utils/ThemeContext';
@@ -13,51 +12,38 @@ const COLORS = [
   '#b5f5ec', '#adc6ff'
 ];
 
-const HistoryBarGraph = ({ searchText }) => {
-  const [barData, setBarData] = useState([]);
-  const [loading, setLoading] = useState(true);
+const HistoryBarGraph = ({ searchText, inventoryData, loading }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const { theme, currentTheme } = useTheme();
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 640);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+  const handleResize = useCallback(() => {
+    setIsMobile(window.innerWidth < 640);
   }, []);
 
   useEffect(() => {
-    const fetchInventoryData = async () => {
-      try {
-        const data = await getInventoryData();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
 
-        const filteredData = data.filter(item =>
-          Object.values(item).join(' ').toLowerCase().includes(searchText.toLowerCase())
-        );
+  const barData = useMemo(() => {
+    if (!inventoryData || inventoryData.length === 0) return [];
 
-        const typeCounts = filteredData.reduce((acc, item) => {
-          const { type, quantity } = item;
-          if (!type) return acc;
-          if (!acc[type]) acc[type] = 0;
-          acc[type] += parseInt(quantity) || 0;
-          return acc;
-        }, {});
+    const typeCounts = inventoryData.reduce((acc, item) => {
+      const { type, quantity } = item;
+      if (!type) return acc;
+      if (!acc[type]) acc[type] = 0;
+      acc[type] += parseInt(quantity) || 0;
+      return acc;
+    }, {});
 
-        const formattedData = Object.entries(typeCounts)
-          .map(([labelName, value]) => ({ labelName, value }))
-          .sort((a, b) => a.labelName.localeCompare(b.labelName));
+    const formattedData = Object.entries(typeCounts)
+      .map(([labelName, value]) => ({ labelName, value }))
+      .sort((a, b) => a.labelName.localeCompare(b.labelName));
 
-        setBarData(formattedData);
-      } catch (error) {
-        console.error('Failed to fetch inventory data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    return formattedData;
+  }, [inventoryData]);
 
-    fetchInventoryData();
-  }, [searchText]);
-
-  const config = {
+  const config = useMemo(() => ({
     data: barData,
     xField: 'labelName',
     yField: 'value',
@@ -83,7 +69,7 @@ const HistoryBarGraph = ({ searchText }) => {
     },
     legend: {
       color: {
-        itemLabelFontSize: isMobile ? 7:10,
+        itemLabelFontSize: isMobile ? 7 : 10,
         title: false,
         position: 'top',
         maxCols: barData.length,
@@ -123,7 +109,7 @@ const HistoryBarGraph = ({ searchText }) => {
     axis: {
       x: {
         grid: true,
-        gridStrokeOpacity: 20,
+        gridStrokeOpacity: 0.2,
         gridLineDash: [1],
         tick: true,
         label: true,
@@ -134,7 +120,7 @@ const HistoryBarGraph = ({ searchText }) => {
       },
       y: {
         grid: true,
-        gridStrokeOpacity: 20,
+        gridStrokeOpacity: 0.2,
         gridLineDash: [1],
         tick: true,
         label: true,
@@ -152,30 +138,32 @@ const HistoryBarGraph = ({ searchText }) => {
     },
     autoFit: true,
     height: isMobile ? 270 : 420,
-  };
+  }), [barData, isMobile]);
+
+  const containerStyle = useMemo(() => ({
+    height: isMobile ? 270 : 420,
+    width: '100%',
+    minWidth: 320,
+    padding: isMobile ? '2px' : '10px',
+    ...(currentTheme !== 'default' && {
+      '--tooltip-bg': theme.header,
+      '--tooltip-text': theme.textLight,
+      background: theme.componentBackground,
+    })
+  }), [isMobile, currentTheme, theme]);
+
+  const loadingSpinner = useMemo(() => (
+    <div className="loading-spinner">
+      <Spin size="large" />
+    </div>
+  ), []);
 
   return (
     <div
       className="history-bar-graph-container"
-      style={{
-        height: isMobile ? 270 : 420,
-        width: '100%',
-        minWidth: 320,
-        padding: isMobile ? '2px' : '10px',
-        ...(currentTheme !== 'default' && {
-          '--tooltip-bg': theme.header,
-          '--tooltip-text': theme.textLight,
-          background: theme.componentBackground,
-        })
-      }}
+      style={containerStyle}
     >
-      {loading ? (
-        <div className="loading-spinner">
-          <Spin size="large" />
-        </div>
-      ) : (
-        <Bar {...config} />
-      )}
+      {loading ? loadingSpinner : <Bar {...config} />}
     </div>
   );
 };

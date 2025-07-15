@@ -1,8 +1,24 @@
-import { axiosAuth } from "../axios";
+import { createAxiosInstanceWithInterceptor, getUsersValues } from "../axios";
+import { useAdminAuthStore } from "../../store/admin/useAuth";
+import { useUserAuthStore } from "../../store/user/useAuth";
+
+const getAuthenticatedAxios = () => {
+  const adminAuth = useAdminAuthStore.getState();
+  const userAuth = useUserAuthStore.getState();
+  
+  if (adminAuth.token && adminAuth.userData) {
+    return createAxiosInstanceWithInterceptor("data", getUsersValues.admin);
+  } else if (userAuth.token && userAuth.userData) {
+    return createAxiosInstanceWithInterceptor("data", getUsersValues.user);
+  } else {
+    throw new Error("No valid authentication found");
+  }
+};
 
 export const saveTemplate = async (template) => {
   try {
-    const response = await axiosAuth.post('/save_template.php', template);
+    const axiosInstance = getAuthenticatedAxios();
+    const response = await axiosInstance.post('/save_template.php', template);
     return response.data;
   } catch (error) {
     throw error;
@@ -11,7 +27,8 @@ export const saveTemplate = async (template) => {
 
 export const getTemplates = async () => {
   try {
-    const response = await axiosAuth.get('/get_templates.php');
+    const axiosInstance = getAuthenticatedAxios();
+    const response = await axiosInstance.get('/get_templates.php');
     return response.data;
   } catch (error) {
     throw error;
@@ -20,7 +37,8 @@ export const getTemplates = async () => {
 
 export const updateTemplate = async (id, template) => {
   try {
-    const response = await axiosAuth.put(`/update_template.php?id=${id}`, template);
+    const axiosInstance = getAuthenticatedAxios();
+    const response = await axiosInstance.put(`/update_template.php?id=${id}`, template);
     return response.data;
   } catch (error) {
     throw error;
@@ -29,7 +47,8 @@ export const updateTemplate = async (id, template) => {
 
 export const deleteTemplate = async (id) => {
   try {
-    const response = await axiosAuth.delete(`/delete_template.php?id=${id}`);
+    const axiosInstance = getAuthenticatedAxios();
+    const response = await axiosInstance.delete(`/delete_template.php?id=${id}`);
     return response.data;
   } catch (error) {
     throw error;

@@ -2,6 +2,8 @@ import { Table, Input, Button, Tag, Space, Tooltip, Card, Typography, Pagination
 import { SearchOutlined, ReloadOutlined, CopyFilled, EditFilled } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import { useState } from 'react';
+import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';
 
 const { Text } = Typography;
 
@@ -16,6 +18,8 @@ const StockItemsTable = ({
   const isMobile = useMediaQuery({ maxWidth: 639 });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
 
   const filteredStockItems = onStockItems.filter(item => 
     Object.values(item).some(val => 
@@ -24,6 +28,12 @@ const StockItemsTable = ({
   );
 
   const paginatedData = filteredStockItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleEdit = (record) => {
+    handleStockItemSelect(record);
+    logUserActivity('Edit Item', `Edit Item: ${record.type} (${record.brand}), Qty: ${record.quantity}`);
+    logUserNotification('Edit Item', `Edit Item: ${record.type} (${record.brand}), Qty: ${record.quantity}`);
+  };
 
   const stockColumns = [
     {
@@ -104,7 +114,7 @@ const StockItemsTable = ({
             <Button
               type="primary"
               icon={<EditFilled />}
-              onClick={() => handleStockItemSelect(record)}
+              onClick={() => handleEdit(record)}
               size="small"
               style={{backgroundColor: 'var(--theme-card-head-bg, #5fe7a7)', color: 'black'}}
               className='text-xs'

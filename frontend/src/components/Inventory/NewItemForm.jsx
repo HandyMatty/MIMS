@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Form, Input, Select, Button, DatePicker, Row, Col, Modal } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import AddItemTypeTemplate from './AddItemTypeTemplate';
+import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';
 
 const { Option } = Select;
 
@@ -21,6 +23,8 @@ const NewItemForm = ({
   const [showQuantityWithSerial, setShowQuantityWithSerial] = useState(false);
   const [lastSerialValue, setLastSerialValue] = useState('');
   const [serialModalShownForCurrentInput, setSerialModalShownForCurrentInput] = useState(false);
+  const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
 
   const onSerialChange = (e) => {
     const value = e.target.value;
@@ -48,6 +52,12 @@ const NewItemForm = ({
     form.setFieldsValue({ quantity: 1 });
   };
 
+  const handleFinish = (values) => {
+    onFinish(values);
+    logUserActivity('Add Item', `Added item: ${values.type} (${values.brand}), Qty: ${values.quantity}`);
+    logUserNotification('Add Item', `Added item: ${values.type} (${values.brand}), Qty: ${values.quantity}`);
+  };
+
   return (
     <>
       <Modal
@@ -63,7 +73,7 @@ const NewItemForm = ({
       </Modal>
         <Form
           form={form}
-          onFinish={onFinish}
+          onFinish={handleFinish}
           layout="vertical"
           initialValues={{
             quantity: 1,
@@ -321,10 +331,10 @@ const NewItemForm = ({
                       style={{
                         background: 'var(--theme-card-head-bg, #5fe7a7)',
                         border: 'none',
-                        borderRadius: '8px',
-                        padding: '10px',
+                        borderRadius: '6px',
+                        padding: '8px',
                         height: 'auto',
-                        fontSize: '14px',
+                        fontSize: '12px',
                         fontWeight: '600',
                         color: 'var(--theme-text, #072C1C)'
                       }}

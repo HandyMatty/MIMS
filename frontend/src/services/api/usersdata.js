@@ -1,4 +1,4 @@
-import { axiosAuth } from "../axios"; // Assuming axios is properly set up
+import { axiosAuth } from "../axios";
 
 export const fetchUsersData = async () => {
   try {
@@ -67,7 +67,7 @@ export const updateSecurityQuestion = async (userId, securityQuestion, securityA
 export const updateRole = async (userId, role) => {
   try {
     const response = await axiosAuth.post("/update_role.php", {
-      userId,  // Ensure userId is being sent, not just username
+      userId,  
       role
     });
     return response.data;

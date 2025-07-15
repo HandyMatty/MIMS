@@ -17,25 +17,41 @@ if (isset($headers['Authorization'])) {
         exit;
     }
 
-    $stmt = $conn->prepare("SELECT id FROM users WHERE token = ?");
+    $stmt = $conn->prepare("SELECT id, token_expiry FROM users WHERE token = ?");
     $stmt->bind_param("s", $token);
     $stmt->execute();
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        $stmt = $conn->prepare("UPDATE users SET username = ?, department = ? WHERE token = ?");
-        $stmt->bind_param("sss", $username, $department, $token);
-
-        if ($stmt->execute()) {
-            $response['success'] = true;
-            $response['message'] = 'Profile updated successfully';
+        $stmt->bind_result($userId, $token_expiry);
+        $stmt->fetch();
+        if ($token_expiry !== null && $token_expiry < time()) {
+            $response['message'] = 'Token expired';
         } else {
-            $response['message'] = 'Failed to update profile: ' . $stmt->error;
+            $stmt2 = $conn->prepare("UPDATE users SET username = ?, department = ? WHERE token = ?");
+            $stmt2->bind_param("sss", $username, $department, $token);
+            if ($stmt2->execute()) {
+                $response['success'] = true;
+                $response['message'] = 'Profile updated successfully';
+            } else {
+                $response['message'] = 'Failed to update profile: ' . $stmt2->error;
+            }
+            $stmt2->close();
         }
     } else {
-        $response['message'] = 'Invalid token. Could not find the user associated with this token.';
+        // Check if token ever existed (user logged in from another device)
+        $stmt2 = $conn->prepare("SELECT id FROM users WHERE token_expiry IS NOT NULL AND token_expiry >= ?");
+        $now = time();
+        $stmt2->bind_param("i", $now);
+        $stmt2->execute();
+        $stmt2->store_result();
+        if ($stmt2->num_rows > 0) {
+            $response['message'] = 'Logged in from another device';
+        } else {
+            $response['message'] = 'User not found';
+        }
+        $stmt2->close();
     }
-
     $stmt->close();
 } else {
     $response['message'] = 'Authorization token not provided';

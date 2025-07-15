@@ -346,6 +346,7 @@ const AddItemModal = ({ visible, onClose, onAdd, onRedistribute, handleEditItem,
         }}
       >
         <Tabs 
+          className='custom-tabs'
           activeKey={activeTab} 
           onChange={handleTabChange}
           type="card"

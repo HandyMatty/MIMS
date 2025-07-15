@@ -4,6 +4,7 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import useTemplateManagement from '../../hooks/useTemplateManagement';
 import { useAdminAuthStore } from '../../store/admin/useAuth';
 import { useUserAuthStore } from '../../store/user/useAuth';
+import { useTheme } from '../../utils/ThemeContext';
 import Cookies from 'js-cookie';
 
 const { Option } = Select;
@@ -604,6 +605,26 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
 
   const adminAuth = useAdminAuthStore();
   const userAuth = useUserAuthStore();
+  const { theme, currentTheme } = useTheme();
+
+  const getThemeStyles = () => {
+    if (currentTheme === 'default') {
+      return {
+        textColor: '#072C1C',
+        borderColor: '#f0f0f0',
+        buttonBg: 'transparent',
+        buttonText: '#072C1C'
+      };
+    }
+    return {
+      textColor: theme.text,
+      borderColor: theme.text,
+      buttonBg: 'transparent',
+      buttonText: theme.text
+    };
+  };
+
+  const themeStyles = getThemeStyles();
 
   const getCurrentUser = () => {
     const isAdmin = adminAuth.token && adminAuth.userData;
@@ -625,6 +646,7 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
     const currentUser = getCurrentUser();
     return currentUser && currentUser.username === template.created_by;
   };
+
 
   useImperativeHandle(ref, () => ({
     setRefreshTrigger,
@@ -690,7 +712,10 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
                         <Tooltip title={isTemplateCreator(template) ? "Edit Template" : "Only the creator can edit this template"}>
                           <Button 
                             type="text" 
-                            style={{ backgroundColor: 'transparent' }}
+                            style={{ 
+                              backgroundColor: 'transparent',
+                              color: themeStyles.buttonText
+                            }}
                             icon={<EditOutlined />} 
                             onClick={(e) => {
                               e.stopPropagation();
@@ -702,7 +727,10 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
                         <Tooltip title={isTemplateCreator(template) ? "Delete Template" : "Only the creator can delete this template"}>
                           <Button 
                             type="text"
-                            style={{ backgroundColor: 'transparent' }}
+                            style={{ 
+                              backgroundColor: 'transparent',
+                              color: themeStyles.buttonText
+                            }}
                             danger 
                             icon={<DeleteOutlined />} 
                             onClick={(e) => {
@@ -729,11 +757,30 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
       <Divider style={{ margin: '16px 0' }} />
 
       <Modal
-        title="Edit Template"
+        title={
+          <span style={{ color: themeStyles.textColor }}>
+            Edit Template
+          </span>
+        }
         open={isEditModalVisible}
         onCancel={() => setIsEditModalVisible(false)}
         footer={null}
         width={900}
+        styles={{
+          header: {
+            background: currentTheme === 'default' ? '#A8E1C5' : theme.CardHead || theme.sider,
+            borderBottom: `1px solid ${themeStyles.borderColor}`,
+            borderRadius: '12px 12px 0 0'
+          },
+          content: {
+            background: currentTheme === 'default' ? '#fff' : theme.componentBackground,
+            borderRadius: '12px',
+            overflow: 'hidden'
+          },
+          body: {
+            padding: '24px'
+          }
+        }}
       >
         <Form
           form={form}
@@ -897,7 +944,7 @@ const AddItemTypeTemplate = forwardRef(({ onTemplateSelect }, ref) => {
                 <Input.TextArea />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button size='small' type="primary" htmlType="submit" className='text-xs'>
                   Save Changes
                 </Button>
               </Form.Item>

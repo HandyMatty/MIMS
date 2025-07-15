@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Modal, Table, Input, Button, Tag, Typography } from 'antd';
 import { getInventoryData } from '../../services/api/addItemToInventory';
+import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';
 
 const { Text } = Typography;
 
@@ -12,6 +14,8 @@ export default function BatchItemPickerModal({ visible, onClose, onConfirm, load
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [fetching, setFetching] = useState(false);
+  const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
 
   useEffect(() => {
     if (visible) {
@@ -109,6 +113,8 @@ export default function BatchItemPickerModal({ visible, onClose, onConfirm, load
   const handleConfirm = () => {
     if (selectedItems.length >= 2) {
       onConfirm(selectedItems);
+      logUserActivity('Batch Item Pick', `Picked ${selectedItems.length} item(s) for batch edit.`);
+      logUserNotification('Batch Item Pick', `Picked ${selectedItems.length} item(s) for batch edit.`);
     }
   };
 
@@ -119,8 +125,8 @@ export default function BatchItemPickerModal({ visible, onClose, onConfirm, load
       onCancel={onClose}
       width={1200}
       footer={[
-        <Button key="cancel" className='custom-button-cancel' onClick={onClose} disabled={loading || fetching}>Cancel</Button>,
-        <Button key="confirm" className='custom-button' type="primary" onClick={handleConfirm} disabled={selectedItems.length < 2 || loading || fetching} loading={loading}>
+        <Button size='small' key="cancel" className='custom-button-cancel text-xs' onClick={onClose} disabled={loading || fetching}>Cancel</Button>,
+        <Button size='small' key="confirm" className='custom-button text-xs' type="primary" onClick={handleConfirm} disabled={selectedItems.length < 2 || loading || fetching} loading={loading}>
           Proceed to Batch Edit ({selectedItems.length})
         </Button>,
       ]}

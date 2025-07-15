@@ -6,7 +6,7 @@ import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConfigProvider, App as AntApp } from "antd";
-import { ActivityProvider } from "./utils/ActivityContext.jsx";  // Import the ActivityProvider
+import { ActivityProvider } from "./utils/ActivityContext.jsx";
 import { NotificationProvider } from "./utils/NotificationContext.jsx";
 import { ThemeProvider } from "./utils/ThemeContext.jsx";
 

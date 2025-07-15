@@ -344,10 +344,10 @@ const RedistributeItemModal = ({ visible, onClose, item, onEdit, isLoading }) =>
                         style={{
                           background: 'var(--theme-card-head-bg, #5fe7a7)',
                           border: 'none',
-                          borderRadius: '8px',
-                          padding: '10px',
+                          borderRadius: '6px',
+                          padding: '6px',
                           height: 'auto',
-                          fontSize: '14px',
+                          fontSize: '12px',
                           fontWeight: '600',
                           color: 'black'
                         }}

@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Modal, Table, Input, Button, Typography } from 'antd';
 import { getInventoryData } from '../../services/api/addItemToInventory';
+import { useActivity } from '../../utils/ActivityContext';
+import { useNotification } from '../../utils/NotificationContext';
 
 const { Text } = Typography;
 
@@ -12,6 +14,8 @@ export default function BatchPrintItemModal({ visible, onClose, onConfirm, loadi
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [fetching, setFetching] = useState(false);
+  const { logUserActivity } = useActivity();
+  const { logUserNotification } = useNotification();
 
   useEffect(() => {
     if (visible) {
@@ -87,6 +91,7 @@ export default function BatchPrintItemModal({ visible, onClose, onConfirm, loadi
             rowSelection={{
               selectedRowKeys,
               onChange: setSelectedRowKeys,
+              preserveSelectedRowKeys: true,
             }}
             pagination={{
               current: currentPage,
@@ -125,10 +130,15 @@ export default function BatchPrintItemModal({ visible, onClose, onConfirm, loadi
             )}
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button onClick={onClose} disabled={loading} className='custom-button-cancel text-xs'>Cancel</Button>
+            <Button size='small' onClick={onClose} disabled={loading} className='custom-button-cancel text-xs'>Cancel</Button>
             <Button
+              size='small'
               type="primary"
-              onClick={() => onConfirm(selectedItems)}
+              onClick={() => {
+                onConfirm(selectedItems);
+                logUserActivity('Batch Print', `Printed ${selectedItems.length} item(s) QR codes.`);
+                logUserNotification('Batch Print', `Printed ${selectedItems.length} item(s) QR codes.`);
+              }}
               loading={loading}
               disabled={selectedItems.length === 0}
               className='custom-button text-xs'

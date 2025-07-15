@@ -19,9 +19,11 @@ import { useGuestAuthStore } from '../store/guest/useAuth';
 import { logoutUser } from '../services/api/logout';
 import { useActivity } from '../utils/ActivityContext';
 import { useTheme } from '../utils/ThemeContext';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { checkTokenValidity } from '../services/api/checkTokenValidity';
+import OfflineBanner from '../components/common/OfflineBanner';
 import SINSSILogo from "../../assets/SINSSI_LOGO-removebg-preview.png";
 import { LazyImage, preloadImages } from '../utils/imageHelpers.jsx';
-import { checkTokenValidity } from '../services/api/checkTokenValidity';
 
 const { Sider } = Layout;
 
@@ -29,6 +31,7 @@ const MainLayout = () => {
   const { message } = App.useApp();
   const initialCollapsedState = JSON.parse(localStorage.getItem('sidebarCollapsed')) || false;
   const { theme } = useTheme();
+  const { isOnline } = useNetworkStatus();
 
   const [collapsed, setCollapsed] = useState(initialCollapsedState);
   const [loading, setLoading] = useState(true);
@@ -172,11 +175,45 @@ const MainLayout = () => {
 
       try {
         const data = await checkTokenValidity(token);
+        if (data.offline) {
+          return;
+        }
         if (!data.success) {
-          throw new Error('Invalid token');
+          if (data.message === 'Token expired') {
+            message.warning('Your session has expired. Please log in again.', 3);
+          } else if (data.message === 'Logged in from another device') {
+            message.warning('You have been logged out because your account was accessed from another device.', 3);
+          } else {
+            message.warning('You have been logged out due to invalid session.', 3);
+          }
+          setLoading(true);
+          setTimeout(async () => {
+            logUserActivity(username, "Logout", `User ${username} was automatically logged out due to: ${data.message}`);
+            const role = adminAuth.token ? "admin" : userAuth.token ? "user" : guestAuth.token ? "guest" : null;
+            if (role) await logoutUser(role);
+            adminAuth.reset();
+            userAuth.reset();
+            guestAuth.reset();
+            sessionStorage.clear();
+            localStorage.clear();
+            const allCookies = Cookies.get();
+            Object.keys(allCookies).forEach((cookieName) => {
+              if (cookieName.startsWith('authToken_')) {
+                Cookies.remove(cookieName, { path: '/' });
+              }
+            });
+            navigate("/login", { replace: true });
+          }, 1000);
+          return;
         }
       } catch (error) {
-        message.warning("You have been logged out because your account was accessed from another device.", 3);
+        if (error.code === 'ERR_NETWORK' || 
+            error.message === 'Network Error' || 
+            !navigator.onLine ||
+            error.response?.status === 0) {
+          return;
+        }
+        message.warning('You have been logged out due to a session error.', 3);
         setLoading(true);
         setTimeout(async () => {
           logUserActivity(username, "Logout", `User ${username} was automatically logged out due to invalid token.`);
@@ -199,9 +236,15 @@ const MainLayout = () => {
     };
 
     checkToken();
-    const interval = setInterval(checkToken, 15000);
+    
+    const interval = setInterval(() => {
+      if (isOnline) {
+        checkToken();
+      }
+    }, isOnline ? 15000 : 60000);
+    
     return () => clearInterval(interval);
-  }, [adminAuth, userAuth, guestAuth, navigate, logUserActivity]);
+  }, [adminAuth, userAuth, guestAuth, navigate, logUserActivity, isOnline]);
 
   
   useEffect(() => {
@@ -304,6 +347,7 @@ const MainLayout = () => {
       </div>
     }>
       <Layout style={{ minHeight: '100vh', backgroundColor: theme.background }}>
+        <OfflineBanner />
         <NoticeModal />
         <Drawer
           placement="top"
@@ -450,8 +494,8 @@ const MainLayout = () => {
           onCancel={handleModalCancel}
           okText="Yes, Logout"
           cancelText="Cancel"
-          okButtonProps={{ className: 'custom-button' }}
-          cancelButtonProps={{ className: 'custom-button-cancel' }}
+          okButtonProps={{ className: 'custom-button text-xs' }}
+          cancelButtonProps={{ className: 'custom-button-cancel text-xs' }}
           centered
         >
           <p>Are you sure you want to log out?</p>

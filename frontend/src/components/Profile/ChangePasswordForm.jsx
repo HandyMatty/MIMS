@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Input, message, Form, Typography, Card, Divider } from 'antd';
+import { Button, Input, App, Form, Typography, Card, Divider } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import { updatePassword } from '../../services/api/changepassword';
 import Cookies from 'js-cookie';
@@ -12,6 +12,7 @@ import { useTheme } from '../../utils/ThemeContext';
 const { Title } = Typography;
 
 const ChangePasswordForm = ({ onClose = () => {} }) => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);

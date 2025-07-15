@@ -1,22 +1,16 @@
-import { App } from 'antd';
 
 export const beforeUpload = (file) => {
-  const { message } = App.useApp();
-  return new Promise((resolve, reject) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-      message.error('You can only upload JPG/PNG files!');
-      return reject(); 
-    }
-
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-      message.error('Image must be smaller than 2MB!');
-      return reject(); 
-    }
-
-    return resolve();
-  });
+  const isImage = file.type.startsWith('image/');
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isImage) {
+    message.error('You can only upload image files!');
+    return Upload.LIST_IGNORE;
+  }
+  if (!isLt2M) {
+    message.error('Image must be smaller than 2MB!');
+    return Upload.LIST_IGNORE;
+  }
+  return true;
 };
 
 
