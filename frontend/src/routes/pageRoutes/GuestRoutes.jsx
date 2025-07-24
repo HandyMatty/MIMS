@@ -7,6 +7,8 @@ import { Spin } from 'antd';
 import SINSSILogo from "../../../assets/SINSSI_LOGO-removebg-preview.png";
 import { LazyImage, preloadImages } from '../../utils/imageHelpers.jsx';
 import Profile from '../../pages/Header/Profile';
+import ProcurementPage from '../../pages/ProcurementPage';
+
 
 
 const Dashboard = lazy (() => import('../../pages/Dashboard'));
@@ -42,6 +44,7 @@ const GuestRoutes = () => {
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/procurement" element={<ProcurementPage />} />
           <Route path="/history" element={<History />} />
           <Route path="/qrcode" element={<QrCode />} />
           <Route path="/profile" element={<Profile />} />

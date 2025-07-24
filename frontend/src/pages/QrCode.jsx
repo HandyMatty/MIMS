@@ -4,9 +4,9 @@ import { preloadImages } from '../utils/imageHelpers.jsx';
 import { getInventoryData } from '../services/api/addItemToInventory';
 import { Tabs } from 'antd';
 import { useTheme } from '../utils/ThemeContext';
+import QrCodeList from '../components/QrCode/QrCodeList';
 const QrCodeGenerator = React.lazy(() => import('../components/QrCode/QrCodeGenerator'));
 const QrCodeTable = React.lazy(() => import('../components/QrCode/QrCodeTable'));
-const QrCodeList = React.lazy(() => import('../components/QrCode/QrCodeList'));
 
 const QrCodeGeneratorSkeleton = () => {
   const { theme, currentTheme } = useTheme();

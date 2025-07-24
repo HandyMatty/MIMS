@@ -9,6 +9,7 @@ import { beforeUpload } from '../../utils/imageHelpers';
 import { useActivity } from '../../utils/ActivityContext';
 import { useNotification } from '../../utils/NotificationContext';
 import { useTheme } from '../../utils/ThemeContext';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 
 const { Title, Text } = Typography;
 
@@ -33,6 +34,7 @@ const ProfileEdit = () => {
   const [authUsername, setAuthUsername] = useState('');
 
   const { theme, currentTheme } = useTheme();
+  const { isOnline, connectionType } = useNetworkStatus();
 
   const [avatarBtnHover, setAvatarBtnHover] = useState(false);
   const [cancelBtnHover, setCancelBtnHover] = useState(false);
@@ -170,7 +172,10 @@ const ProfileEdit = () => {
         {imageUrl && (
           <Image src={imageUrl} alt="avatar" width={100} height={100} style={{ borderRadius: '50%', objectFit: 'cover' }} />
         )}
-          <Text className={currentTheme === 'default' ? 'text-green-600 mt-2 ' : 'mt-2'} style={currentTheme !== 'default' ? { color: theme.text } : {}}>Active</Text>
+          <Text className={currentTheme === 'default' ? (isOnline ? 'text-green-600 mt-2' : 'text-red-600 mt-2') : 'mt-2'} style={currentTheme !== 'default' ? { color: isOnline ? '#22c55e' : '#ef4444' } : {}}>
+            {isOnline ? 'Active' : 'Inactive'}
+            {connectionType && connectionType !== 'unknown' ? ` (${connectionType})` : ''}
+          </Text>
           <Divider style={currentTheme !== 'default' ? {borderColor: theme.text} : {borderColor: '#072C1C'}}><Title level={4} 
           className="text-neutral-700" style={currentTheme !== 'default' ? { color: theme.text } : {}}>{username}</Title></Divider>
       </div>

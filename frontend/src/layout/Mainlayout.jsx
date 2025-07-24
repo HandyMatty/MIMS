@@ -8,6 +8,7 @@ import {
   UserOutlined,
   LogoutOutlined,
   MenuOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -53,6 +54,7 @@ const MainLayout = () => {
   const adminItems = [
     { label: 'Dashboard', key: '/admin/dashboard', icon: <DashboardOutlined style={{ fontSize: '20px' }} /> },
     { label: 'Inventory', key: '/admin/inventory', icon: <AppstoreOutlined style={{ fontSize: '20px' }} /> },
+    { label: 'Procurement', key: '/admin/procurement', icon: <ToolOutlined style={{ fontSize: '20px' }} /> },
     { label: 'History', key: '/admin/history', icon: <HistoryOutlined style={{ fontSize: '20px' }} /> },
     { label: 'QR Code', key: '/admin/qrcode', icon: <QrcodeOutlined style={{ fontSize: '20px' }} /> },
     { label: 'Users', key: '/admin/users', icon: <UserOutlined style={{ fontSize: '20px' }} /> },
@@ -61,6 +63,7 @@ const MainLayout = () => {
   const userItems = [
     { label: 'Dashboard', key: '/user/dashboard', icon: <DashboardOutlined style={{ fontSize: '20px' }} /> },
     { label: 'Inventory', key: '/user/inventory', icon: <AppstoreOutlined style={{ fontSize: '20px' }} /> },
+    { label: 'Procurement', key: '/user/procurement', icon: <ToolOutlined style={{ fontSize: '20px' }} /> },
     { label: 'History', key: '/user/history', icon: <HistoryOutlined style={{ fontSize: '20px' }} /> },
     { label: 'QR Code', key: '/user/qrcode', icon: <QrcodeOutlined style={{ fontSize: '20px' }} /> },
   ];
@@ -68,6 +71,7 @@ const MainLayout = () => {
   const guestItems = [
     { label: 'Dashboard', key: '/guest/dashboard', icon: <DashboardOutlined style={{ fontSize: '20px' }} /> },
     { label: 'Inventory', key: '/guest/inventory', icon: <AppstoreOutlined style={{ fontSize: '20px' }} /> },
+    { label: 'Procurement', key: '/guest/procurement', icon: <ToolOutlined style={{ fontSize: '20px' }} /> },
     { label: 'History', key: '/guest/history', icon: <HistoryOutlined style={{ fontSize: '20px' }} /> },
     { label: 'QR Code', key: '/guest/qrcode', icon: <QrcodeOutlined style={{ fontSize: '20px' }} /> },
   ];
@@ -207,31 +211,37 @@ const MainLayout = () => {
           return;
         }
       } catch (error) {
-        if (error.code === 'ERR_NETWORK' || 
-            error.message === 'Network Error' || 
-            !navigator.onLine ||
-            error.response?.status === 0) {
-          return;
+        console.error("Token check error:", error);
+        if (error.response && error.response.status === 401) {
+          message.warning('You have been logged out due to a session error.', 3);
+          setLoading(true);
+          setTimeout(async () => {
+            logUserActivity(username, "Logout", `User ${username} was automatically logged out due to invalid token (401).`);
+            const role = adminAuth.token ? "admin" : userAuth.token ? "user" : guestAuth.token ? "guest" : null;
+            if (role) await logoutUser(role);
+            adminAuth.reset();
+            userAuth.reset();
+            guestAuth.reset();
+            sessionStorage.clear();
+            localStorage.clear();
+            const allCookies = Cookies.get();
+            Object.keys(allCookies).forEach((cookieName) => {
+              if (cookieName.startsWith('authToken_')) {
+                Cookies.remove(cookieName, { path: '/' });
+              }
+            });
+            navigate("/login", { replace: true });
+          }, 1000);
+        } else if (
+          error.code === 'ERR_NETWORK' ||
+          error.message === 'Network Error' ||
+          !navigator.onLine ||
+          error.response?.status === 0
+        ) {
+          message.warning('Network error or offline. Session check will retry.', 3);
+        } else {
+          message.warning('Temporary error checking session. Will retry.', 3);
         }
-        message.warning('You have been logged out due to a session error.', 3);
-        setLoading(true);
-        setTimeout(async () => {
-          logUserActivity(username, "Logout", `User ${username} was automatically logged out due to invalid token.`);
-          const role = adminAuth.token ? "admin" : userAuth.token ? "user" : guestAuth.token ? "guest" : null;
-          if (role) await logoutUser(role);
-          adminAuth.reset();
-          userAuth.reset();
-          guestAuth.reset();
-          sessionStorage.clear();
-          localStorage.clear();
-          const allCookies = Cookies.get();
-          Object.keys(allCookies).forEach((cookieName) => {
-            if (cookieName.startsWith('authToken_')) {
-              Cookies.remove(cookieName, { path: '/' });
-            }
-          });
-          navigate("/login", { replace: true });
-        }, 1000);
       }
     };
 

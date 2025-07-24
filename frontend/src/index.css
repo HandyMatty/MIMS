@@ -360,7 +360,7 @@ input[type="password"]::-ms-reveal {
 }
 
 .custom-tabs .ant-tabs-tab-active {
-  background-color: var(--theme-text-light, #d9f99d) !important;
+  background-color: var(--theme-card-head-bg, #d9f99d) !important;
 }
 
 .custom-tabs .ant-tabs-tab-btn {
@@ -576,7 +576,7 @@ body {
 }
 
 .ant-spin-container {
-  background-color: var(--theme-spin-bg, transparent) !important;
+  background-color: transparent !important;
 }
 .theme-aware-alert .ant-alert-info {
   background-color: var(--theme-component-bg, #5fe7a7) !important;

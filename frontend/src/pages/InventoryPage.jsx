@@ -40,6 +40,7 @@ const InventoryPage = () => {
   const [inventoryData, setInventoryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastSyncTime, setLastSyncTime] = useState(null);
 
   useEffect(() => {
     const initializeInventory = async () => {
@@ -57,6 +58,7 @@ const InventoryPage = () => {
         ]).then(([, data]) => {
           setInventoryData(data);
           setError(null);
+          setLastSyncTime(Date.now());
         });
       } catch (error) {
         console.error('Error initializing inventory:', error);
@@ -78,6 +80,20 @@ const InventoryPage = () => {
   const memoizedLoading = useMemo(() => loading, [loading]);
   const memoizedError = useMemo(() => error, [error]);
 
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      const data = await getInventoryData();
+      setInventoryData(data);
+      setLastSyncTime(Date.now());
+      setError(null);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (memoizedLoading) {
     return <InventorySkeleton />;
   }
@@ -88,8 +104,11 @@ const InventoryPage = () => {
         <Suspense fallback={<InventorySkeleton />}>
           <InventoryTable 
             inventoryData={memoizedInventoryData}
+            setInventoryData={setInventoryData}
             loading={memoizedLoading}
             error={memoizedError}
+            lastSyncTime={lastSyncTime}
+            onRefresh={handleRefresh}
           />
         </Suspense>
       </div>

@@ -14,30 +14,37 @@ import {
 } from '../../utils/cacheUtils';
 import { getInventoryData } from '../../services/api/addItemToInventory';
 import { isOffline } from '../../utils/offlineUtils';
+import { useTheme } from '../../utils/ThemeContext';
 
 const { Option } = Select;
 
-const QrCodeTableSkeleton = () => (
-  <div className="w-full h-full mx-auto rounded-xl shadow border-none p-8 table-skeleton">
-    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
-      {[...Array(5)].map((_, index) => (
-        <div key={index} className="h-8 bg-gray-300 rounded w-20 animate-pulse"></div>
-      ))}
-    </div>
-    <div className="w-auto overflow-x-auto">
-      <div className="table-skeleton">
-        <div className="table-skeleton-row rounded mb-2 bg-gray-300 animate-pulse"></div>
+const QrCodeTableSkeleton = () => {
+  const { theme, currentTheme } = useTheme();
+  const skeletonColor = currentTheme !== 'default' ? theme.border || '#d1d5db' : '#d1d5db';
+  const bgColor = currentTheme !== 'default' ? theme.componentBackground || '#A8E1C5' : '#A8E1C5';
+
+  return (
+    <div className="w-full h-full mx-auto rounded-xl shadow border-none p-8 table-skeleton" style={{ backgroundColor: bgColor }}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
         {[...Array(5)].map((_, index) => (
-          <div key={index} className="table-skeleton-row rounded mb-2 bg-gray-300 animate-pulse"></div>
+          <div key={index} className="h-8 rounded w-20 animate-pulse" style={{ backgroundColor: skeletonColor }}></div>
         ))}
       </div>
+      <div className="w-auto overflow-x-auto">
+        <div className="table-skeleton">
+          <div className="table-skeleton-row rounded mb-2 animate-pulse" style={{ backgroundColor: skeletonColor }}></div>
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="table-skeleton-row rounded mb-2 animate-pulse" style={{ backgroundColor: skeletonColor }}></div>
+          ))}
+        </div>
+      </div>
+      <div className="flex justify-between items-center mt-4">
+        <div className="h-4 rounded w-32 animate-pulse" style={{ backgroundColor: skeletonColor }}></div>
+        <div className="h-8 rounded w-48 animate-pulse" style={{ backgroundColor: skeletonColor }}></div>
+      </div>
     </div>
-    <div className="flex justify-between items-center mt-4">
-      <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
-      <div className="h-8 bg-gray-300 rounded w-48 animate-pulse"></div>
-    </div>
-  </div>
-);
+  );
+};
 
 const QrCodeTable = ({ inventoryData = [], loading = false, error = null, onRefresh, onItemSelect, lastSyncTime }) => {
   const [searchText, setSearchText] = useState('');

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Button, Table, Input, Select, DatePicker, App, Checkbox, Space, Divider } from 'antd';
+import { Modal, Button, Table, Input, Select, DatePicker, App, Checkbox } from 'antd';
 import { InputNumber } from 'antd';
 import dayjs from 'dayjs';
 import { getInventoryData } from '../../services/api/addItemToInventory';

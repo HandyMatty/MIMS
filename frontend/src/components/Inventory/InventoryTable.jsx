@@ -60,7 +60,8 @@ const TableContent = React.memo(({
   loading,
   isRefreshing,
   mobileExpandableConfig,
-  searchInputProps
+  searchInputProps,
+  onRefresh,
 }) => (
   <>
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
@@ -132,7 +133,7 @@ const TableContent = React.memo(({
           <Option value="Oldest"><span className="text-xs">Oldest</span></Option>
         </Select>
         <Button 
-          onClick={handleFullRefresh} 
+          onClick={onRefresh} 
           className={isMobile ? "w-auto custom-button text-xs" : "custom-button w-auto text-xs"}
           type="default"
           size="small"
@@ -182,7 +183,7 @@ const TableContent = React.memo(({
   </>
 ));
 
-const InventoryTable = ({ inventoryData: propInventoryData, setInventoryData, loading }) => {
+const InventoryTable = ({ inventoryData: propInventoryData, setInventoryData, loading, lastSyncTime, onRefresh }) => {
   const { message } = App.useApp();
   const { isOffline: isNetworkOffline } = useNetworkStatus();
   const [tableKey, setTableKey] = useState(0);
@@ -232,7 +233,6 @@ const InventoryTable = ({ inventoryData: propInventoryData, setInventoryData, lo
     setIsRedistributeModalVisible,
     editingItem,
     isRefreshing,
-    lastSyncTime,
     activeTab,
     isAdmin,
     userRole,
@@ -697,12 +697,12 @@ const batchMenuItems = useMemo(() => {
 
   return (
     <Card
+      variant='borderless'
       title={
         <span className="font-bold flex justify-center text-lgi md:text-base lg:text-lgi xl:text-xl">
           INVENTORY
         </span>
       }
-      className="flex flex-col w-full mx-auto bg-[#A8E1C5] rounded-xl shadow border-none"
     >
       {isProduction && isNetworkOffline && (
         <Alert
@@ -771,6 +771,7 @@ const batchMenuItems = useMemo(() => {
             isRefreshing={isRefreshing}
             mobileExpandableConfig={memoizedTableData.mobileExpandableConfig}
             searchInputProps={searchInputProps}
+            onRefresh={onRefresh}
           />
         </SearchContext.Provider>
       </div>
